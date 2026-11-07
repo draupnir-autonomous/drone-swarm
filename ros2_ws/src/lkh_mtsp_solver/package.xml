@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>lkh_mtsp_solver</name>
+  <version>0.0.1</version>
+  <description>
+    LKH-3 based (A)CVRP/MTSP solver, invoked as a standalone rclcpp node
+    (mtsp_node) exposing the /solve_tsp_&lt;id&gt; and /solve_acvrp_&lt;id&gt;
+    services used by exploration_manager for grid/frontier task allocation.
+    This is the solver actually used at runtime (the sibling lkh_tsp_solver
+    package in the original ROS1 repo builds a plain-TSP tsp_node that is
+    never wired into any launch file - its add_executable is commented out
+    in its own CMakeLists.txt - so it was not ported).
+  </description>
+  <maintainer email="fabiofraschetti99@gmail.com">fabio</maintainer>
+  <license>GPL-3.0</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>rclcpp</depend>
+  <depend>c2x_msgs</depend>
+  <depend>ament_index_cpp</depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

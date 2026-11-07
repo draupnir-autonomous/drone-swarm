@@ -1,0 +1,7 @@
+Cartella volutamente vuota.
+
+I file del solver LKH (.par, .atsp, .tour) sono temporanei: l'esplorazione li
+riscrive a ogni ciclo. Il launch li fa scrivere in /tmp/c2x_lkh, non qui: con
+--symlink-install questa cartella e' un collegamento ai sorgenti, e ogni run
+modificava file del codice inserendovi percorsi assoluti della macchina.
+La cartella resta perche' il CMakeLists la installa.

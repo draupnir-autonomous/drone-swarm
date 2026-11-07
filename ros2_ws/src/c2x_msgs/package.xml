@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>c2x_msgs</name>
+  <version>0.0.1</version>
+  <description>
+    Consolidated custom messages/services for the C2-Explorer ROS2 port.
+    ROS1 scattered these across bspline/msg, plan_env/msg,
+    exploration_manager/msg and lkh_tsp_solver/srv (a common catkin
+    workaround for circular deps); in ROS2 that fragmentation isn't needed,
+    so they're consolidated here. Covers both the single-UAV subset
+    (PositionCommand, Bspline, SolveTSP) and the multi-UAV messages
+    (DroneState, MeetingOpt, MeetingOptResponse, Heartbeat, IdxList,
+    ChunkStamps, ChunkData).
+  </description>
+  <maintainer email="fabiofraschetti99@gmail.com">fabio</maintainer>
+  <license>GPL-3.0</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <buildtool_depend>rosidl_default_generators</buildtool_depend>
+
+  <depend>std_msgs</depend>
+  <depend>geometry_msgs</depend>
+  <depend>builtin_interfaces</depend>
+
+  <exec_depend>rosidl_default_runtime</exec_depend>
+  <member_of_group>rosidl_interface_packages</member_of_group>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

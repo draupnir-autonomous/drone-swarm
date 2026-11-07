@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  Profilo Fast DDS per lo stack di simulazione (caricato da run_multi_exploration.sh
+  con FASTRTPS_DEFAULT_PROFILES_FILE).
+
+  PERCHE': una scansione del lidar simulato sono 19200 punti, ~600-700 KB. Fast DDS
+  passa fra processi della stessa macchina in memoria condivisa solo i messaggi
+  che stanno nel segmento (512 KB di default); quelli piu' grandi ripiegano su UDP,
+  spezzati in frammenti. FAST-LIO si iscrive al lidar in "best effort": basta un
+  frammento perso per perdere l'intera scansione, e sotto carico se ne perdono a
+  raffica. Misurato senza questo profilo: ogni run senza GPS aveva 14-35 buchi
+  oltre 0.5 s nella visione esterna verso PX4 (massimo 1.5-3.0 s); oltre ~1 s EKF2
+  perde la posizione e PX4 scende alla cieca, e un buco di 2.3 s ha preceduto un
+  ribaltamento (5 ottobre 2026).
+
+  Il segmento da 16 MB fa stare in memoria condivisa intere scansioni (anche piu'
+  in coda); UDP resta per le comunicazioni con altre macchine.
+
+  JETSON ORIN NANO (ottobre 2026): 32 MB e messaggi fino a 4 MB, i valori validati
+  sul Jetson (Porting_Jetson_changes.pdf, sezione 4). Li' senza profilo arrivavano a
+  FAST-LIO ~3 scansioni/s su 10 (Gazebo 9.3 Hz -> ros_gz_bridge 3.6 Hz -> adattatore
+  1.8 Hz) e il drone senza GPS derivava fino a urtare; con il profilo 10.0 Hz su
+  entrambi gli stadi. Costo: ~35 MB di /dev/shm per processo (~0.5 GB con un drone).
+  Ne basterebbero 8 MB (scansione 0.6 MB, coda piu' profonda 5) se la RAM stringe.
+-->
+<profiles xmlns="http://www.eprosima.com/XMLSchemas/fastRTPS_Profiles">
+  <transport_descriptors>
+    <transport_descriptor>
+      <transport_id>shm_grande</transport_id>
+      <type>SHM</type>
+      <segment_size>33554432</segment_size>
+      <maxMessageSize>4194304</maxMessageSize>
+    </transport_descriptor>
+    <transport_descriptor>
+      <transport_id>udp</transport_id>
+      <type>UDPv4</type>
+    </transport_descriptor>
+  </transport_descriptors>
+  <participant profile_name="c2x_partecipante" is_default_profile="true">
+    <rtps>
+      <userTransports>
+        <transport_id>shm_grande</transport_id>
+        <transport_id>udp</transport_id>
+      </userTransports>
+      <useBuiltinTransports>false</useBuiltinTransports>
+    </rtps>
+  </participant>
+</profiles>

@@ -1,0 +1,3 @@
+param set UXRCE_DDS_SYNCT 0
+param set BAT1_V_DIV 18.922
+param save

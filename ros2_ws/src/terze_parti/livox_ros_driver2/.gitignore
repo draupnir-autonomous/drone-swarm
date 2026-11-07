@@ -1,0 +1,5 @@
+.vscode
+build
+# C2-Explorer (7 nov 2026): package.xml NON va ignorato. Upstream lo genera build.sh, che qui non si
+# usa (cancella build/ e install/ di tutto il workspace): senza, colcon non trova il pacchetto.
+__pycache__

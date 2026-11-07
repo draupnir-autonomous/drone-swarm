@@ -1,0 +1,36 @@
+<?xml version="1.0" ?>
+<sdf version="1.6">
+  <model name="hatchback">
+    <static>true</static>
+    <link name="link">
+      <collision name="collision">
+        <pose>0 0 0 0 0 1.57079632679</pose>
+        <geometry>
+          <mesh>
+            <scale>0.0254 0.0254 0.0254</scale>
+            <uri>model://hatchback/meshes/hatchback.obj</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <!-- INIZIO per_lidar: GENERATO DA scripts/make_parco.py (geometrie_per_lidar) -->
+      <!-- La collisione come la deve vedere il lidar: vedi la funzione in make_parco.py. -->
+      <visual name="per_lidar">
+        <pose>0 0 0 0 0 1.57079632679</pose>
+        <cast_shadows>false</cast_shadows>
+        <geometry><mesh><uri>model://hatchback/meshes/hatchback_lidar.dae</uri><scale>0.0254 0.0254 0.0254</scale></mesh></geometry>
+        <material><diffuse>0.5 0.5 0.5 1</diffuse></material>
+        <transparency>1.0</transparency>
+      </visual>
+      <!-- FINE per_lidar -->
+      <visual name="visual">
+        <pose>0 0 0 0 0 1.57079632679</pose>
+        <geometry>
+          <mesh>
+            <scale>0.0254 0.0254 0.0254</scale>
+            <uri>model://hatchback/meshes/hatchback.obj</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+  </model>
+</sdf>

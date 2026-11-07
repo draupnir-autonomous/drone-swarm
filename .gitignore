@@ -1,0 +1,43 @@
+# ---------------------------------------------------------------------------------------------
+# Cosa NON va su GitHub. Regola: si versiona cio' che serve per ripartire su un'altra macchina;
+# tutto cio' che si rigenera (build) o e' troppo pesante (dati delle prove) resta locale.
+# ---------------------------------------------------------------------------------------------
+
+# --- build: si rifanno su ogni macchina (Jetson aarch64, PC A/B x86_64) ---
+ros2_ws/build/
+ros2_ws/install/
+ros2_ws/log/
+ros2_ws/_vecchia_build_*/
+/_vecchia_build_*/
+terze_parti/Livox-SDK2/build/
+__pycache__/
+*.pyc
+
+# --- dipendenze upstream: le scarica tools/setup_macchina.sh ---
+# PX4 v1.17.0: le modifiche del progetto viaggiano in patches/px4/ (tools/px4_patch.sh)
+/PX4-Autopilot/
+# Micro-XRCE-DDS-Agent v3.0.1, nessuna modifica locale
+/Micro-XRCE-DDS-Agent/
+# SDK Livox COMPILATO (dipende dall'architettura): si ricompila da terze_parti/Livox-SDK2
+/terze_parti/livox_sdk2/
+
+# --- dati delle prove: in git solo i riassunti testuali; ulg, ply, pcd, png, log restano locali ---
+/risultati_prova/**
+!/risultati_prova/**/
+!/risultati_prova/**/*.txt
+!/risultati_prova/**/*.md
+!/risultati_prova/**/*.json
+!/risultati_prova/**/*.yaml
+!/risultati_prova/**/*.csv
+*.ulg
+*.mp4
+*.bag
+*.db3
+*.mcap
+
+# --- locale alla macchina (Claude e git) ---
+CLAUDE.local.md
+.claude/settings.local.json
+.claude/macchina
+patches/px4/backup/
+/_git_annidati_backup/

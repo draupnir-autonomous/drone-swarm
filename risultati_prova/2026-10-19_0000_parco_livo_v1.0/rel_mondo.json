@@ -1,0 +1,13 @@
+{
+ "nome": "parco",
+ "origine": "/home/draupnir/Documents/Drone_20261018_P/ros2_ws/src/c2x_worlds/worlds/parco.sdf",
+ "droni": 1,
+ "tarato": true,
+ "config_origine": "multi_drone_parco.yaml",
+ "partenze": [
+  "-13.000,-5.500,0.227,0,0,0.0000"
+ ],
+ "avvisi": [],
+ "sdf": "/tmp/c2x_run_multi/mondo/parco.sdf",
+ "config": "/tmp/c2x_run_multi/mondo/config.yaml"
+}

@@ -1,0 +1,10 @@
+[13:38] office_small, 1 droni, VISITA=1
+[13:43] office_small, 3 droni, VISITA=1
+[13:59] office_small, 1 droni, VISITA=0
+[14:04] office_small, 3 droni, VISITA=0
+[14:18] empty_room, 1 droni, VISITA=1
+[14:26] empty_room, 3 droni, VISITA=1
+[14:46] empty_room, 1 droni, VISITA=0
+[14:51] empty_room, 3 droni, VISITA=0
+[15:06] open_field, 1 droni, VISITA=1
+[15:17] campagna interrotta: correzione dello scambio delle mappe

@@ -1,0 +1,26 @@
+23:03:14 Collaudo C2-Explorer (DRONE VERO) - registro in /home/draupnir/Documents/Drone_20261018_P/ros2_ws/scripts/collaudo/collaudo_registri/2026-10-19_230314_reale
+23:03:23 == FASE 1: sensori ==
+23:03:23 /livox/lidar: livox_ros_driver2/msg/CustomMsg
+23:03:23 /livox/imu: sensor_msgs/msg/Imu
+23:03:23 /camera/image_raw: sensor_msgs/msg/Image
+23:03:23 Misuro per 5 s...
+23:03:28 lidar /livox/lidar: 10.0 Hz (atteso ~10)
+23:03:28 IMU /livox/imu: 200 Hz (atteso >= 100), accelerazione a riposo 0.99 (1.00 se in g come il Mid-360, 9.81 se in m/s2)
+23:03:28 telecamera /camera/image_raw: 7.0 Hz (serve solo alla mappa colorata)
+23:03:28 FASE 1: SUPERATA - lidar 10.0 Hz, imu 200 Hz, acc 0.99, camera 7.0 Hz
+23:03:36 == FASE 2: FAST-LIO a drone fermo ==
+23:03:36 Drone appoggiato a terra in piano, NESSUNO lo tocca. Misuro per 30 s...
+23:04:06 stima a 10.0 Hz, deriva in 30 s 0.3 cm (massima escursione 0.5 cm), punti agganciati minimi 1554
+23:04:06 FASE 2: SUPERATA - 10.0 Hz, escursione 0.5 cm, agganciati min 1554
+23:04:30 == FASE 3: assi e stima dentro PX4 (drone mosso A MANO, motori spenti) ==
+23:04:30 EKF2 usa la visione: {'cs_ev_pos': True, 'cs_ev_hgt': True, 'cs_ev_yaw': True}; posizione PX4 valida xy=True z=True
+23:04:30 a riposo: posizione PX4 - FAST-LIO 1.0 cm, rollio 0.3 gradi, beccheggio 3.0 gradi di differenza
+23:04:51   inclinazione sotto gli 8 gradi: ripeti la fase
+23:05:21   inclinazione sotto gli 8 gradi: ripeti la fase
+23:06:02   in avanti: PX4 65 cm, FAST-LIO 64 cm -> OK
+23:06:28   rotazione: PX4 +25 gradi, FAST-LIO +5 gradi (attesi circa -90 in NED) -> SBAGLIATO
+23:06:28 FASE 3: NON SUPERATA - riposo False, prove [False, False, True, False]
+23:07:00 == FASE 3: assi e stima dentro PX4 (drone mosso A MANO, motori spenti) ==
+23:07:00 EKF2 usa la visione: {'cs_ev_pos': True, 'cs_ev_hgt': True, 'cs_ev_yaw': True}; posizione PX4 valida xy=True z=True
+23:07:00 a riposo: posizione PX4 - FAST-LIO 0.9 cm, rollio 1.9 gradi, beccheggio 3.8 gradi di differenza
+23:07:25   inclinazione sotto gli 8 gradi: ripeti la fase

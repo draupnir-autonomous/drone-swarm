@@ -1,0 +1,11 @@
+# C2-Explorer (7 nov 2026): le cartelle di Log/ servono a FAST-LIVO2 in esecuzione (ci scrive dentro),
+# quindi restano nel repo; si ignorano solo i risultati di esempio e i file scritti durante le run.
+Log/result/
+Log/*.csv
+Log/pcd/*
+Log/image/*
+!Log/pcd/.gitkeep
+!Log/image/.gitkeep
+log/
+build/*
+install/

@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sdf version="1.9">
+  <model name="x500_mid360">
+    <include merge="true">
+      <uri>x500</uri>
+    </include>
+
+    <link name="lidar_sensor_link">
+      <pose relative_to="base_link">0 0 0.25 0 0 0</pose>
+      <inertial>
+        <mass>0.08</mass>
+        <inertia>
+          <ixx>0.00002</ixx>
+          <iyy>0.00002</iyy>
+          <izz>0.00002</izz>
+          <ixy>0.0</ixy>
+          <ixz>0.0</ixz>
+          <iyz>0.0</iyz>
+        </inertia>
+      </inertial>
+
+      <!-- IMU CO-LOCATA COL LIDAR, per l'odometria lidar-inerziale.
+           Sta dentro lidar_sensor_link e nella stessa posa del lidar (0 0 0),
+           quindi gli estrinseci IMU->lidar sono l'IDENTITA' e non c'e' nulla da
+           calibrare: e' anche com'e' fatto il MID-360 vero, che la IMU ce l'ha
+           integrata.
+           NON si usa quella di PX4 per una ragione che conta piu' della
+           comodita': il tempo. La nuvola del lidar e' marcata con l'orologio
+           della SIMULAZIONE, mentre cio' che arriva da PX4 passa per l'agente
+           DDS e vive sull'orologio di parete (vedi la nota in
+           cloud_transform_bridge). Un'odometria lidar-inerziale integra i due
+           flussi assumendoli nello stesso dominio temporale: mescolarli fa
+           divergere la stima in un modo che sembra un problema di taratura e
+           non lo e'. Prendendo anche la IMU da Gazebo, i due sensori
+           condividono l'orologio per costruzione.
+           200 Hz: FAST-LIO integra fra una scansione e l'altra, e a 10 Hz di
+           lidar servono almeno una ventina di campioni inerziali per intervallo.
+           I rumori sono quelli tipici di una IMU MEMS da drone; contano perche'
+           finiscono nei parametri acc_cov/gyr_cov del filtro. -->
+      <sensor name="lidar_imu" type="imu">
+        <gz_frame_id>lidar_sensor_link</gz_frame_id>
+        <pose relative_to="lidar_sensor_link">0 0 0 0 0 0</pose>
+        <update_rate>200</update_rate>
+        <always_on>1</always_on>
+        <imu>
+          <angular_velocity>
+            <x><noise type="gaussian"><mean>0.0</mean><stddev>0.0009</stddev>
+              <bias_mean>0.0000075</bias_mean><bias_stddev>0.0000008</bias_stddev></noise></x>
+            <y><noise type="gaussian"><mean>0.0</mean><stddev>0.0009</stddev>
+              <bias_mean>0.0000075</bias_mean><bias_stddev>0.0000008</bias_stddev></noise></y>
+            <z><noise type="gaussian"><mean>0.0</mean><stddev>0.0009</stddev>
+              <bias_mean>0.0000075</bias_mean><bias_stddev>0.0000008</bias_stddev></noise></z>
+          </angular_velocity>
+          <linear_acceleration>
+            <x><noise type="gaussian"><mean>0.0</mean><stddev>0.021</stddev>
+              <bias_mean>0.05</bias_mean><bias_stddev>0.005</bias_stddev></noise></x>
+            <y><noise type="gaussian"><mean>0.0</mean><stddev>0.021</stddev>
+              <bias_mean>0.05</bias_mean><bias_stddev>0.005</bias_stddev></noise></y>
+            <z><noise type="gaussian"><mean>0.0</mean><stddev>0.021</stddev>
+              <bias_mean>0.05</bias_mean><bias_stddev>0.005</bias_stddev></noise></z>
+          </linear_acceleration>
+        </imu>
+      </sensor>
+
+      <sensor name="mid360" type="gpu_lidar">
+        <gz_frame_id>lidar_sensor_link</gz_frame_id>
+        <pose relative_to="lidar_sensor_link">0 0 0 0 0 0</pose>
+        <!-- No explicit <topic>: with several drones every instance of this
+             model would publish to the same fixed gz topic and the clouds
+             would interleave. Left unset, gz derives a topic that already
+             contains the spawned model name (PX4 names instance i
+             "x500_mid360_<i>"), i.e.
+             /world/<world>/model/x500_mid360_<i>/link/lidar_sensor_link/sensor/mid360/scan/points
+             which is unique per vehicle. exploration_manager's launch file
+             bridges that into each drone's own <ns>/lidar/points. -->
+        <update_rate>10</update_rate>
+        <always_on>1</always_on>
+        <visualize>true</visualize>
+        <ray>
+          <scan>
+            <horizontal>
+              <!-- 180 -> 300 samples (2.00 deg -> 1.20 deg per ray). At 2 deg the
+                   gap between adjacent rays exceeded one 0.1m voxel beyond only
+                   2.9m of range (35cm of unsampled gap at 10m), so the map was
+                   sampling-limited, not resolution-limited: halving the voxel
+                   size would have added cells no ray ever touches. 300x64 is
+                   192k points/s, essentially the real Mid-360's ~200k. -->
+              <samples>300</samples>
+              <resolution>1</resolution>
+              <!-- max_angle = pi - 2*pi/300 (code review, ottobre 2026): gz-sensors
+                   spazia i raggi di (max-min)/(samples-1), quindi con -pi..+pi il primo e
+                   l'ultimo puntavano entrambi dritto dietro (64 punti doppi a scansione,
+                   passo vero 1.204 gradi). Cosi' 300 direzioni distinte a 1.20 gradi. -->
+              <min_angle>-3.141592653589793</min_angle>
+              <max_angle>3.120648703</max_angle>
+            </horizontal>
+            <vertical>
+              <samples>64</samples>
+              <resolution>1</resolution>
+              <!-- Symmetric +/-50deg (100deg total span), 64 samples =
+                   1.56deg/sample (was 48 = 2.08deg). Kept in sync with
+                   perception_utils.lidar_top_angle/lidar_bottom_angle in
+                   exploration_manager's config yaml - those describe the
+                   *algorithm's* internal model of this same sensor for
+                   viewpoint/frontier visibility scoring, and drift between
+                   the two causes the exploration FSM to misjudge which
+                   viewpoints are informative (this has broken exploration
+                   before - keep both edited together). -->
+              <min_angle>-0.8726646259971648</min_angle>
+              <max_angle>0.8726646259971648</max_angle>
+            </vertical>
+          </scan>
+          <range>
+            <min>0.1</min>
+            <max>55.0</max>
+            <resolution>0.01</resolution>
+          </range>
+          <noise>
+            <type>gaussian</type>
+            <mean>0.0</mean>
+            <stddev>0.01</stddev>
+          </noise>
+        </ray>
+      </sensor>
+    </link>
+
+    <joint name="lidar_sensor_joint" type="fixed">
+      <parent>base_link</parent>
+      <child>lidar_sensor_link</child>
+    </joint>
+
+    <!-- Telecamera frontale: serve SOLO a registrare un video da cui generare
+         a posteriori una ricostruzione 3D densa (LingBot-Map e simili). Non
+         entra in nessun anello di controllo o di pianificazione: l'esplorazione
+         continua a lavorare esclusivamente sul lidar.
+         Montata sopra il corpo e inclinata leggermente in basso (-0.15 rad,
+         ~8.6 gradi) perche' volando a 1 m di quota l'orizzonte occupa meta'
+         inquadratura e il pavimento vicino serve alla ricostruzione.
+         Risoluzione e frequenza tenute basse di proposito: ogni fotogramma e'
+         un rendering in piu' per Gazebo, che gia' fatica con tre droni su
+         questa macchina. 640x480 a 15 Hz e' sopra i 518x378 usati dal modello
+         di ricostruzione, quindi non e' il collo di bottiglia della qualita'. -->
+    <link name="camera_link">
+      <pose relative_to="base_link">0.10 0 0.12 0 0.15 0</pose>
+      <inertial>
+        <mass>0.02</mass>
+        <inertia>
+          <ixx>0.000005</ixx>
+          <iyy>0.000005</iyy>
+          <izz>0.000005</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <sensor name="front_camera" type="camera">
+        <gz_frame_id>camera_link</gz_frame_id>
+        <!-- Nessun <topic> esplicito, per la stessa ragione del lidar: con piu'
+             droni un nome fisso farebbe interlacciare i fotogrammi di tutti.
+             Lasciandolo derivare, gz include il nome del modello, che PX4 rende
+             unico per istanza (x500_mid360_<i>). -->
+        <!-- 5 Hz invece di 15: la mappa realistica (registra_mappa.py) usa al
+             massimo 2-3 fotogrammi chiave al secondo, e ogni fotogramma in piu'
+             e' rendering sottratto alla simulazione. -->
+        <update_rate>5</update_rate>
+        <always_on>0</always_on>
+        <visualize>false</visualize>
+        <camera>
+          <horizontal_fov>1.5708</horizontal_fov>
+          <image>
+            <width>640</width>
+            <height>480</height>
+            <format>R8G8B8</format>
+          </image>
+          <clip>
+            <near>0.05</near>
+            <far>50.0</far>
+          </clip>
+        </camera>
+      </sensor>
+    </link>
+
+    <joint name="camera_joint" type="fixed">
+      <parent>base_link</parent>
+      <child>camera_link</child>
+    </joint>
+  </model>
+</sdf>

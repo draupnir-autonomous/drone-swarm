@@ -1,0 +1,13 @@
+{
+ "nome": "empty_room",
+ "origine": "/home/draupnir/Documents/Drone_20261025_SWARM/ros2_ws/src/c2x_worlds/worlds/empty_room.sdf",
+ "droni": 1,
+ "tarato": true,
+ "config_origine": "multi_drone_empty_room.yaml",
+ "partenze": [
+  "0.000,-4.000,0.227,0,0,0.0000"
+ ],
+ "avvisi": [],
+ "sdf": "/tmp/c2x_run_multi/mondo/empty_room.sdf",
+ "config": "/tmp/c2x_run_multi/mondo/config.yaml"
+}

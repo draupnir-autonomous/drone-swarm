@@ -1,0 +1,298 @@
+# Multi-UAV scenario config. Keyed with the "/**" wildcard so the same file
+# applies to every exploration_node whatever /drone_N namespace it runs in
+# (nodes silently ignore parameters they never declare, so traj_server and the
+# LKH solver nodes can share it too).
+#
+# exploration.drone_id / exploration.drone_num / the per-drone colours and the
+# save-map path are overridden per drone by multi_drone_exploration.launch.py.
+/**:
+  ros__parameters:
+    sdf_map.resolution: 0.1
+    sdf_map.map_size_x: 20.0
+    sdf_map.map_size_y: 20.0
+    sdf_map.map_size_z: 5.0
+    sdf_map.obstacles_inflation: 0.199
+    sdf_map.local_bound_inflate: 0.5
+    sdf_map.local_map_margin: 50
+    sdf_map.ground_height: -0.5
+    sdf_map.default_dist: 0.5
+    sdf_map.p_hit: 0.70
+    sdf_map.p_miss: 0.35
+    sdf_map.p_min: 0.12
+    sdf_map.p_max: 0.97
+    sdf_map.p_occ: 0.80
+    sdf_map.max_ray_length: 20.0
+    sdf_map.virtual_ceil_height: -10.0
+    sdf_map.optimistic: false
+    sdf_map.signed_dist: true
+    sdf_map.no_drone_1: false
+    # Box widened from +-9 to +-9.8: empty_room's walls are at +-10, so a box at
+    # +-9 left a 1m ring outside the explorable area that is never observed as
+    # free. Cells just inside the edge stayed permanently adjacent to unknown and
+    # kept regenerating frontiers - a drone would sit in a 30x30cm patch closing
+    # the same speck over and over (75 replan cycles against 'Find frontier
+    # tour, 1 involved').
+    sdf_map.box_min_x: -9.8
+    sdf_map.box_min_y: -9.8
+    sdf_map.box_min_z: -0.5
+    sdf_map.box_max_x: 9.8
+    sdf_map.box_max_y: 9.8
+    # 4.0 -> 2.6 m. The drones cruise at ~1m and the mid360 spans +-50deg
+    # vertically, so a voxel at 4m is only observable from within 2.5m of it
+    # horizontally - a band under the ceiling that normal flight never covers.
+    # Declaring it explorable left unknown volume up there generating frontiers
+    # that could never be closed: a drone spent 150+ plan/execute cycles on one
+    # ("Find frontier tour, 1 involved") while its peers had finished. Saved
+    # maps top out near z=3.0, confirming nothing above was ever observed.
+    sdf_map.box_max_z: 2.6
+
+    map_ros.frame_id: "world"
+    map_ros.esdf_slice_height: 0.5
+    map_ros.visualization_truncate_height: 3.0
+    map_ros.visualization_truncate_low: -1.0
+    map_ros.use_local_only: true
+    map_ros.show_occ_time: true
+    map_ros.show_esdf_time: true
+    map_ros.show_all_map: true
+    map_ros.virtual_ground_enable: true
+    map_ros.virtual_ground_z: 0.0
+    map_ros.virtual_ground_stride: 1
+
+    fsm.thresh_replan1: 0.2
+    # 0.2 -> 0.7 s. This is the minimum time a drone must fly before a "cluster
+    # covered" event may abort the trajectory and force a replan. Upstream also
+    # uses 0.2, but upstream flies at 2.0 m/s, where 0.2s buys 40cm of committed
+    # travel; at our 0.6 m/s it buys 12cm. The result was a drone shuffling
+    # inside a 30x30cm patch - 47 of its 56 replans were "Replan: cluster
+    # covered", each aborting a trajectory 0.2s after starting it. Scaled by the
+    # speed ratio (0.2 * 2.0/0.6) so the committed distance matches upstream's.
+    fsm.thresh_replan2: 0.7
+    # Was 1.5s: at manager.max_vel=1.0 that's only ~1.5m of committed travel before a forced
+    # "periodic call" replan interrupts EXEC_TRAJ, even though manager.local_segment_length
+    # plans segments up to 6m long - the drone was basically never allowed to fly a segment
+    # to completion, constantly stopping to replan every ~1.5m. That short a leash, repeated
+    # over many cycles, is a likely contributor to the "keeps circling the same small area"
+    # pattern instead of covering new ground. 4.0s lets it commit closer to a full segment.
+    fsm.thresh_replan3: 4.0
+    fsm.replan_time: 0.20
+    fsm.attempt_interval: 0.5
+    fsm.meeting_opt_interval: 2.5
+    fsm.state_fresh_timeout: 1.2
+    fsm.opt_wait_timeout: 2.5
+    fsm.opt_retry_interval: 0.35
+    fsm.opt_retry_max: 4
+    fsm.opt_reject_backoff: 0.8
+    fsm.opt_reject_backoff_max: 2.5
+    fsm.repeat_send_num: 1
+    fsm.debug_opt_output: false
+    # No-progress watchdog: over a sliding window of no_progress_timeout
+    # seconds, a drone that gained less than no_progress_min_volume of newly
+    # explored space concludes the frontiers it still holds cannot be cleared
+    # from anywhere it can reach, and goes IDLE (-> FINISH). Without it a drone
+    # flies at the same unreachable frontier indefinitely - seen twice, 181 and
+    # 256 plan/execute cycles on a single frontier while the others had long
+    # finished.
+    #
+    # min_volume is in m3 and a voxel is 0.001 m3 (resolution 0.1), so 2.0 m3 =
+    # 2000 new voxels per window. The first version used 0.5 m3 = 500 voxels
+    # and never fired once: at 192k lidar points/s even a drone orbiting one
+    # spot scrapes that many new voxels, so the window kept sliding. A drone
+    # genuinely closing its last frontier cluster reveals far more than this.
+    # Keep the timeout well above the longest legitimate transit across the
+    # scene at manager.max_vel - during which the lidar is mapping new space
+    # anyway, so the window slides on its own. 0 disables the watchdog.
+    fsm.no_progress_timeout: 45.0
+    fsm.no_progress_min_volume: 2.0
+    # Errore di inseguimento oltre il quale si ripianifica dalla posizione reale
+    # invece che da quella predetta sulla traiettoria precedente. 0 = comportamento upstream.
+    # 0.5 -> 0.25 m. Across 10 measured runs the setpoint-lag counter separates
+    # good runs from bad ones cleanly: runs with fewer than ~20 clamp events
+    # finished with zero crashes, runs above ~30 produced one to two physical
+    # crashes each. Letting the vehicle drift half a metre behind its plan
+    # before re-anchoring leaves enough error for the optimizer's inter-drone
+    # margins to stop meaning anything. Correct it earlier.
+    fsm.replan_reanchor_dist: 0.25
+
+    color_r: 1.0
+    color_g: 0.0
+    color_b: 0.0
+    color_a: 1.0
+
+    partitioning.alpha_consistency: 1.15
+    partitioning.w_distance: 1.0
+    partitioning.w_global_dist_time: 1.0
+    partitioning.w_global_turn_time: 1.0
+    partitioning.w_global_z_change: 1.0
+    # First attempt at 4.5 (16 cells, matching reference/C2-Explorer's own density ratio -
+    # their cubicle_office.yaml uses grid_size=7.5 on a ~30x31m box, roughly box_size/4)
+    # coincided with an unrelated real bug: position_command_bridge was declaring
+    # velocity=true/acceleration=true in OffboardControlMode while PX4's position-only mode
+    # (velocity=false/acceleration=false) is what this project's own earlier working
+    # snapshot used - that mismatch, not the cell count, was what made flight erratic. With
+    # that bridge bug reverted, retrying the denser partition here.
+    partitioning.grid_size: 4.5
+    partitioning.use_swarm_tf: false
+    partitioning.ccl_step: 1
+
+    exploration.refine_local: true
+    exploration.refined_num: 7
+    exploration.refined_radius: 5.0
+    exploration.max_decay: 0.8
+    exploration.top_view_num: 15
+    # SPEED: 1.0 -> 0.6 m/s. Diagnostic for the tracking gap - the setpoint was
+    # ending up over a metre ahead of the vehicle ~24 times per run even with
+    # nothing freezing it, and the paper's whole inter-drone guarantee (the
+    # optimizer separating *trajectories* by swarm_safe_dist) only transfers to
+    # the real drones if tracking error stays well below that distance. If the
+    # lag is tracking saturation, this removes it at the root. Every velocity
+    # limit in the stack has to agree, otherwise the B-spline is time-scaled
+    # against one bound and flown against another.
+    exploration.vm: 0.6
+    exploration.am: 1.0
+    exploration.vz: 0.6
+    exploration.yd: 1.0471975512
+    exploration.ydd: 1.5707963268
+    exploration.w_dir: 1.5
+    exploration.tsp_dir: ""  # impostato dal launch (cartella di lavoro di LKH in /tmp)
+    exploration.mtsp_dir: ""  # impostato dal launch (cartella di lavoro di LKH in /tmp)
+    exploration.drone_num: 3
+    exploration.drone_id: 1
+    exploration.init_plan_num: 2
+    exploration.prob_type: 2
+    exploration.center_switch_penalty: 8.0
+    exploration.center_stay_bonus: 8.0
+
+    # --- Multi-UAV -----------------------------------------------------------
+    # r_comm from the paper (5 m): drones only coordinate - and only exchange
+    # map chunks - while within this distance of each other.
+    # COLLEGAMENTO RADIO DELLO SCIAME (ottobre 2026): 60 m senza linea di vista. Il modello
+    # del paper (r_comm 5-10 m, collegamento ottico) in un ufficio cade e torna di continuo
+    # (decine di cambi a run: i muri tagliano la linea di vista) e da scollegati i droni
+    # rivendicano le stesse celle; un Wi-Fi vero attraversa i divisori d'ufficio e copre
+    # edifici di questa taglia. Misurato a tre droni su office_small: cambi di collegamento da
+    # decine a 0. RAGGIO_RADIO e LINEA_VISTA nello script di run tornano al modello del paper.
+    communication.connection_threshold: 60.0
+    communication.line_of_sight: false
+    communication.neighbor_timeout: 2.0
+    communication.heartbeat_interval: 0.04
+
+    # Map-chunk exchange granularity. 200 voxel addresses per chunk keeps a
+    # single ChunkData message small; the partial flush makes sure the tail of
+    # a slow update still gets shipped instead of waiting for a full chunk.
+    # SCAMBIO DELLE MAPPE A PIENA PORTATA (sciame, ottobre 2026): 1500 celle per pezzo, 60
+    # pezzi per risposta, una risposta ogni 0.5 s per compagno = ~180 mila celle/s per coppia.
+    # Con 200/40/2 s ne passavano ~4000/s contro ~7700/s di celle nuove per drone su
+    # cubicle_office: mappe indietro (80-82% dell'unione a fine missione) e lavoro rifatto.
+    # Raffiche da ~450 KB, ben sotto quella da centinaia di pezzi che fece cadere FastDDS.
+    multi_map_manager.chunk_size: 1500
+    multi_map_manager.max_chunks_per_send: 60
+    multi_map_manager.stamp_reply_interval: 0.5
+    multi_map_manager.chunk_partial_flush_interval: 0.5
+
+    # 60 voxels at resolution 0.1 is 0.06 m3 - small enough that a drone will fly
+    # a full plan/execute cycle to close a speck. Raised so residual dust is left
+    # to the next pass instead of driving the FSM.
+    frontier.cluster_min: 150
+    frontier.cluster_size_xy: 3.0
+    frontier.cluster_size_z: 3.0
+    frontier.min_candidate_dist: 0.5
+    frontier.min_candidate_clearance: 0.11
+    frontier.candidate_dphi: 0.2617993878
+    frontier.candidate_rnum: 3
+    frontier.candidate_rmin: 0.5
+    frontier.candidate_rmax: 1.0
+    frontier.down_sample: 1
+    frontier.min_visib_num: 10
+    frontier.min_view_finish_fraction: 0.2
+
+    # Il sensore simulato e' 360 gradi in orizzontale (model.sdf: min_angle -pi,
+    # max_angle +pi). Qui il modello di visibilita' dichiarava invece +-60 gradi,
+    # cioe' uno spicchio frontale di 120: sottostimava le celle viste da ogni
+    # punto di vista e faceva calcolare un'imbardata "per guardare" la frontiera,
+    # che il sensore vedeva gia'. E ruotare COSTA: planTrajToView impone
+    # time_lb = angolo / yd, quindi 180 gradi a 1.047 rad/s vincolano la
+    # traiettoria ad almeno 3 s a prescindere dalla distanza da percorrere.
+    # Allineato al sensore reale: tutti gli orientamenti sono equivalenti.
+    perception_utils.lidar_pitch: 0.0
+    perception_utils.lidar_top_angle: 0.8726646259971648
+    perception_utils.lidar_bottom_angle: 0.8726646259971648
+    perception_utils.lidar_left_angle: 3.1415926536
+    perception_utils.lidar_right_angle: 3.1415926536
+    perception_utils.lidar_max_dist: 22.0
+    perception_utils.lidar_vis_dist: 1.0
+
+    manager.max_vel: 0.6
+    manager.max_acc: 1.0
+    manager.local_segment_length: 6.0
+    manager.control_points_distance: 0.5
+    manager.use_geometric_path: true
+    manager.use_kinodynamic_path: true
+    manager.use_optimization: true
+    manager.use_active_perception: true
+    manager.min_time: true
+    manager.relax_time1: 0.3
+    manager.relax_time2: 1.5
+    # Horizontal separation below which checkSwarmCollision declares a conflict
+    # and the higher-id drone yields. Was hardcoded at 0.5m, about the x500's
+    # own rotor span - i.e. it only fired once the two were already overlapping.
+    # Must stay BELOW optimization.swarm_safe_dist (1.2): the optimizer is what
+    # normally holds the drones apart, and this is the backstop for when it
+    # failed. Set above it and the backstop fires while the optimizer is
+    # perfectly happy, and the drones yield to each other continuously.
+    manager.swarm_clearance: 0.9
+    manager.max_yawdot: 2.0943951024
+
+    search.max_tau: 0.8
+    search.init_max_tau: 1.0
+    search.max_vel: 0.6
+    search.vel_margin: 0.25
+    search.max_acc: 1.0
+    search.w_time: 10.0
+    search.horizon: 5.0
+    search.lambda_heu: 10.0
+    search.resolution_astar: 0.025
+    search.time_resolution: 0.8
+    search.allocate_num: 100000
+    search.check_num: 10
+    search.optimistic: false
+
+    astar.lambda_heu: 10.0
+    astar.resolution_astar: 0.3
+    astar.allocate_num: 1000000
+    astar.max_search_time: 0.003
+
+    optimization.ld_smooth: 5.0
+    optimization.ld_dist: 10.0
+    optimization.ld_feasi: 2.0
+    optimization.ld_start: 100.0
+    optimization.ld_end: 0.5
+    optimization.ld_guide: 1.5
+    optimization.ld_waypt: 7.0
+    optimization.ld_view: 0.0
+    optimization.ld_time: 1.5
+    # --- Inter-drone avoidance -----------------------------------------------
+    # ld_swarm/swarm_safe_dist feed the B-spline optimizer's swarm term
+    # (calcSwarmCost): a soft repulsion evaluated on an ellipsoid that is 2.5x
+    # more tolerant vertically than horizontally, so it pushes drones apart
+    # sideways rather than stacking them. Raised from 5.0/1.0 - at that setting
+    # the term was routinely outweighed by ld_dist (10.0) and the drones flew
+    # through each other, then fought over the same space until one tipped over.
+    optimization.ld_swarm: 15.0
+    optimization.swarm_safe_dist: 1.2
+    optimization.dist0: 0.7
+    optimization.max_vel: 0.6
+    optimization.max_acc: 1.0
+    optimization.algorithm1: 15
+    optimization.algorithm2: 11
+    optimization.max_iteration_num1: 2
+    optimization.max_iteration_num2: 2000
+    optimization.max_iteration_num3: 200
+    optimization.max_iteration_num4: 200
+    optimization.max_iteration_time1: 0.0001
+    optimization.max_iteration_time2: 0.005
+    optimization.max_iteration_time3: 0.003
+    optimization.max_iteration_time4: 0.003
+
+    bspline.limit_vel: 0.6
+    bspline.limit_acc: 1.0
+    bspline.limit_ratio: 1.1

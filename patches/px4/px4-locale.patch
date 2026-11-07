@@ -1,0 +1,344 @@
+diff --git a/ROMFS/px4fmu_common/init.d-posix/airframes/CMakeLists.txt b/ROMFS/px4fmu_common/init.d-posix/airframes/CMakeLists.txt
+index 4cf4341..23aa10a 100644
+--- a/ROMFS/px4fmu_common/init.d-posix/airframes/CMakeLists.txt
++++ b/ROMFS/px4fmu_common/init.d-posix/airframes/CMakeLists.txt
+@@ -120,4 +120,5 @@ px4_add_romfs_files(
+ 	70000_gz_atmos
+ 
+ 	# [22000, 22999] Reserve for custom models
++	22000_gz_x500_mid360
+ )
+diff --git a/src/modules/simulation/gz_bridge/server.config b/src/modules/simulation/gz_bridge/server.config
+index 0001356..a81c084 100644
+--- a/src/modules/simulation/gz_bridge/server.config
++++ b/src/modules/simulation/gz_bridge/server.config
+@@ -14,7 +14,13 @@
+       <render_engine>ogre2</render_engine>
+     </plugin>
+     <plugin entity_name="*" entity_type="world" filename="libOpticalFlowSystem.so" name="custom::OpticalFlowSystem"/>
+-    <plugin entity_name="*" entity_type="world" filename="libGstCameraSystem.so" name="custom::GstCameraSystem"/>
++    <!-- GstCameraSystem TOLTO (C2-Explorer, 17 ottobre 2026): si iscrive a qualunque
++         telecamera del mondo (.../sensor/*/image) e la trasmette come video H.264 su
++         UDP 5600. Con la telecamera frontale dell'x500_mid360 la teneva sempre resa
++         (always_on=0 non bastava: c'era un iscritto) e la codificava con x264enc
++         (sul Jetson non c'e' nvh264enc), anche quando nessuno la usava. La telecamera
++         serve solo a colorare la mappa 3D (registra_mappa.py). -->
++    <!-- <plugin entity_name="*" entity_type="world" filename="libGstCameraSystem.so" name="custom::GstCameraSystem"/> -->
+     <!-- <plugin entity_name="*" entity_type="world" filename="libTemplatePlugin.so" name="custom::TemplateSystem"/> -->
+   </plugins>
+ </server_config>
+diff --git a/ROMFS/px4fmu_common/init.d-posix/airframes/22000_gz_x500_mid360 b/ROMFS/px4fmu_common/init.d-posix/airframes/22000_gz_x500_mid360
+new file mode 100644
+index 0000000..f615687
+--- /dev/null
++++ b/ROMFS/px4fmu_common/init.d-posix/airframes/22000_gz_x500_mid360
+@@ -0,0 +1,309 @@
++#!/bin/sh
++#
++# @name Gazebo x500 with Mid-360-like 3D LiDAR (C2-Explorer)
++#
++# @type Quadrotor
++#
++
++PX4_SIM_MODEL=${PX4_SIM_MODEL:=x500_mid360}
++
++. ${R}etc/init.d-posix/airframes/4001_gz_x500
++
++# LIMITI DI SICUREZZA COMUNI, con e senza GPS.
++#
++# Volo al chiuso a 0.6 m/s di crociera: i valori di serie di PX4 (12 m/s in
++# orizzontale, 3 m/s in salita, 45 gradi di inclinazione) sono pensati per
++# l'aperto e lasciano al controllore un'autorita' che qui serve solo a
++# trasformare un errore in un urto. Misurato nelle run BASE_GPS di
++# office_small, drone singolo: 1.4-1.5 m/s veri di picco nelle run pulite
++# (contro 0.6 pianificati) e, nella run finita contro la parete cw106, 3.5 m/s
++# PRIMA dell'urto con inclinazione da 20 gradi in su.
++# Il ramo senza GPS qui sotto imposta valori propri (1.2 m/s, 20 gradi; era 1.5 m/s
++# fino al 17 ottobre 2026): li scrive dopo, quindi prevalgono.
++param set-default MPC_XY_VEL_MAX 1.2
++param set-default MPC_TILTMAX_AIR 30
++param set-default MPC_Z_VEL_MAX_UP 1.0
++param set-default MPC_Z_VEL_MAX_DN 0.75
++# Parametri che PX4 tiene per forza sotto i tetti qui sopra (MulticopterPositionControl::
++# parameters_update): coi valori di serie (10, 3, 1.5, 5 m/s) li riduceva a ogni avvio di
++# ogni istanza, con un "constrained by max speed" fra gli avvisi di ogni registro. Valori
++# identici a quelli a cui li riduceva: nessun cambiamento di volo, solo niente avvisi
++# (code review di ottobre 2026). Il ramo senza GPS e il collaudo li riscrivono sotto.
++param set-default MPC_VEL_MANUAL 1.2
++param set-default MPC_Z_V_AUTO_UP 1.0
++param set-default MPC_Z_V_AUTO_DN 0.75
++param set-default MPC_XY_CRUISE 1.2
++
++# Nessuna stazione di terra MAVLink: PX4 si comanda solo via uXRCE-DDS/ROS 2 in offboard,
++# quindi pretendere il collegamento con una GCS per armare bloccherebbe sempre l'armamento.
++# Stava in 4001_gz_x500, che e' condiviso con altri 10 airframe di PX4 (code review di
++# ottobre 2026): qui vale solo per questo.
++param set-default NAV_DLL_ACT 0
++
++# FAILSAFE DA AMBIENTE CHIUSO.
++#
++# Perdita del collegamento offboard (nodo ROS morto o bloccato per piu' di
++# COM_OF_LOSS_T): ATTERRAGGIO, non "Position mode" (il valore di serie, che
++# senza radiocomando ripiega su una modalita' decisa da PX4).
++# Ritorno a casa: di serie sale a 60 m prima di rientrare, cioe' contro il
++# soffitto (2.3 m in office_small). Se un failsafe lo innesca deve restare a
++# quota di volo.
++# DECLINAZIONE MAGNETICA NULLA - SOLO IN SIMULAZIONE.
++#
++# Di serie EKF2 corregge la bussola con la declinazione del modello WMM alla
++# posizione GPS (EKF2_DECL_TYPE 3): a Zurigo, dove i mondi PX4 collocano la
++# simulazione, circa +3.5 gradi. Ma il campo magnetico simulato da Gazebo non
++# ha declinazione, quindi l'imbardata stimata risultava sbagliata di +3.5 gradi
++# costanti (misurato contro la verita' del simulatore: mediana +3.53, massimo
++# 4.9; rollio e beccheggio entro 0.1 grado).
++# Per la mappa e' un errore pesante: ogni scansione viene ruotata attorno al
++# drone, una parete a 10 m si sposta di 60 cm, e le pareti lontane risultano
++# doppie o ispessite verso l'esterno (dove nessun raggio le ripulisce).
++# Senza GPS l'imbardata viene dalla visione (FAST-LIO) e la bussola pesa poco,
++# ma il valore resta coerente anche li'.
++# SU UN DRONE VERO VA RIMESSO EKF2_DECL_TYPE 3: la declinazione reale esiste.
++param set-default EKF2_DECL_TYPE 0
++param set-default EKF2_MAG_DECL 0
++
++param set-default COM_OBL_RC_ACT 4
++param set-default RTL_RETURN_ALT 1.2
++param set-default RTL_DESCEND_ALT 1.0
++
++# VOLO SENZA GPS: la posizione arriva dalla visione esterna invece che dal GPS.
++#
++# Si attiva esportando PX4_GPS_DENIED=1 prima di avviare PX4. Lasciata spenta,
++# il velivolo si comporta esattamente come prima - serve a poter confrontare le
++# due configurazioni senza ricompilare.
++#
++# Le misure di posa arrivano su /fmu/in/vehicle_visual_odometry, pubblicate dal
++# nodo lio_to_px4_bridge a partire dalla stima di FAST-LIO su lidar e IMU.
++if [ "$PX4_GPS_DENIED" = "1" ]; then
++    # 0 = nessuna fusione GNSS. E' il punto centrale: senza questo EKF2
++    # continuerebbe a usare il GPS simulato e la prova non direbbe nulla.
++    param set EKF2_GPS_CTRL 0
++
++    # 15 = bit 0 (posizione orizzontale) + bit 1 (posizione verticale) +
++    # bit 2 (velocita' 3D) + bit 3 (imbardata).
++    #
++    # Il bit 2 prima era SPENTO perche' il ponte dichiarava la velocita' non
++    # disponibile. Misurando si e' visto che era proprio quella l'origine
++    # dell'instabilita': col GPS (che porta anche la velocita') il volo e'
++    # pulito, rollio sotto gli 11 gradi e nessuna saturazione; con la sola
++    # posizione della visione il controllore perde il termine di smorzamento,
++    # oscilla e ribalta il velivolo a 15 s. Ora lio_to_px4_bridge deriva la
++    # velocita' dalle pose e la dichiara con la sua incertezza, quindi
++    # chiederne la fusione e' coerente.
++    param set EKF2_EV_CTRL 15
++
++    # 3 = quota di riferimento dalla visione. Col barometro la stima verticale
++    # deriverebbe rispetto alla mappa, che e' costruita sulla stessa visione.
++    param set EKF2_HGT_REF 3
++
++    # SOGLIE DI SCARTO delle misure di visione, allargate rispetto ai valori
++    # predefiniti (5 SD per la posizione, 3 per la velocita').
++    #
++    # Il test di consistenza di EKF2 scarta una misura quando l'innovazione
++    # supera N deviazioni standard. Con la visione la catena introduce un
++    # ritardo residuo che si presenta al filtro come uno scarto di posizione
++    # sistematico: misurata un'innovazione media di 0.327 m mentre FAST-LIO
++    # sbagliava 0.03 m. Con la soglia predefinita il rapporto di prova valeva
++    # 1.22 e l'89% delle misure BUONE veniva buttato via.
++    #
++    # La tentazione e' dichiarare la misura piu' incerta di quanto sia, per far
++    # passare il test. Non funziona: gonfiare la varianza abbassa il guadagno di
++    # Kalman, il filtro accetta la misura e poi la ignora, e la stima se ne va
++    # lo stesso (provato: EKF2 a 0.729 m quando il vero era 1.109 e la visione
++    # 1.015). La varianza deve restare onesta - la dichiara il ponte, 0.05 m -
++    # e a governare il rifiuto ci deve pensare la SOGLIA, che e' il parametro
++    # fatto apposta. Cosi' la misura viene accettata E pesata per quel che vale.
++    #
++    # 8 SD sul rapporto misurato lascia un margine di circa due volte e mezzo,
++    # e continua a scartare le misure davvero incoerenti.
++    param set EKF2_EVP_GATE 8.0
++
++    # PAVIMENTO alla varianza dichiarata dalla visione, abbassato da 0.10 m.
++    #
++    # EKF2 non usa la varianza che gli manda il ponte cosi' com'e': la limita dal
++    # basso con questo parametro (measurement_var = max(quella del messaggio,
++    # EKF2_EVP_NOISE^2, 0.01^2)). Finche' resta 0.10, dichiarare meno nel ponte
++    # non ha NESSUN effetto - ci ero passato senza accorgermene.
++    #
++    # E il pavimento a 0.10 e' quello che rallentava il filtro. Misurato in volo:
++    #   varianza dell'innovazione (P+R) = 0.0134  ->  P = 0.0034 (sigma 5.8 cm)
++    #   R imposto dal pavimento         = 0.0100  ->  sigma 10 cm
++    #   guadagno di Kalman = P/(P+R)    = 0.255
++    # Il filtro usava un quarto di ogni misura, e a 10 Hz questo da' una costante
++    # di tempo di 1/(10*0.255) = 0.39 s. E' esattamente il ritardo di 0.37-0.46 s
++    # misurato contro la verita' di Gazebo, che avevo scambiato per latenza di
++    # trasporto: non lo era, e infatti correggere EKF2_EV_DELAY non lo ha spostato
++    # di un millesimo.
++    #
++    # 0.03 m e' coerente con la precisione VERA di FAST-LIO, misurata fra 2 e 9 cm
++    # contro la verita' del simulatore. Con R = 0.0025 (il ponte dichiara 0.05) il
++    # guadagno sale a 0.58 e la costante di tempo scende a 0.17 s.
++    #
++    # Direzione opposta a quella presa stamattina, quando avevo GONFIATO la
++    # varianza per far passare il test di consistenza: quello faceva accettare le
++    # misure e poi ignorarle. Il rifiuto si governa con la soglia (EKF2_EVP_GATE,
++    # sopra), la fiducia con la varianza. Sono due manopole diverse.
++    param set EKF2_EVP_NOISE 0.03
++
++    # RUMORE DI PROCESSO alzato al massimo consentito (1.0; di serie 0.35).
++    #
++    # E' la manopola giusta per far inseguire il filtro, e ci sono arrivato dopo
++    # averne girata una sbagliata. Abbassare la varianza della misura
++    # (EKF2_EVP_NOISE, sopra) alza il guadagno solo per un istante: correggendo
++    # di piu' il filtro riduce anche la PROPRIA varianza P, e il guadagno
++    # P/(P+R) torna dov'era. Misurato: R e' scesa da 0.01 a 0.0025 come voluto,
++    # ma nella finestra di volo il guadagno e' rimasto 0.22 perche' P e' scesa
++    # da 0.0034 a 0.0007.
++    #
++    # In regime stazionario il guadagno non dipende da R da sola ma dal RAPPORTO
++    # fra rumore di processo e rumore di misura (K^2*R = Q*(1-K)). Per farlo
++    # salire davvero bisogna dire al filtro che il proprio stato e' meno
++    # prevedibile di quanto crede, cioe' alzare Q - che qui e' governato dal
++    # rumore dichiarato dell'IMU.
++    #
++    # C'e' anche una ragione fisica, non solo di taratura: fra una misura di
++    # visione e l'altra passano 100 ms, e in quell'intervallo il filtro naviga
++    # solo sull'IMU con una velocita' che sappiamo essere sottostimata. La sua
++    # previsione e' davvero meno affidabile di quanto 0.35 lasci intendere.
++    param set EKF2_ACC_NOISE 1.0
++
++    # La velocita' e' derivata dalle pose, quindi piu' rumorosa della posizione:
++    # la soglia predefinita di 3 SD e' ancora piu' stretta di quella della
++    # posizione. Portata a 5, cioe' al valore che PX4 usa di serie per la
++    # posizione, restando piu' severa di quella qui sopra.
++    param set EKF2_EVV_GATE 5.0
++
++    # Ritardo dichiarato delle misure di visione: l'ETA' DELLA MISURA quando il
++    # ponte la timbra, non il tempo che impiega ad arrivare a EKF2.
++    #
++    # E' la distinzione su cui ho sbagliato due volte. Nel registro di volo lo
++    # scarto fra timestamp e timestamp_sample di estimator_aid_src_ev_pos vale
++    # ~160 ms, e avevo messo 150 leggendolo come "eta' della misura". Non lo e':
++    # e' il TRASPORTO dal nostro timbro alla fusione, e EKF2 lo tiene gia' in
++    # conto da solo, perche' colloca il campione rispetto a timestamp_sample e
++    # non rispetto a quando gli arriva. Dichiarandolo si somma due volte lo
++    # stesso ritardo.
++    #
++    # L'eta' vera, misurata tratto per tratto sul sistema in funzione:
++    #   scansione fisica -> nuvola in ROS      8 ms  (in tempo di simulazione,
++    #                                                 confrontando il timbro
++    #                                                 della nuvola con /clock)
++    #   ponte gz -> adattatore                 1 ms
++    #   adattatore -> uscita FAST-LIO          4 ms
++    #                                        -------
++    #   eta' al momento del timbro            ~13 ms
++    #
++    # Con 150 dichiarati piu' 160 di trasporto, EKF2 collocava il campione 310 ms
++    # prima dell'istante in cui lo elaborava: oltre l'orizzonte del buffer
++    # (EKF2_DELAY_MAX, 200 ms di serie) e comunque all'istante sbagliato.
++    # Allargare l'orizzonte non e' il rimedio - provato, vedi la nota sopra.
++    #
++    # 20 ms: i 13 misurati con un piccolo margine.
++    param set EKF2_EV_DELAY 20
++
++    # PROVATO E SCARTATO: EKF2_DELAY_MAX a 400 ms (di serie 200).
++    #
++    # L'idea era che la visione, vecchia di ~310 ms quando EKF2 la fonde (150
++    # dichiarati piu' 160 di trasporto), cadesse fuori dall'orizzonte del buffer
++    # e venisse applicata al bordo, producendo il ritardo sistematico misurato.
++    # Misurato invece il contrario, su run altrimenti identiche:
++    #
++    #                        DELAY_MAX 200    DELAY_MAX 400
++    #   errore posizione        0.62 m           0.91 m
++    #   latenza apparente       0.439 s          0.476 s
++    #
++    # Allargare l'orizzonte non rende la misura piu' fresca: fa applicare la
++    # correzione piu' indietro e poi RIPROPAGARE in avanti piu' a lungo, con
++    # IMU e velocita'. Siccome e' proprio la velocita' la grandezza che qui
++    # sbaglia, propagare per 400 ms ne amplifica l'errore invece di ridurlo.
++    # Il collo di bottiglia non e' il buffer.
++
++    # TETTO ALLA VELOCITA' E ALL'INCLINAZIONE DEL CONTROLLORE.
++    #
++    # Il ponte manda a PX4 setpoint di POSIZIONE, e il controllore di posizione
++    # e' libero di raggiungerli alla sua velocita' massima, che di serie e' 12
++    # m/s. Finche' la stima e' buona non e' un problema, perche' l'errore da
++    # colmare e' piccolo. Ma con la visione un errore di stima diventa un errore
++    # di posizione APPARENTE, e il controllore lo insegue con tutta l'autorita'
++    # che ha.
++    #
++    # Misurato, ed e' il numero che ha chiuso la diagnosi: col pianificatore
++    # limitato a 0.3 m/s il velivolo ha toccato 20.59 m/s VERI. Non e' il piano
++    # a spingerlo, e infatti dimezzare i limiti del pianificatore non ha
++    # cambiato nulla (ribaltamento da 8.8 a 10.1 s). E' il controllore che, per
++    # recuperare un errore fantasma di un paio di metri, accelera fino a
++    # sbattere il drone.
++    #
++    # 1.5 m/s lascia il doppio del margine sul pianificatore (0.6) e toglie al
++    # controllore la possibilita' di trasformare un errore di stima in un lancio.
++    # Abbassati da 1.5/0.6 per coerenza col pianificatore rallentato a 0.25 m/s
++    # (vedi la nota nel launch). Il tetto deve stare sopra il piano ma non tanto
++    # da lasciare al controllore l'autorita' di trasformare un errore di stima
++    # in un lancio: 0.5 e' il limite oltre il quale la soglia di sicurezza di
++    # 0.45 m non copre piu' ritardo + frenata + ingombro rotori.
++    #
++    # 1.5 -> 1.2 (17 ottobre 2026, Jetson, cubicle_office a 1.0 m/s). Col
++    # pianificatore a 1.0 (picchi della traiettoria 1.13 dopo il controllo dei
++    # limiti) 1.5 lasciava al controllore 0.4-0.5 m/s di "recupero": inseguendo il
++    # riferimento con 0.4-0.6 m di ritardo chiedeva 1.43-1.48 m/s e il drone ne
++    # toccava 1.8 veri, puntando una parete (tutti i quasi-contatti misurati
++    # nascono cosi', vedi enable_brake_governor nel ponte dei comandi). 1.2 resta
++    # sopra il piano e taglia il recupero in eccesso.
++    param set MPC_XY_VEL_MAX 1.2
++    # GUADAGNO DELL'ANELLO DI VELOCITA' ORIZZONTALE 1.8 (PX4) -> 2.5.
++    #
++    # Con 1.8 il controllore frenava in modo esponenziale con costante ~0.55 s
++    # (~1 m/s2 misurato per 0.5 m/s di eccesso): dopo un'inversione di marcia il
++    # drone finiva fino a 1 m oltre il riferimento, e da li' lo raggiungeva in
++    # linea retta tagliando gli spigoli (margine vero 0.35-0.40 m). Misurato su
++    # cubicle_office senza GPS a 1.0 m/s, 5 run per parte, entrambe con
++    # max_setpoint_jump 0.65 (17 ottobre 2026):
++    #                              1.8          2.5
++    #   scarto drone-riferimento   0.18 / 0.59  0.09 / 0.37 m  (mediana / 99%)
++    #   tempo con scarto > 0.5 m   2.4%         0.4%
++    #   tempo sopra 1.3 m/s veri   8.6%         5.4%
++    #   margine vero minimo        0.41-0.64    0.50-0.75 m
++    #   velocita' media in volo    0.92-0.96    0.90-0.97 m/s
++    # Nessun segno di oscillazione (inclinazione massima 16-18 gradi come prima,
++    # scarto fra velocita' comandata e vera da 0.20 a 0.13 m/s). La stima di EKF2
++    # non e' in ritardo (0 ms), quindi il guadagno piu' alto non insegue rumore.
++    # PX4_VEL_P_ACC nell'ambiente lo cambia.
++    param set MPC_XY_VEL_P_ACC ${PX4_VEL_P_ACC:-2.5}
++    param set MPC_XY_CRUISE 0.6
++
++    # L'inclinazione e' l'altro modo in cui l'errore fantasma fa cadere il
++    # drone: inclinandosi per accelerare perde la componente verticale della
++    # spinta. A 45 gradi (valore di serie) ne perde il 30%. A 20 il 6%, e resta
++    # comunque un'autorita' abbondante per 1.5 m/s.
++    param set MPC_TILTMAX_AIR 20
++fi
++
++# COLLAUDO (scripts/collaudo, ottobre 2026): con PX4_COLLAUDO=1 (lo esporta
++# run_multi_exploration.sh con SOLO_STIMA=1) gli stessi limiti di
++# scripts/collaudo/collaudo_px4.params, cosi' la prova in simulazione somiglia ai
++# primi voli veri. Senza, MPC_VEL_MANUAL resta a 10 m/s e le levette virtuali di
++# collaudo.py al 40% portavano il drone a 1.2 m/s invece di 0.2.
++if [ "$PX4_COLLAUDO" = "1" ]; then
++    # Tetto di velocita' e inclinazione del drone vero (collaudo_px4.params): mancavano, e
++    # la prova in simulazione volava col tetto di 1.2 m/s invece di 0.6 (code review).
++    param set MPC_XY_VEL_MAX 0.6
++    param set MPC_TILTMAX_AIR 20
++    param set MPC_VEL_MANUAL 0.5
++    param set MPC_XY_CRUISE 0.5
++    param set MPC_Z_VEL_MAX_UP 1.0
++    param set MPC_Z_VEL_MAX_DN 0.4
++    param set MPC_Z_V_AUTO_UP 0.5
++    param set MPC_Z_V_AUTO_DN 0.4
++    param set MPC_LAND_SPEED 0.4
++    param set MPC_MAN_TILT_MAX 15
++    param set NAV_RCL_ACT 3
++    param set COM_OF_LOSS_T 0.5
++    # Spinta di hover VERA di questo modello (lidar e telecamera compresi): 0.75, misurata
++    # in volo (19 ottobre 2026). Con 0.60 il decollo in POSCTL restava 10-20 s appoggiato
++    # con PX4 che lo credeva in aria, poi si staccava di colpo. Solo qui, per non cambiare
++    # le run di esplorazione gia' validate (decollo in offboard, che non ne risente).
++    param set MPC_THR_HOVER 0.75
++fi

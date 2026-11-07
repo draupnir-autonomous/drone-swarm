@@ -1,0 +1,21 @@
+22:55:45 Collaudo C2-Explorer (DRONE VERO) - registro in /home/draupnir/Documents/Drone_20261018_P/ros2_ws/scripts/collaudo/collaudo_registri/2026-10-19_225545_reale
+22:55:48 == FASE 0: collegamento con PX4 ==
+22:55:48 Attendo lo stato di PX4 (fino a 15 s)...
+22:55:48 PX4 risponde: sistema 1, modalita' POSCTL, disarmato, controlli pre-volo NON superati
+22:55:48 Batteria: 15.70 V, 71%, 4 celle
+22:55:48 Condizioni di failsafe attive: global_position_invalid, global_position_invalid_relaxed, auto_mission_missing, offboard_control_signal_lost, home_position_invalid, manual_control_signal_lost, gcs_connection_lost
+22:55:48 Assetto visto da PX4: rollio 3, beccheggio -3 gradi
+22:55:48 Provo le levette virtuali per 3 s (motori fermi, drone disarmato)...
+22:55:48 Comando manuale accettato da PX4 (sorgente 2).
+22:55:52 Hai caricato collaudo_px4.params con QGroundControl (e controllato MPC_THR_HOVER)? [s/n] -> s
+22:55:52 FASE 0: SUPERATA - manuale=True, parametri=True, prevolo=False
+22:55:58 == FASE 1: sensori ==
+22:55:58 /livox/lidar: livox_ros_driver2/msg/CustomMsg
+22:55:59 /livox/imu: sensor_msgs/msg/Imu
+22:55:59 /camera/image_raw: NON PUBBLICATO
+22:55:59 Misuro per 5 s...
+22:56:04 lidar /livox/lidar: 9.0 Hz (atteso ~10)
+22:56:04 IMU /livox/imu: 9 Hz (atteso >= 100), accelerazione a riposo 1.00 (1.00 se in g come il Mid-360, 9.81 se in m/s2)
+22:56:04 telecamera /camera/image_raw: 0.0 Hz (serve solo alla mappa colorata)
+22:56:04 Controlla: driver Livox avviato e IP del lidar (MID360_config.json), cavo Ethernet, topic giusti (--lidar/--imu).
+22:56:04 FASE 1: NON SUPERATA - lidar 9.0 Hz, imu 9 Hz, acc 1.00, camera 0.0 Hz

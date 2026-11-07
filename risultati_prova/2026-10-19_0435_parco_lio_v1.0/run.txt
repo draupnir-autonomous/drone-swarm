@@ -1,0 +1,10 @@
+inizio:          2026-10-19 04:35:43
+fine:            2026-10-19 04:43:47
+comando:         ODOM_SOURCE=lio VEL_MAX=1.0 VISITA=0 FASE_FOTO=0 IMBARDATA_FOTO=0 GIRO_INIZIALE=0.5 MAPPA_REALISTICA=1 FOTO=1 ./scripts/run_multi_exploration.sh parco 1
+mondo:           parco (/home/draupnir/Documents/Drone_20261018_P/ros2_ws/src/c2x_worlds/worlds/parco.sdf)
+GPS in PX4:      spento
+GUI di Gazebo:   N
+macchina:        aarch64, clock CPU fissati: no
+esplorazione finita: 1/1 droni
+crash rilevati:      0
+divergenze FAST-LIO: 0

@@ -1,0 +1,41 @@
+20:37:13 Collaudo C2-Explorer (DRONE VERO) - registro in /home/draupnir/Documents/Drone_20261018_P/ros2_ws/scripts/collaudo/collaudo_registri/2026-10-21_203713_reale
+20:37:13 == FASE 4: motori SENZA ELICHE ==
+20:37:20 Scrivi SENZA ELICHE per confermare che le eliche sono smontate: -> senza eliche
+20:37:20 Schema dei motori (Quad X di PX4), drone visto da SOPRA col muso in alto:
+20:37:20         AVANTI
+     3 (o)   1 (a)
+         \ /
+         / \
+     2 (a)   4 (o)
+   o = orario, a = antiorario, visti da SOPRA
+20:37:36   Quale angolo ha girato? 1 avanti-destra, 2 dietro-sinistra, 3 avanti-sinistra, 4 dietro-destra, 0 nessuno, r = rifai la prova: -> 1
+20:37:53   In che verso, visto da sopra? o = orario, a = antiorario, r = rifai la prova: -> r
+20:38:11   Quale angolo ha girato? 1 avanti-destra, 2 dietro-sinistra, 3 avanti-sinistra, 4 dietro-destra, 0 nessuno, r = rifai la prova: -> 1
+20:38:23   In che verso, visto da sopra? o = orario, a = antiorario, r = rifai la prova: -> r
+20:40:22   Quale angolo ha girato? 1 avanti-destra, 2 dietro-sinistra, 3 avanti-sinistra, 4 dietro-destra, 0 nessuno, r = rifai la prova: -> r
+20:40:35   Quale angolo ha girato? 1 avanti-destra, 2 dietro-sinistra, 3 avanti-sinistra, 4 dietro-destra, 0 nessuno, r = rifai la prova: -> r
+20:41:14   Quale angolo ha girato? 1 avanti-destra, 2 dietro-sinistra, 3 avanti-sinistra, 4 dietro-destra, 0 nessuno, r = rifai la prova: -> r
+20:41:44   Quale angolo ha girato? 1 avanti-destra, 2 dietro-sinistra, 3 avanti-sinistra, 4 dietro-destra, 0 nessuno, r = rifai la prova: -> 1
+20:41:48   In che verso, visto da sopra? o = orario, a = antiorario, r = rifai la prova: -> a
+20:41:48   Motore 1: angolo avanti-destra, antiorario -> GIUSTO
+20:42:28   Quale angolo ha girato? 1 avanti-destra, 2 dietro-sinistra, 3 avanti-sinistra, 4 dietro-destra, 0 nessuno, r = rifai la prova: -> 2
+20:42:31   In che verso, visto da sopra? o = orario, a = antiorario, r = rifai la prova: -> a
+20:42:31   Motore 2: angolo dietro-sinistra, antiorario -> GIUSTO
+20:42:42   Quale angolo ha girato? 1 avanti-destra, 2 dietro-sinistra, 3 avanti-sinistra, 4 dietro-destra, 0 nessuno, r = rifai la prova: -> 3
+20:42:44   In che verso, visto da sopra? o = orario, a = antiorario, r = rifai la prova: -> o
+20:42:44   Motore 3: angolo avanti-sinistra, orario -> GIUSTO
+20:42:52   Quale angolo ha girato? 1 avanti-destra, 2 dietro-sinistra, 3 avanti-sinistra, 4 dietro-destra, 0 nessuno, r = rifai la prova: -> 4
+20:42:55   In che verso, visto da sopra? o = orario, a = antiorario, r = rifai la prova: -> o
+20:42:55   Motore 4: angolo dietro-destra, orario -> GIUSTO
+20:42:55 Armamento: i motori girano al minimo per 3 s, poi PROVA DELL'EMERGENZA.
+20:43:04 emergenza: motori fermi in 11 ms
+20:43:04 FASE 4: SUPERATA - motori ok, emergenza 11 ms
+21:01:45 == FASE 5: hover TRATTENUTO (drone legato, eliche montate) ==
+21:01:45 Lega il drone a terra (corda corta, 30-50 cm di gioco) o fallo volare dentro una rete. Nessuno entro 3 m.
+21:01:45 Istruzioni: t per decollare (sale da solo alla quota indicata), resta fermo almeno 30 s, poi l per atterrare. SPAZIO = emergenza.
+21:02:18 Area libera, eliche montate, persone lontane, batteria carica. Procedo? [s/n] -> s
+21:02:40 decollo verso 0.5 m (offboard, 0.4 m/s)
+21:02:52 SICUREZZA: non si stacca da terra in 12 s (spinta di hover? MPC_THR_HOVER) -> motori spenti
+21:02:54 EMERGENZA: motori spenti
+21:02:55 EMERGENZA: motori spenti
+21:02:55 EMERGENZA: motori spenti

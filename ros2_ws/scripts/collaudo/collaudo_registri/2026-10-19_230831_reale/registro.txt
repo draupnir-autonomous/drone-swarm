@@ -1,0 +1,6 @@
+23:08:31 Collaudo C2-Explorer (DRONE VERO) - registro in /home/draupnir/Documents/Drone_20261018_P/ros2_ws/scripts/collaudo/collaudo_registri/2026-10-19_230831_reale
+23:08:33 == FASE 3: assi e stima dentro PX4 (drone mosso A MANO, motori spenti) ==
+23:08:33 EKF2 usa la visione: {'cs_ev_pos': True, 'cs_ev_hgt': True, 'cs_ev_yaw': True}; posizione PX4 valida xy=True z=True
+23:08:33 a riposo: posizione PX4 - FAST-LIO 0.4 cm, rollio 1.7 gradi, beccheggio 4.5 gradi di differenza
+23:08:49   PX4 -47.6 gradi, FAST-LIO +0.7 gradi -> SBAGLIATO
+23:08:49   ASSI DEL LIDAR DIVERSI DA QUELLI DEL DRONE: NON VOLARE. Controlla il montaggio del Mid-360 e la trasformazione in lio_to_px4_bridge.

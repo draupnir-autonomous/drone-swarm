@@ -1,0 +1,151 @@
+Panels:
+  - Class: rviz_common/Displays
+    Name: Displays
+    Property Tree Widget:
+      Expanded: ~
+    Tree Height: 700
+Visualization Manager:
+  Class: ""
+  Global Options:
+    Background Color: 32; 32; 36
+    Fixed Frame: world
+    Frame Rate: 20
+  Displays:
+    - Class: rviz_default_plugins/Grid
+      Name: Griglia
+      Enabled: true
+      Cell Size: 1
+      Plane Cell Count: 30
+      Color: 80; 80; 90
+      Alpha: 0.3
+    # Mappa costruita da ciascun drone. E' la stessa mappa condivisa, ma ogni
+    # drone ne ha la propria copia: vederle separate mostra subito se la
+    # condivisione sta funzionando o se qualcuno e' rimasto indietro.
+    - Class: rviz_default_plugins/PointCloud2
+      Name: Mappa drone 1
+      Enabled: true
+      Topic:
+        Value: /drone_1/sdf_map/occupancy_all
+        Depth: 5
+        Reliability Policy: Best Effort
+        Durability Policy: Volatile
+      Style: Boxes
+      Size (m): 0.1
+      Color: 255; 60; 60
+      Color Transformer: FlatColor
+      Alpha: 0.9
+    - Class: rviz_default_plugins/PointCloud2
+      Name: Mappa drone 2
+      Enabled: false
+      Topic:
+        Value: /drone_2/sdf_map/occupancy_all
+        Depth: 5
+        Reliability Policy: Best Effort
+        Durability Policy: Volatile
+      Style: Boxes
+      Size (m): 0.1
+      Color: 140; 70; 20
+      Color Transformer: FlatColor
+      Alpha: 0.9
+    - Class: rviz_default_plugins/PointCloud2
+      Name: Mappa drone 3
+      Enabled: false
+      Topic:
+        Value: /drone_3/sdf_map/occupancy_all
+        Depth: 5
+        Reliability Policy: Best Effort
+        Durability Policy: Volatile
+      Style: Boxes
+      Size (m): 0.1
+      Color: 40; 200; 40
+      Color Transformer: FlatColor
+      Alpha: 0.9
+    # Frontiere: il confine fra spazio libero verificato e ignoto. Sono
+    # l'obiettivo dell'esplorazione, quindi vederle sparire e' il modo diretto
+    # di seguire l'avanzamento.
+    - Class: rviz_default_plugins/Marker
+      Name: Frontiere drone 1
+      Enabled: true
+      Topic:
+        Value: /drone_1/planning_vis/frontier
+        Depth: 20
+        Reliability Policy: Reliable
+    # Griglia di ripartizione: mostra come i droni si dividono le celle.
+    - Class: rviz_default_plugins/Marker
+      Name: Ripartizione celle
+      Enabled: true
+      Topic:
+        Value: /drone_1/planning_vis/hgrid
+        Depth: 20
+        Reliability Policy: Reliable
+    # Grafo di connettivita': con il collegamento ottico si interrompe quando
+    # c'e' un muro di mezzo, ed e' utile vederlo accendersi e spegnersi.
+    - Class: rviz_default_plugins/Marker
+      Name: Collegamenti fra droni
+      Enabled: true
+      Topic:
+        Value: /drone_1/communication/graph_vis
+        Depth: 20
+        Reliability Policy: Reliable
+    - Class: rviz_default_plugins/Odometry
+      Name: Posizione drone 1
+      Enabled: true
+      Topic:
+        Value: /drone_1/odom_world
+        Depth: 5
+        Reliability Policy: Reliable
+      Keep: 1
+      Shape:
+        Value: Arrow
+        Color: 255; 60; 60
+        Shaft Length: 0.4
+        Shaft Radius: 0.05
+        Head Length: 0.2
+        Head Radius: 0.1
+    - Class: rviz_default_plugins/Odometry
+      Name: Posizione drone 2
+      Enabled: true
+      Topic:
+        Value: /drone_2/odom_world
+        Depth: 5
+        Reliability Policy: Reliable
+      Keep: 1
+      Shape:
+        Value: Arrow
+        Color: 140; 70; 20
+        Shaft Length: 0.4
+        Shaft Radius: 0.05
+        Head Length: 0.2
+        Head Radius: 0.1
+    - Class: rviz_default_plugins/Odometry
+      Name: Posizione drone 3
+      Enabled: true
+      Topic:
+        Value: /drone_3/odom_world
+        Depth: 5
+        Reliability Policy: Reliable
+      Keep: 1
+      Shape:
+        Value: Arrow
+        Color: 40; 200; 40
+        Shaft Length: 0.4
+        Shaft Radius: 0.05
+        Head Length: 0.2
+        Head Radius: 0.1
+  Global Options:
+    Fixed Frame: world
+  Tools:
+    - Class: rviz_default_plugins/MoveCamera
+    - Class: rviz_default_plugins/Select
+  Views:
+    Current:
+      Class: rviz_default_plugins/Orbit
+      Name: Vista
+      Distance: 32
+      Focal Point:
+        X: 0
+        Y: 0
+        Z: 0
+      Pitch: 1.1
+      Yaw: 0.8
+      Target Frame: world

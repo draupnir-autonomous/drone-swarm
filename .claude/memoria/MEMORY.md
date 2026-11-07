@@ -1,0 +1,5 @@
+- [Portabilità tra macchine e account](portabilita-macchine-account.md) — dal 7 nov 2026 la memoria vive nel repo; Jetson principale, PC A/B; /consegne e /riprendi
+- [Sciame 3 droni, 25-26 ott](swarm-20261025.md) — obiettivo sciame > drone singolo, modifiche (tempo_sim, mappa fusa, strisce, scambio mappe), come si lancia e misura, campagne
+- [FAST-LIVO2 in Drone_20261018_P](drone-20261018-fast-livo2.md) — copia snella 18_P, FAST-LIVO2 scartato, collaudo, missione sul drone vero, lidar Mid-360S e rete 192.168.1.5/.122
+- [Velocità Jetson cubicle 17 ott](jetson-velocita-cubicle-20261017.md) — Drone_20261017_P: velocità, sicurezza, scenario parco, deriva FAST-LIO (+inf) e controllo salute
+- [Jetson port status](jetson-port-status.md) — Drone_20261013: porting su Jetson, metodo di verifica delle run, crash cubicle a 1.0 m/s, Open3D/Poisson, ricetta video

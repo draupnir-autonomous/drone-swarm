@@ -1,0 +1,58 @@
+# FAST-LIO sul drone VERO col Livox Mid-360 (collaudo, ottobre 2026).
+# Base: ros2_ws/src/fast_lio/config/mid360.yaml (originale) con le scelte validate in
+# simulazione (c2x_sim.yaml): mappa a 0.2 m, niente stima online dell'estrinseca.
+# Il driver Livox va avviato con xfer_format = 1 (livox_ros_driver2/CustomMsg): e' il
+# formato del tipo di lidar 1 qui sotto, con il tempo di ogni punto.
+/**:
+    ros__parameters:
+        use_sim_time: false
+        feature_extract_enable: false
+        point_filter_num: 3
+        max_iteration: 3
+        # 0.2 invece di 0.5 dell'originale: in simulazione l'errore di quota scendeva da 9 a
+        # 3.6 cm e quello d'inclinazione da 0.69 a 0.13 gradi (LEGGIMI).
+        filter_size_surf: 0.2
+        filter_size_map: 0.2
+        cube_side_length: 1000.0
+        runtime_pos_log_enable: false
+        map_file_path: "./test.pcd"
+        common:
+            lid_topic:  "/livox/lidar"
+            imu_topic:  "/livox/imu"
+            time_sync_en: false
+            time_offset_lidar_to_imu: 0.0
+        preprocess:
+            lidar_type: 1                # Livox (CustomMsg)
+            scan_line:  4
+            # Punti piu' vicini di 0.5 m scartati: telaio, eliche e gambe del drone. Se le
+            # eliche sono piu' lontane dal lidar, alzalo (guarda la nuvola in RViz).
+            blind: 0.5
+            timestamp_unit: 3
+            scan_rate: 10
+        mapping:
+            acc_cov: 0.1
+            gyr_cov: 0.1
+            b_acc_cov: 0.0001
+            b_gyr_cov: 0.0001
+            fov_degree:    360.0
+            det_range:     40.0
+            # Estrinseca lidar -> IMU interna del Mid-360 (dal costruttore). Il lidar del drone e'
+            # un Mid-360S: stesso campo e IMU (200 Hz, in g) ma l'estrinseca del Mid-360S non e'
+            # stata verificata (pochi cm: FAST-LIO la tollera, la fase 3 del collaudo lo prova).
+            # Fissa: la stima
+            # online in simulazione non serviva e su un drone vero aggiunge un modo di derivare.
+            extrinsic_est_en:  false
+            extrinsic_T: [ -0.011, -0.02329, 0.04412 ]
+            extrinsic_R: [ 1., 0., 0.,
+                           0., 1., 0.,
+                           0., 0., 1.]
+        publish:
+            path_en: false
+            effect_map_en: false
+            map_en: false
+            scan_publish_en:  true
+            dense_publish_en: false
+            scan_bodyframe_pub_en: false
+        pcd_save:
+            pcd_save_en: false
+            interval: -1

@@ -1,0 +1,28 @@
+16:57:10 Collaudo C2-Explorer (DRONE VERO) - registro in /home/draupnir/Documents/Drone_20261018_P/ros2_ws/scripts/collaudo/collaudo_registri/2026-10-25_165710_reale
+16:57:14 == FASE 6: volo manuale ==
+16:57:14 Istruzioni: t per decollare (sale da solo alla quota indicata), resta fermo almeno 30 s, poi l per atterrare. SPAZIO = emergenza.
+16:57:16 Area libera, eliche montate, persone lontane, batteria carica. Procedo? [s/n] -> s
+16:57:18 decollo verso 1.0 m (offboard, 0.4 m/s)
+16:57:27 decollo interrotto dalle levette: comando manuale
+16:58:05 atterraggio comandato (l)
+16:58:15 FASE 6: SUPERATA - volo 54 s, distanza max 0.52 m, quota max 1.27 m, oscillazione da fermo 18 cm, allarme: nessuno
+16:59:44 == FASE 7: quadrato automatico (o per partire) ==
+16:59:44 Istruzioni: t per decollare (sale da solo alla quota indicata), resta fermo almeno 30 s, poi l per atterrare. SPAZIO = emergenza.
+16:59:49 Area libera, eliche montate, persone lontane, batteria carica. Procedo? [s/n] -> s
+16:59:56 decollo verso 1.0 m (offboard, 0.4 m/s)
+17:00:07 quota di decollo raggiunta (0.95 m): fermo in POSCTL
+17:00:22 SICUREZZA: batteria al 25% -> atterraggio
+17:01:18 decollo verso 1.0 m (offboard, 0.4 m/s)
+17:01:30 quota di decollo raggiunta (0.95 m): fermo in POSCTL
+17:02:53 atterraggio comandato (l)
+17:03:02 FASE 7: NON SUPERATA - volo 183 s, distanza max 1.15 m, quota max 1.13 m, oscillazione da fermo 19 cm, allarme: batteria al 25%
+17:04:10 == FASE 6: volo manuale ==
+17:04:10 Istruzioni: t per decollare (sale da solo alla quota indicata), resta fermo almeno 30 s, poi l per atterrare. SPAZIO = emergenza.
+17:04:11 Area libera, eliche montate, persone lontane, batteria carica. Procedo? [s/n] -> s
+17:04:14 decollo verso 1.0 m (offboard, 0.4 m/s)
+17:04:19 SICUREZZA: batteria al 25% -> atterraggio
+17:04:24 atterraggio comandato (l)
+17:04:30 EMERGENZA: motori spenti
+17:04:30 armamento rifiutato da PX4 (controlli pre-volo?)
+17:04:38 fermo (h)
+17:04:41 atterraggio comandato (l)

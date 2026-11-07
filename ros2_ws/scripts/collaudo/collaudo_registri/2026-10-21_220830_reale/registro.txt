@@ -1,0 +1,5 @@
+22:08:30 Collaudo C2-Explorer (DRONE VERO) - registro in /home/draupnir/Documents/Drone_20261018_P/ros2_ws/scripts/collaudo/collaudo_registri/2026-10-21_220830_reale
+22:08:33 == FASE 0: collegamento con PX4 ==
+22:08:33 Attendo lo stato di PX4 (fino a 15 s)...
+22:08:48 Nessun messaggio da PX4. Controlla: agente DDS avviato sulla porta giusta (avvia_collaudo.sh), cavo USB, SYS_USB_AUTO = 0 e /etc/extras.txt sulla scheda SD.
+22:08:48 FASE 0: NON SUPERATA - nessun vehicle_status

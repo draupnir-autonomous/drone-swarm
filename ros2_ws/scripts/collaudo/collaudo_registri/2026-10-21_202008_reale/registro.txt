@@ -1,0 +1,24 @@
+20:20:08 Collaudo C2-Explorer (DRONE VERO) - registro in /home/draupnir/Documents/Drone_20261018_P/ros2_ws/scripts/collaudo/collaudo_registri/2026-10-21_202008_reale
+20:20:28 == FASE 3: assi e stima dentro PX4 (drone mosso A MANO, motori spenti) ==
+20:20:28 EKF2 usa la visione: {'cs_ev_pos': True, 'cs_ev_hgt': True, 'cs_ev_yaw': True}; posizione PX4 valida xy=True z=True
+20:20:28 a riposo: posizione PX4 - FAST-LIO 0.8 cm, rollio 0.2 gradi, beccheggio 0.6 gradi di differenza
+20:20:44   PX4 -18.5 gradi, FAST-LIO -17.5 gradi -> OK
+20:21:21   PX4 +26.7 gradi, FAST-LIO +27.0 gradi -> OK
+20:21:36   in avanti: PX4 42 cm, FAST-LIO 42 cm -> OK
+20:21:51   rotazione: PX4 +3 gradi, FAST-LIO +3 gradi (attesi circa -90 in NED) -> SBAGLIATO
+20:21:51 FASE 3: NON SUPERATA - riposo True, prove [True, True, True, False]
+20:22:10 == FASE 3: assi e stima dentro PX4 (drone mosso A MANO, motori spenti) ==
+20:22:10 EKF2 usa la visione: {'cs_ev_pos': True, 'cs_ev_hgt': True, 'cs_ev_yaw': True}; posizione PX4 valida xy=True z=True
+20:22:10 a riposo: posizione PX4 - FAST-LIO 0.3 cm, rollio 0.7 gradi, beccheggio 0.1 gradi di differenza
+20:22:25   PX4 -25.2 gradi, FAST-LIO -24.3 gradi -> OK
+20:22:47   PX4 +19.8 gradi, FAST-LIO +20.5 gradi -> OK
+20:22:55   in avanti: PX4 34 cm, FAST-LIO 35 cm -> OK
+20:23:20   rotazione: PX4 -89 gradi, FAST-LIO -88 gradi (attesi circa -90 in NED) -> OK
+20:23:20 FASE 3: SUPERATA - riposo True, prove [True, True, True, True]
+20:24:09 == FASE 4: motori SENZA ELICHE ==
+20:24:19 Scrivi SENZA ELICHE per confermare che le eliche sono smontate: -> senza eliche
+20:25:00   il motore 1 e' nella posizione giusta e gira nel verso giusto? (schema dell'airframe: Quad X, 1 avanti-destra antiorario, 2 dietro-sinistra antiorario, 3 avanti-sinistra orario, 4 dietro-destra orario) [s/n] -> n
+20:25:10   il motore 2 e' nella posizione giusta e gira nel verso giusto? (schema dell'airframe: Quad X, 1 avanti-destra antiorario, 2 dietro-sinistra antiorario, 3 avanti-sinistra orario, 4 dietro-destra orario) [s/n] -> n
+20:27:04   il motore 3 e' nella posizione giusta e gira nel verso giusto? (schema dell'airframe: Quad X, 1 avanti-destra antiorario, 2 dietro-sinistra antiorario, 3 avanti-sinistra orario, 4 dietro-destra orario) [s/n] -> 4
+20:27:14   il motore 4 e' nella posizione giusta e gira nel verso giusto? (schema dell'airframe: Quad X, 1 avanti-destra antiorario, 2 dietro-sinistra antiorario, 3 avanti-sinistra orario, 4 dietro-destra orario) [s/n] -> n
+20:27:14 FASE 4: NON SUPERATA - motori [False, False, False, False]: correggi ordine/verso (QGroundControl, Actuators)

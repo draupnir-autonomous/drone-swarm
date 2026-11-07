@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>plan_manage</name>
+  <version>0.0.1</version>
+  <description>
+    Trajectory generation (planner_manager, ties together path_searching/
+    bspline_opt/active_perception) and execution (traj_server, the
+    PositionCommand boundary node consumed by c2x_px4_bridge) for
+    C2-Explorer.
+  </description>
+  <maintainer email="fabiofraschetti99@gmail.com">fabio</maintainer>
+  <license>GPL-3.0</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>rclcpp</depend>
+  <depend>nav_msgs</depend>
+  <depend>geometry_msgs</depend>
+  <depend>std_msgs</depend>
+  <depend>sensor_msgs</depend>
+  <depend>visualization_msgs</depend>
+  <depend>c2x_msgs</depend>
+  <depend>bspline</depend>
+  <depend>bspline_opt</depend>
+  <depend>poly_traj</depend>
+  <depend>path_searching</depend>
+  <depend>plan_env</depend>
+  <depend>active_perception</depend>
+  <depend>pcl_conversions</depend>
+  <depend>eigen</depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

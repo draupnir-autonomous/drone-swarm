@@ -1,0 +1,79 @@
+[INFO] [launch]: All log files can be found below /home/draupnir/.ros/log/2026-10-21-21-19-27-068216-draupnir-28077
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [fastlio_mapping-1]: process started with pid [28109]
+[INFO] [lio_to_px4_bridge-2]: process started with pid [28110]
+[fastlio_mapping-1] [INFO] [1792610367.428578986] [drone_1.fast_lio]: p_pre->lidar_type 1
+[fastlio_mapping-1] [INFO] [1792610367.449360829] [drone_1.fast_lio]: Node init finished.
+[fastlio_mapping-1] [WARN] [1792610367.608216261] [drone_1.fast_lio]: No point, skip this scan!
+[fastlio_mapping-1] 
+[fastlio_mapping-1] [WARN] [1792610367.678373436] [drone_1.fast_lio]: No point, skip this scan!
+[fastlio_mapping-1] 
+[fastlio_mapping-1] [INFO] [1792610367.780381235] [drone_1.fast_lio]: Initialize the map kdtree
+[lio_to_px4_bridge-2] [INFO] [1792610372.303192625] [drone_1.lio_to_px4_bridge]: visione esterna verso PX4: 45 pose inviate
+[lio_to_px4_bridge-2] [INFO] [1792610372.303447487] [drone_1.lio_to_px4_bridge]: salute FAST-LIO (ultimi 5 s, 45 scansioni): agganciati min 1295 (soglia 500), l1 min 400
+[lio_to_px4_bridge-2] [INFO] [1792610377.303204917] [drone_1.lio_to_px4_bridge]: visione esterna verso PX4: 95 pose inviate
+[lio_to_px4_bridge-2] [INFO] [1792610377.303320860] [drone_1.lio_to_px4_bridge]: salute FAST-LIO (ultimi 5 s, 50 scansioni): agganciati min 1308 (soglia 500), l1 min 401
+[lio_to_px4_bridge-2] [INFO] [1792610382.303235255] [drone_1.lio_to_px4_bridge]: visione esterna verso PX4: 145 pose inviate
+[lio_to_px4_bridge-2] [INFO] [1792610382.303423105] [drone_1.lio_to_px4_bridge]: salute FAST-LIO (ultimi 5 s, 50 scansioni): agganciati min 1388 (soglia 500), l1 min 407
+[lio_to_px4_bridge-2] [INFO] [1792610387.303196421] [drone_1.lio_to_px4_bridge]: visione esterna verso PX4: 195 pose inviate
+[lio_to_px4_bridge-2] [INFO] [1792610387.303308171] [drone_1.lio_to_px4_bridge]: salute FAST-LIO (ultimi 5 s, 50 scansioni): agganciati min 1393 (soglia 500), l1 min 405
+[lio_to_px4_bridge-2] [INFO] [1792610392.303188405] [drone_1.lio_to_px4_bridge]: visione esterna verso PX4: 245 pose inviate
+[lio_to_px4_bridge-2] [INFO] [1792610392.303300955] [drone_1.lio_to_px4_bridge]: salute FAST-LIO (ultimi 5 s, 50 scansioni): agganciati min 1383 (soglia 500), l1 min 406
+[lio_to_px4_bridge-2] [INFO] [1792610397.303251195] [drone_1.lio_to_px4_bridge]: visione esterna verso PX4: 294 pose inviate
+[lio_to_px4_bridge-2] [INFO] [1792610397.303414148] [drone_1.lio_to_px4_bridge]: salute FAST-LIO (ultimi 5 s, 49 scansioni): agganciati min 1293 (soglia 500), l1 min 392
+[lio_to_px4_bridge-2] [INFO] [1792610402.303184798] [drone_1.lio_to_px4_bridge]: visione esterna verso PX4: 345 pose inviate
+[lio_to_px4_bridge-2] [INFO] [1792610402.303298564] [drone_1.lio_to_px4_bridge]: salute FAST-LIO (ultimi 5 s, 51 scansioni): agganciati min 1404 (soglia 500), l1 min 404
+[lio_to_px4_bridge-2] [INFO] [1792610407.303179030] [drone_1.lio_to_px4_bridge]: visione esterna verso PX4: 395 pose inviate
+[lio_to_px4_bridge-2] [INFO] [1792610407.303291772] [drone_1.lio_to_px4_bridge]: salute FAST-LIO (ultimi 5 s, 50 scansioni): agganciati min 1423 (soglia 500), l1 min 440
+[lio_to_px4_bridge-2] [INFO] [1792610412.303194054] [drone_1.lio_to_px4_bridge]: visione esterna verso PX4: 445 pose inviate
+[lio_to_px4_bridge-2] [INFO] [1792610412.303312293] [drone_1.lio_to_px4_bridge]: salute FAST-LIO (ultimi 5 s, 50 scansioni): agganciati min 1430 (soglia 500), l1 min 434
+[lio_to_px4_bridge-2] [INFO] [1792610417.303208607] [drone_1.lio_to_px4_bridge]: visione esterna verso PX4: 495 pose inviate
+[lio_to_px4_bridge-2] [INFO] [1792610417.303321470] [drone_1.lio_to_px4_bridge]: salute FAST-LIO (ultimi 5 s, 50 scansioni): agganciati min 1318 (soglia 500), l1 min 393
+[lio_to_px4_bridge-2] [INFO] [1792610422.303513811] [drone_1.lio_to_px4_bridge]: visione esterna verso PX4: 545 pose inviate
+[lio_to_px4_bridge-2] [INFO] [1792610422.303611059] [drone_1.lio_to_px4_bridge]: salute FAST-LIO (ultimi 5 s, 50 scansioni): agganciati min 1293 (soglia 500), l1 min 380
+[lio_to_px4_bridge-2] [INFO] [1792610427.303185925] [drone_1.lio_to_px4_bridge]: visione esterna verso PX4: 595 pose inviate
+[lio_to_px4_bridge-2] [INFO] [1792610427.303298404] [drone_1.lio_to_px4_bridge]: salute FAST-LIO (ultimi 5 s, 50 scansioni): agganciati min 1413 (soglia 500), l1 min 431
+[lio_to_px4_bridge-2] [INFO] [1792610432.303260102] [drone_1.lio_to_px4_bridge]: visione esterna verso PX4: 644 pose inviate
+[lio_to_px4_bridge-2] [INFO] [1792610432.303425541] [drone_1.lio_to_px4_bridge]: salute FAST-LIO (ultimi 5 s, 49 scansioni): agganciati min 1176 (soglia 500), l1 min 354
+[lio_to_px4_bridge-2] [INFO] [1792610437.303254937] [drone_1.lio_to_px4_bridge]: visione esterna verso PX4: 694 pose inviate
+[lio_to_px4_bridge-2] [INFO] [1792610437.303459255] [drone_1.lio_to_px4_bridge]: salute FAST-LIO (ultimi 5 s, 50 scansioni): agganciati min 1431 (soglia 500), l1 min 426
+[lio_to_px4_bridge-2] [INFO] [1792610442.303186396] [drone_1.lio_to_px4_bridge]: visione esterna verso PX4: 745 pose inviate
+[lio_to_px4_bridge-2] [INFO] [1792610442.303294331] [drone_1.lio_to_px4_bridge]: salute FAST-LIO (ultimi 5 s, 51 scansioni): agganciati min 1487 (soglia 500), l1 min 464
+[lio_to_px4_bridge-2] [INFO] [1792610447.303239056] [drone_1.lio_to_px4_bridge]: visione esterna verso PX4: 794 pose inviate
+[lio_to_px4_bridge-2] [INFO] [1792610447.303363216] [drone_1.lio_to_px4_bridge]: salute FAST-LIO (ultimi 5 s, 49 scansioni): agganciati min 1485 (soglia 500), l1 min 447
+[lio_to_px4_bridge-2] [INFO] [1792610452.303210650] [drone_1.lio_to_px4_bridge]: visione esterna verso PX4: 845 pose inviate
+[lio_to_px4_bridge-2] [INFO] [1792610452.303327674] [drone_1.lio_to_px4_bridge]: salute FAST-LIO (ultimi 5 s, 51 scansioni): agganciati min 1441 (soglia 500), l1 min 458
+[lio_to_px4_bridge-2] [INFO] [1792610457.303112862] [drone_1.lio_to_px4_bridge]: visione esterna verso PX4: 894 pose inviate
+[lio_to_px4_bridge-2] [INFO] [1792610457.303235390] [drone_1.lio_to_px4_bridge]: salute FAST-LIO (ultimi 5 s, 49 scansioni): agganciati min 1483 (soglia 500), l1 min 451
+[lio_to_px4_bridge-2] [INFO] [1792610462.303198115] [drone_1.lio_to_px4_bridge]: visione esterna verso PX4: 945 pose inviate
+[lio_to_px4_bridge-2] [INFO] [1792610462.303330563] [drone_1.lio_to_px4_bridge]: salute FAST-LIO (ultimi 5 s, 51 scansioni): agganciati min 1450 (soglia 500), l1 min 455
+[lio_to_px4_bridge-2] [INFO] [1792610467.303196273] [drone_1.lio_to_px4_bridge]: visione esterna verso PX4: 995 pose inviate
+[lio_to_px4_bridge-2] [INFO] [1792610467.303343217] [drone_1.lio_to_px4_bridge]: salute FAST-LIO (ultimi 5 s, 50 scansioni): agganciati min 1412 (soglia 500), l1 min 445
+[lio_to_px4_bridge-2] [INFO] [1792610472.303212467] [drone_1.lio_to_px4_bridge]: visione esterna verso PX4: 1045 pose inviate
+[lio_to_px4_bridge-2] [INFO] [1792610472.303318099] [drone_1.lio_to_px4_bridge]: salute FAST-LIO (ultimi 5 s, 50 scansioni): agganciati min 1415 (soglia 500), l1 min 425
+[lio_to_px4_bridge-2] [INFO] [1792610477.303270997] [drone_1.lio_to_px4_bridge]: visione esterna verso PX4: 1094 pose inviate
+[lio_to_px4_bridge-2] [INFO] [1792610477.303429397] [drone_1.lio_to_px4_bridge]: salute FAST-LIO (ultimi 5 s, 49 scansioni): agganciati min 1427 (soglia 500), l1 min 446
+[lio_to_px4_bridge-2] [INFO] [1792610482.303295043] [drone_1.lio_to_px4_bridge]: visione esterna verso PX4: 1145 pose inviate
+[lio_to_px4_bridge-2] [INFO] [1792610482.303455940] [drone_1.lio_to_px4_bridge]: salute FAST-LIO (ultimi 5 s, 51 scansioni): agganciati min 1418 (soglia 500), l1 min 440
+[lio_to_px4_bridge-2] [INFO] [1792610487.303190126] [drone_1.lio_to_px4_bridge]: visione esterna verso PX4: 1195 pose inviate
+[lio_to_px4_bridge-2] [INFO] [1792610487.303299726] [drone_1.lio_to_px4_bridge]: salute FAST-LIO (ultimi 5 s, 50 scansioni): agganciati min 1419 (soglia 500), l1 min 439
+[lio_to_px4_bridge-2] [INFO] [1792610492.303729896] [drone_1.lio_to_px4_bridge]: visione esterna verso PX4: 1245 pose inviate
+[lio_to_px4_bridge-2] [INFO] [1792610492.304314890] [drone_1.lio_to_px4_bridge]: salute FAST-LIO (ultimi 5 s, 50 scansioni): agganciati min 1401 (soglia 500), l1 min 434
+[lio_to_px4_bridge-2] [INFO] [1792610497.303176380] [drone_1.lio_to_px4_bridge]: visione esterna verso PX4: 1295 pose inviate
+[lio_to_px4_bridge-2] [INFO] [1792610497.303322877] [drone_1.lio_to_px4_bridge]: salute FAST-LIO (ultimi 5 s, 50 scansioni): agganciati min 1407 (soglia 500), l1 min 443
+[lio_to_px4_bridge-2] [INFO] [1792610502.303186022] [drone_1.lio_to_px4_bridge]: visione esterna verso PX4: 1345 pose inviate
+[lio_to_px4_bridge-2] [INFO] [1792610502.303296135] [drone_1.lio_to_px4_bridge]: salute FAST-LIO (ultimi 5 s, 50 scansioni): agganciati min 1401 (soglia 500), l1 min 434
+[lio_to_px4_bridge-2] [INFO] [1792610507.303186488] [drone_1.lio_to_px4_bridge]: visione esterna verso PX4: 1395 pose inviate
+[lio_to_px4_bridge-2] [INFO] [1792610507.303286840] [drone_1.lio_to_px4_bridge]: salute FAST-LIO (ultimi 5 s, 50 scansioni): agganciati min 1434 (soglia 500), l1 min 434
+[lio_to_px4_bridge-2] [INFO] [1792610512.303178600] [drone_1.lio_to_px4_bridge]: visione esterna verso PX4: 1445 pose inviate
+[lio_to_px4_bridge-2] [INFO] [1792610512.303282985] [drone_1.lio_to_px4_bridge]: salute FAST-LIO (ultimi 5 s, 50 scansioni): agganciati min 1422 (soglia 500), l1 min 452
+[lio_to_px4_bridge-2] [INFO] [1792610517.303189776] [drone_1.lio_to_px4_bridge]: visione esterna verso PX4: 1495 pose inviate
+[lio_to_px4_bridge-2] [INFO] [1792610517.303310513] [drone_1.lio_to_px4_bridge]: salute FAST-LIO (ultimi 5 s, 50 scansioni): agganciati min 1524 (soglia 500), l1 min 460
+[lio_to_px4_bridge-2] [INFO] [1792610522.303252168] [drone_1.lio_to_px4_bridge]: visione esterna verso PX4: 1544 pose inviate
+[lio_to_px4_bridge-2] [INFO] [1792610522.303447817] [drone_1.lio_to_px4_bridge]: salute FAST-LIO (ultimi 5 s, 49 scansioni): agganciati min 1505 (soglia 500), l1 min 463
+[lio_to_px4_bridge-2] [INFO] [1792610527.303243498] [drone_1.lio_to_px4_bridge]: visione esterna verso PX4: 1594 pose inviate
+[lio_to_px4_bridge-2] [INFO] [1792610527.303374700] [drone_1.lio_to_px4_bridge]: salute FAST-LIO (ultimi 5 s, 50 scansioni): agganciati min 1511 (soglia 500), l1 min 458
+[lio_to_px4_bridge-2] [INFO] [1792610532.303190964] [drone_1.lio_to_px4_bridge]: visione esterna verso PX4: 1645 pose inviate
+[lio_to_px4_bridge-2] [INFO] [1792610532.303285301] [drone_1.lio_to_px4_bridge]: salute FAST-LIO (ultimi 5 s, 51 scansioni): agganciati min 1514 (soglia 500), l1 min 460
+[lio_to_px4_bridge-2] [INFO] [1792610537.303199875] [drone_1.lio_to_px4_bridge]: visione esterna verso PX4: 1695 pose inviate
+[lio_to_px4_bridge-2] [INFO] [1792610537.303314116] [drone_1.lio_to_px4_bridge]: salute FAST-LIO (ultimi 5 s, 50 scansioni): agganciati min 1520 (soglia 500), l1 min 455

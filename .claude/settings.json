@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/tools/claude/hook_avvio.sh\"",
+            "timeout": 20
+          }
+        ]
+      }
+    ]
+  }
+}

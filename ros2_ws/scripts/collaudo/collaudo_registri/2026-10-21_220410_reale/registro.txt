@@ -1,0 +1,13 @@
+22:04:10 Collaudo C2-Explorer (DRONE VERO) - registro in /home/draupnir/Documents/Drone_20261018_P/ros2_ws/scripts/collaudo/collaudo_registri/2026-10-21_220410_reale
+22:04:14 == FASE 3: assi e stima dentro PX4 (drone mosso A MANO, motori spenti) ==
+22:04:24 FASE 3: NON SUPERATA - mancano stima o assetto di PX4
+22:04:38 == FASE 3: assi e stima dentro PX4 (drone mosso A MANO, motori spenti) ==
+22:04:48 FASE 3: NON SUPERATA - mancano stima o assetto di PX4
+22:05:06 == FASE 0: collegamento con PX4 ==
+22:05:06 Attendo lo stato di PX4 (fino a 15 s)...
+22:05:21 Nessun messaggio da PX4. Controlla: agente DDS avviato sulla porta giusta (avvia_collaudo.sh), cavo USB, SYS_USB_AUTO = 0 e /etc/extras.txt sulla scheda SD.
+22:05:21 FASE 0: NON SUPERATA - nessun vehicle_status
+22:06:44 == FASE 0: collegamento con PX4 ==
+22:06:44 Attendo lo stato di PX4 (fino a 15 s)...
+22:06:59 Nessun messaggio da PX4. Controlla: agente DDS avviato sulla porta giusta (avvia_collaudo.sh), cavo USB, SYS_USB_AUTO = 0 e /etc/extras.txt sulla scheda SD.
+22:06:59 FASE 0: NON SUPERATA - nessun vehicle_status

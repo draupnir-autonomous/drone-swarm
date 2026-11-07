@@ -1,0 +1,23 @@
+16:51:08 Collaudo C2-Explorer (DRONE VERO) - registro in /home/draupnir/Documents/Drone_20261018_P/ros2_ws/scripts/collaudo/collaudo_registri/2026-10-25_165108_reale
+16:51:13 == FASE 5: hover TRATTENUTO (drone legato, eliche montate) ==
+16:51:13 Lega il drone a terra (corda corta, 30-50 cm di gioco) o fallo volare dentro una rete. Nessuno entro 3 m.
+16:51:13 Istruzioni: t per decollare (sale da solo alla quota indicata), resta fermo almeno 30 s, poi l per atterrare. SPAZIO = emergenza.
+16:51:18 Area libera, eliche montate, persone lontane, batteria carica. Procedo? [s/n] -> s
+16:51:48 decollo verso 0.5 m (offboard, 0.4 m/s)
+16:52:01 quota di decollo raggiunta (0.45 m): fermo in POSCTL
+16:52:29 atterraggio comandato (l)
+16:53:41 FASE 5: SUPERATA - volo 48 s, distanza max 0.51 m, quota max 0.47 m, oscillazione da fermo 13 cm, allarme: nessuno
+16:54:03 == FASE 6: volo manuale ==
+16:54:03 Istruzioni: t per decollare (sale da solo alla quota indicata), resta fermo almeno 30 s, poi l per atterrare. SPAZIO = emergenza.
+16:54:13 Area libera, eliche montate, persone lontane, batteria carica. Procedo? [s/n] -> s
+16:54:17 decollo verso 1.0 m (offboard, 0.4 m/s)
+16:54:29 SICUREZZA: batteria al 25% -> atterraggio
+16:54:38 atterraggio comandato (l)
+16:54:44 atterraggio comandato (l)
+16:54:54 decollo interrotto (h)
+16:54:54 fermo (h)
+16:55:08 EMERGENZA: motori spenti
+16:55:26 decollo verso 1.0 m (offboard, 0.4 m/s)
+16:55:37 decollo interrotto dalle levette: comando manuale
+16:56:01 atterraggio comandato (l)
+16:56:12 FASE 6: NON SUPERATA - volo 112 s, distanza max 0.65 m, quota max 1.28 m, oscillazione da fermo 1 cm, allarme: EMERGENZA (spazio)

@@ -1,0 +1,19 @@
+È una sola variabile d'ambiente, ODOM_SOURCE, e decide entrambe le cose insieme:
+sorgente della posa per lo stack e GPS dentro PX4. I comandi vanno lanciati dalla
+cartella ros2_ws del progetto (i percorsi sono relativi, funziona ovunque sia la cartella).
+
+Con GPS (default, senza FAST-LIO):
+
+cd ros2_ws && ./scripts/run_multi_exploration.sh office_small 1
+
+È il default: ODOM_SOURCE=px4, GNSS acceso, il nodo FAST-LIO non parte nemmeno.
+
+Senza GPS (FAST-LIO su lidar + IMU):
+
+cd ros2_ws && ODOM_SOURCE=lio ./scripts/run_multi_exploration.sh office_small 1
+
+Con lio lo script accende da solo PX4_GPS_DENIED=1, quindi parte un FAST-LIO per drone
+e l'airframe applica tutti i parametri di volo cieco.
+
+# Verificare se una run è stata davvero senza GPS
+cd ros2_ws && ./scripts/verifica_senza_gps.sh

@@ -1,0 +1,163 @@
+diff --git a/vikit_common/CMakeLists.txt b/vikit_common/CMakeLists.txt
+index 830b48b..e981b46 100644
+--- a/vikit_common/CMakeLists.txt
++++ b/vikit_common/CMakeLists.txt
+@@ -8,11 +8,9 @@ SET(USE_ROS False) # Set False if you want to build this package without Catkin
+ 
+ # Set build flags. Set IS_ARM on odroid board as environment variable
+ SET(CMAKE_CXX_FLAGS "-Wall -D_LINUX -D_REENTRANT -march=native -Wno-unused-variable -Wno-unused-but-set-variable -Wno-unknown-pragmas")
+-IF(DEFINED ENV{ARM_ARCHITECTURE})
+-  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mfpu=neon -march=armv8-a")
+-ELSE()
+-  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mmmx -msse -msse -msse2 -msse3 -mssse3")
+-ENDIF()
++# C2-Explorer (Jetson, ottobre 2026): tolto il ramo che senza la variabile d'ambiente
++# ARM_ARCHITECTURE aggiungeva opzioni solo x86 (-mmmx -msse ...) anche su aarch64; la
++# scelta per architettura qui sotto basta.
+ message("Current CPU archtecture: ${CMAKE_SYSTEM_PROCESSOR}")
+ if(CMAKE_SYSTEM_PROCESSOR MATCHES "(x86)|(X86)|(amd64)|(AMD64)" )
+   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mmmx -msse -msse -msse2 -msse3 -mssse3")
+@@ -21,7 +19,7 @@ else()
+ endif()
+ 
+ IF(CMAKE_COMPILER_IS_GNUCC)
+-  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
++  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")   # era c++0x: Sophus 1.22 vuole almeno C++14
+ ELSE()
+   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+ ENDIF()
+@@ -31,6 +29,12 @@ SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -O3 -fsee -fomit-frame-pointer -
+ FIND_PACKAGE(OpenCV REQUIRED)
+ FIND_PACKAGE(Eigen REQUIRED)
+ FIND_PACKAGE(Sophus REQUIRED)
++
++# C2-Explorer (ottobre 2026): Sophus 1.22 esporta solo il target Sophus::Sophus, non piu'
++# la variabile Sophus_INCLUDE_DIRS usata qui sotto: si ricava dal target.
++if(TARGET Sophus::Sophus AND NOT Sophus_INCLUDE_DIRS)
++  get_target_property(Sophus_INCLUDE_DIRS Sophus::Sophus INTERFACE_INCLUDE_DIRECTORIES)
++endif()
+ FIND_PACKAGE(fmt REQUIRED)
+ 
+ # Include dirs
+@@ -51,10 +55,9 @@ IF(USE_ROS)
+     INCLUDE_DIRS include
+     LIBRARIES ${PROJECT_NAME}
+   )
+-ELSE()
+-  SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
+-  SET(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
+ ENDIF()
++# C2-Explorer (ottobre 2026): libreria e programmi di prova restano nella cartella di
++# compilazione (prima finivano in bin/ e lib/ dentro i sorgenti).
+ 
+ # Set Sourcefiles
+ LIST(APPEND SOURCEFILES src/atan_camera.cpp
+@@ -81,7 +84,9 @@ IF(USE_ROS)
+   TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${catkin_LIBRARIES})
+ ENDIF()
+ 
+-# Tests
++# Tests (C2-Explorer: non compilati se non richiesti, non servono a FAST-LIVO2)
++OPTION(VIKIT_COMMON_TESTS "programmi di prova di vikit_common" OFF)
++IF(VIKIT_COMMON_TESTS)
+ ADD_EXECUTABLE(test_vk_common_camera test/test_camera.cpp)
+ TARGET_LINK_LIBRARIES(test_vk_common_camera ${PROJECT_NAME} ${OpenCV_LIBS})
+ 
+@@ -90,21 +95,28 @@ TARGET_LINK_LIBRARIES(test_vk_common_triangulation ${PROJECT_NAME} ${OpenCV_LIBS
+ 
+ ADD_EXECUTABLE(test_vk_common_patch_score test/test_patch_score.cpp)
+ TARGET_LINK_LIBRARIES(test_vk_common_patch_score ${PROJECT_NAME} ${OpenCV_LIBS})
++ENDIF()
+ 
+ 
+ ################################################################################
+-# Create the vikit_commonConfig.cmake file for other cmake projects.
++# C2-Explorer (ottobre 2026): la configurazione originale (vikit_commonConfig.cmake.in)
++# puntava alla cartella di compilazione e la registrava con export(PACKAGE) in
++# ~/.cmake/packages; il percorso della libreria era sbagliato (la libreria finiva nei
++# sorgenti), per cui FAST-LIVO2 non la trovava. Qui si installa una configurazione che
++# ricava i percorsi dalla propria posizione: vale dopo aver spostato il progetto.
+ IF(NOT USE_ROS)
+-  # In CMake 3.6 and later, reading the LOCATION property from a target is no longer allowed.
+-  # GET_TARGET_PROPERTY( FULL_LIBRARY_NAME ${PROJECT_NAME} LOCATION )
+-  set(VIKIT_COMMON_LOCATION $<TARGET_FILE:vikit_common>)
+-  SET(vikit_common_LIBRARIES ${FULL_LIBRARY_NAME} )
+-  SET(vikit_common_LIBRARY_DIR ${PROJECT_BINARY_DIR} )
+-  SET(vikit_common_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/include")
+-  CONFIGURE_FILE( ${CMAKE_CURRENT_SOURCE_DIR}/vikit_commonConfig.cmake.in
+-      ${CMAKE_CURRENT_BINARY_DIR}/vikit_commonConfig.cmake @ONLY IMMEDIATE )
+-  export( PACKAGE vikit_common )
+-
+-  INSTALL(DIRECTORY include/vikit DESTINATION ${CMAKE_INSTALL_PREFIX}/include FILES_MATCHING PATTERN "*.h" )
+-  INSTALL(TARGETS ${PROJECT_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX}/lib )
+-ENDIF()
+\ No newline at end of file
++  FILE(WRITE ${CMAKE_CURRENT_BINARY_DIR}/vikit_commonConfig.cmake [=[
++get_filename_component(_vikit_common_prefix "${CMAKE_CURRENT_LIST_DIR}/../../.." ABSOLUTE)
++set(vikit_common_INCLUDE_DIR  "${_vikit_common_prefix}/include")
++set(vikit_common_INCLUDE_DIRS "${_vikit_common_prefix}/include")
++set(vikit_common_LIBRARY_DIR  "${_vikit_common_prefix}/lib")
++set(vikit_common_LIBRARY_DIRS "${_vikit_common_prefix}/lib")
++set(vikit_common_LIBRARY      "${_vikit_common_prefix}/lib/libvikit_common.so")
++set(vikit_common_LIBRARIES    "${_vikit_common_prefix}/lib/libvikit_common.so")
++set(vikit_common_FOUND TRUE)
++]=])
++  INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/vikit_commonConfig.cmake
++          DESTINATION share/${PROJECT_NAME}/cmake)
++  INSTALL(DIRECTORY include/vikit DESTINATION include FILES_MATCHING PATTERN "*.h" )
++  INSTALL(TARGETS ${PROJECT_NAME} DESTINATION lib )
++ENDIF()
+diff --git a/vikit_common/package.xml b/vikit_common/package.xml
+index 4717938..3370ced 100644
+--- a/vikit_common/package.xml
++++ b/vikit_common/package.xml
+@@ -13,6 +13,7 @@
+ 
+  <!-- Buildtool dependencies -->
+  <buildtool_depend>ament_cmake</buildtool_depend>
++  <depend>sophus</depend> <!-- C2-Explorer: Sophus sta nel workspace -->
+ 
+  <!-- Build dependencies -->
+  <build_depend>rclcpp</build_depend>
+diff --git a/vikit_ros/CMakeLists.txt b/vikit_ros/CMakeLists.txt
+index 06f7a64..07009a1 100644
+--- a/vikit_ros/CMakeLists.txt
++++ b/vikit_ros/CMakeLists.txt
+@@ -51,6 +51,12 @@ find_package(tf2_ros REQUIRED)
+ find_package(OpenCV REQUIRED)
+ find_package(Eigen3 REQUIRED)
+ find_package(Sophus REQUIRED)
++
++# C2-Explorer (ottobre 2026): Sophus 1.22 esporta solo il target Sophus::Sophus, non piu'
++# la variabile Sophus_INCLUDE_DIRS usata qui sotto: si ricava dal target.
++if(TARGET Sophus::Sophus AND NOT Sophus_INCLUDE_DIRS)
++  get_target_property(Sophus_INCLUDE_DIRS Sophus::Sophus INTERFACE_INCLUDE_DIRECTORIES)
++endif()
+ find_package(tf2_geometry_msgs REQUIRED)
+ find_package(rosidl_default_generators REQUIRED)
+ set(dependencies
+diff --git a/vikit_ros/include/vikit/params_helper.h b/vikit_ros/include/vikit/params_helper.h
+index 9e12931..d5110dc 100644
+--- a/vikit_ros/include/vikit/params_helper.h
++++ b/vikit_ros/include/vikit/params_helper.h
+@@ -114,7 +114,7 @@ T getRemoteParam(const rclcpp::Node::SharedPtr &nh, const std::string& remote_no
+     try {
+         auto parameters_client = std::make_shared<rclcpp::SyncParametersClient>(nh, remote_node_name);
+         // Wait briefly for the service to be available
+-        if (parameters_client->wait_for_service(std::chrono::milliseconds(100))) {
++        if (parameters_client->wait_for_service(std::chrono::milliseconds(5000))) {
+             auto values = parameters_client->get_parameters({param_name});
+             if (!values.empty() && values[0].get_type() != rclcpp::ParameterType::PARAMETER_NOT_SET) {
+                 return values[0].get_value<T>();
+diff --git a/vikit_ros/package.xml b/vikit_ros/package.xml
+index 7e1cdff..b5db5f3 100644
+--- a/vikit_ros/package.xml
++++ b/vikit_ros/package.xml
+@@ -18,6 +18,7 @@
+   <!-- The *_depend tags are used to specify dependencies -->
+   <!-- Dependencies can be ament packages or system dependencies -->
+   <buildtool_depend>ament_cmake</buildtool_depend>
++  <depend>sophus</depend> <!-- C2-Explorer: Sophus sta nel workspace -->
+   <buildtool_depend>rosidl_default_generators</buildtool_depend>
+   <depend>rclcpp</depend>
+   <depend>cmake_modules</depend> <!-- for FindEigen.cmake module -->

@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>bspline_opt</name>
+  <version>0.0.1</version>
+  <description>B-spline trajectory optimization (NLopt-based) for C2-Explorer, ported from ROS1 to ROS2</description>
+  <maintainer email="fabiofraschetti99@gmail.com">fabio</maintainer>
+  <license>GPL-3.0</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>rclcpp</depend>
+  <depend>bspline</depend>
+  <depend>plan_env</depend>
+  <depend>active_perception</depend>
+  <depend>eigen</depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

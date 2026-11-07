@@ -1,0 +1,15 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index c715bb2..e16a194 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -166,7 +166,9 @@ if(SOPHUS_INSTALL)
+   )
+ 
+   export(TARGETS sophus NAMESPACE Sophus:: FILE SophusTargets.cmake)
+-  export(PACKAGE Sophus)
++  # C2-Explorer (ottobre 2026): niente export(PACKAGE): scriverebbe in ~/.cmake/packages
++  # un rimando a questa cartella di compilazione, visibile da ogni altro progetto.
++  # La configurazione installata (share/sophus/cmake) basta a colcon.
+ 
+   configure_package_config_file(
+     SophusConfig.cmake.in

@@ -1,0 +1,5 @@
+21:19:32 Collaudo C2-Explorer (DRONE VERO) - registro in /home/draupnir/Documents/Drone_20261018_P/ros2_ws/scripts/collaudo/collaudo_registri/2026-10-21_211932_reale
+21:19:38 == FASE 5: hover TRATTENUTO (drone legato, eliche montate) ==
+21:19:38 Lega il drone a terra (corda corta, 30-50 cm di gioco) o fallo volare dentro una rete. Nessuno entro 3 m.
+21:19:38 Istruzioni: t per decollare (sale da solo alla quota indicata), resta fermo almeno 30 s, poi l per atterrare. SPAZIO = emergenza.
+21:19:43 Area libera, eliche montate, persone lontane, batteria carica. Procedo? [s/n] -> s

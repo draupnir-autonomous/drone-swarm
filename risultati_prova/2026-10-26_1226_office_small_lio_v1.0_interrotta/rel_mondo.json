@@ -1,0 +1,13 @@
+{
+ "nome": "office_small",
+ "origine": "/home/draupnir/Documents/Drone_20261025_SWARM/ros2_ws/src/c2x_worlds/worlds/office_small.sdf",
+ "droni": 1,
+ "tarato": true,
+ "config_origine": "multi_drone_office_small.yaml",
+ "partenze": [
+  "-3.500,-3.000,0.227,0,0,0.0000"
+ ],
+ "avvisi": [],
+ "sdf": "/tmp/c2x_run_multi/mondo/office_small.sdf",
+ "config": "/tmp/c2x_run_multi/mondo/config.yaml"
+}

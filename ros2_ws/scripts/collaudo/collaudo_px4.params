@@ -1,0 +1,85 @@
+# Parametri PX4 v1.17 per i PRIMI VOLI del drone vero (C2-Explorer, collaudo, ottobre 2026):
+# al chiuso, senza GPS, senza radiocomando, posizione da FAST-LIO (lidar Mid-360).
+# Caricali con QGroundControl: Vehicle Setup > Parameters > Tools > Load from file, poi
+# riavvia il Pixhawk. Prima salva i parametri attuali (Tools > Save to file).
+# Colonne: sistema, componente, nome, valore, tipo (6 = intero, 9 = decimale).
+#
+# --- comando senza radiocomando: le levette arrivano da collaudo.py (/fmu/in/manual_control_input)
+# 1 = solo comando manuale "MAVLink" (collaudo.py si presenta cosi'); niente radiocomando
+1	1	COM_RC_IN_MODE	1	6
+# levette ferme da 0.5 s (programma fermo, Jetson bloccato) = comando perso
+1	1	COM_RC_LOSS_T	0.5	9
+# comando perso -> ATTERRAGGIO (3 = Land)
+1	1	NAV_RCL_ACT	3	6
+# nessuna eccezione: anche in offboard, se le levette spariscono si atterra
+1	1	COM_RCL_EXCEPT	0	6
+# offboard perso da 0.5 s -> atterraggio (4 = Land)
+1	1	COM_OF_LOSS_T	0.5	9
+1	1	COM_OBL_RC_ACT	4	6
+# batteria: atterraggio al livello critico (2 = Land)
+1	1	COM_LOW_BAT_ACT	2	6
+# disarmo automatico 2 s dopo l'atterraggio, 10 s se armato e mai decollato
+1	1	COM_DISARM_LAND	2	9
+1	1	COM_DISARM_PRFLT	10	9
+1	1	COM_ARM_WO_GPS	1	6
+# prova dei motori da collaudo.py (fase 4, eliche smontate)
+1	1	COM_MOT_TEST_EN	1	6
+# Pixhawk collegato al Jetson con l'USB: armare con l'USB collegato deve essere permesso.
+# 197848 = controllo "USB connected" disattivato (e' il valore di serie, qui per sicurezza).
+1	1	CBRK_USB_CHK	197848	6
+#
+# --- stima: FAST-LIO come visione esterna (gli stessi valori validati in simulazione,
+#     airframe 22000, ramo PX4_GPS_DENIED)
+1	1	EKF2_GPS_CTRL	0	6
+# 15 = posizione orizzontale + verticale + velocita' + imbardata dalla visione
+1	1	EKF2_EV_CTRL	15	6
+# 3 = quota di riferimento dalla visione (il barometro al chiuso risente delle eliche)
+1	1	EKF2_HGT_REF	3	6
+1	1	EKF2_EVP_GATE	8.0	9
+1	1	EKF2_EVP_NOISE	0.03	9
+1	1	EKF2_EVV_GATE	5.0	9
+# ritardo della stima: in simulazione 20 ms; sul Jetson vero FAST-LIO + trasporto, da
+# misurare (registro di volo: vehicle_visual_odometry contro vehicle_local_position)
+1	1	EKF2_EV_DELAY	50	9
+# 5 = bussola NON usata: al chiuso il campo magnetico e' disturbato (ferro, cavi), e
+# l'imbardata arriva gia' dalla visione (bit 3 di EKF2_EV_CTRL). Con la bussola attiva le
+# due imbardate litigano.
+1	1	EKF2_MAG_TYPE	5	6
+# Posizione del sensore di visione rispetto al baricentro: A ZERO, come in simulazione (dove
+# tutto e' validato). Il pianificatore della missione ragiona sulla posizione del LIDAR (la
+# stima di FAST-LIO); con valori diversi da zero PX4 inseguirebbe il baricentro e il drone
+# volerebbe spostato di quella distanza (es. 10 cm piu' in basso del riferimento). La
+# posizione del lidar per la missione si da' a run_reale_exploration.sh con LIDAR_POS.
+1	1	EKF2_EV_POS_X	0.0	9
+1	1	EKF2_EV_POS_Y	0.0	9
+1	1	EKF2_EV_POS_Z	0.0	9
+#
+# --- limiti di volo per le prove (al chiuso, lenti)
+# POSCTL: velocita' orizzontale con levetta a fondo (collaudo.py usa il 60% -> ~0.16 m/s)
+1	1	MPC_VEL_MANUAL	0.5	9
+# 0.6 per i primi voli: con VEL_MAX 0.3 il drone simulato in missione ha toccato 0.59 m/s
+1	1	MPC_XY_VEL_MAX	0.6	9
+1	1	MPC_XY_CRUISE	0.5	9
+# salita massima 1.0 (il valore validato in simulazione): con 0.5 il decollo di PX4 recupera
+# troppo piano la spinta dopo la rampa (il drone resta a terra e poi si stacca di colpo).
+# collaudo.py decolla comunque a 0.4 m/s e in POSCTL usa il 60% della levetta.
+1	1	MPC_Z_VEL_MAX_UP	1.0	9
+1	1	MPC_Z_VEL_MAX_DN	0.4	9
+1	1	MPC_Z_V_AUTO_UP	0.5	9
+1	1	MPC_Z_V_AUTO_DN	0.4	9
+1	1	MPC_LAND_SPEED	0.4	9
+1	1	MPC_TILTMAX_AIR	20	9
+1	1	MPC_MAN_TILT_MAX	15	9
+# SPINTA DI HOVER: MPC_THR_HOVER (0-1) NON e' in questo file per non sovrascrivere quella
+# del tuo drone, ma CONTROLLALA in QGroundControl: deve essere vicina a quella vera (peso,
+# motori, batteria; di solito 0.3-0.6). Se e' troppo bassa il drone resta appoggiato mentre
+# PX4 lo crede gia' in aria e la spinta cresce piano, poi si stacca di colpo (visto in
+# simulazione). collaudo.py spegne i motori se 8 s dopo il decollo il drone e' ancora sotto
+# 10 cm. PX4 la affina da solo in volo (MPC_USE_HTE = 1).
+#
+# --- collegamento DDS sull'USB: SYS_USB_AUTO NON e' in questo file (19 ottobre 2026). Con 0
+# PX4 smette di mettere MAVLink sull'USB e QGroundControl perde il Pixhawk al primo riavvio:
+# va impostato a mano per ULTIMO, dopo aver finito con QGroundControl (PROCEDURA_PROVE_REALI.md,
+# punto A.3). Per tornare a QGroundControl via USB: sulla scheda SD /etc/config.txt con
+# "param set SYS_USB_AUTO 2" e "param save", riavvio, poi togliere config.txt.
+# Con un cavo seriale TELEM2 invece: lascia SYS_USB_AUTO a 2 e imposta UXRCE_DDS_CFG = 102.

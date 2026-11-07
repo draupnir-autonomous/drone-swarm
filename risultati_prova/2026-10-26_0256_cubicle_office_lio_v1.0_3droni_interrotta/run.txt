@@ -1,0 +1,12 @@
+inizio:          2026-10-26 02:56:50
+fine:            2026-10-26 03:28:26  (run interrotta)
+comando:         ODOM_SOURCE=lio VEL_MAX=1.0 VISITA=1 FASE_FOTO=0 IMBARDATA_FOTO=0 GIRO_INIZIALE=0.5 MAPPA_REALISTICA=1 FOTO=1 TEMPO_SIM=1 ./scripts/run_multi_exploration.sh cubicle_office 3
+droni:           3
+RTF medio:       0.34 (473 campioni)
+mondo:           cubicle_office (/home/draupnir/Documents/Drone_20261025_SWARM/ros2_ws/src/c2x_worlds/worlds/cubicle_office.sdf)
+GPS in PX4:      spento
+GUI di Gazebo:   N
+macchina:        aarch64, clock CPU fissati: no
+esplorazione finita: 3/3 droni
+crash rilevati:      0
+divergenze FAST-LIO: 0

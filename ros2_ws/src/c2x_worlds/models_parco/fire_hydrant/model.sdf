@@ -1,0 +1,31 @@
+<?xml version="1.0" ?>
+<sdf version="1.5">
+  <model name="fire_hydrant">
+    <static>true</static>
+    <link name="link">
+      <collision name="collision">
+        <geometry>
+          <mesh>
+            <uri>model://fire_hydrant/meshes/fire_hydrant.dae</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <!-- INIZIO per_lidar: GENERATO DA scripts/make_parco.py (geometrie_per_lidar) -->
+      <!-- La collisione come la deve vedere il lidar: vedi la funzione in make_parco.py. -->
+      <visual name="per_lidar">
+        <cast_shadows>false</cast_shadows>
+        <geometry><mesh><uri>model://fire_hydrant/meshes/fire_hydrant_lidar.dae</uri></mesh></geometry>
+        <material><diffuse>0.5 0.5 0.5 1</diffuse></material>
+        <transparency>1.0</transparency>
+      </visual>
+      <!-- FINE per_lidar -->
+      <visual name="visual">
+        <geometry>
+          <mesh>
+            <uri>model://fire_hydrant/meshes/fire_hydrant.dae</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+  </model>
+</sdf>

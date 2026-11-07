@@ -1,0 +1,378 @@
+# DRONE VERO (scripts/collaudo/prepara_reale.py): coordinate di FAST-LIO, origine nel punto
+# di decollo, x avanti, y sinistra. Il campo del Mid-360 vero (perception_utils) lo
+# imposta il launch con reale:=true.
+# GENERATO DA scripts/prepara_mondo.py per il mondo "reale" (drone vero).
+# Base: multi_drone_cubicle_office.yaml; cambiano solo zona da esplorare, mappa e celle di spartizione.
+# Multi-UAV scenario config. Keyed with the "/**" wildcard so the same file
+# applies to every exploration_node whatever /drone_N namespace it runs in
+# (nodes silently ignore parameters they never declare, so traj_server and the
+# LKH solver nodes can share it too).
+#
+# exploration.drone_id / exploration.drone_num / the per-drone colours and the
+# save-map path are overridden per drone by multi_drone_exploration.launch.py.
+/**:
+  ros__parameters:
+    sdf_map.resolution: 0.1
+    sdf_map.map_origin_x: -16.50
+    sdf_map.map_origin_y: -8.50
+    sdf_map.map_size_x: 9.50
+    sdf_map.map_size_y: 9.00
+    sdf_map.map_size_z: 5.0
+    # ATTENZIONE - qui due analisi si contraddicono, ed e' bene saperlo.
+    # Un'analisi precedente aveva provato 0.25 e 0.35 e li aveva scartati: "sealed
+    # off the only corridor out of spawn / left zero viewpoints with any valid
+    # clearance", tornando a 0.199.
+    # Una misura successiva sulla pianta ricostruita dice invece che con 0.4 m di
+    # inflazione resta navigabile il 71% dello spazio libero, e le run con 0.35
+    # volano ed esplorano gran parte dell'ufficio senza restare chiuse allo
+    # spawn. Le due osservazioni sono probabilmente state fatte su geometrie
+    # diverse (il mondo Gazebo di questa scena e' stato generato solo dopo, da
+    # cubicle_office.pcd; prima non esisteva).
+    # RISOLTA a favore dell'analisi precedente, con una motivazione nuova.
+    # Con 0.35 i droni non si schiantano piu' (0 crash su 4 run), ma pagano in
+    # copertura: a fine run risultano 47-48 frontiere DORMIENTI per drone, cioe'
+    # gruppi di celle per cui non esiste un solo punto di vista campionabile.
+    # E' esattamente il difetto descritto dalla nota precedente: in corsie larghe
+    # meno di un metro l'inflazione occupa tutta la carreggiata e ogni candidato
+    # viene scartato da getInflateOccupancy. L'esplorazione non completa perche'
+    # intere zone vengono abbandonate, non perche' manchi tempo.
+    # Si torna al valore base perche' la sicurezza non dipende piu' da questo
+    # parametro: lo stop reattivo su lidar, ora con criterio sul tempo al
+    # contatto, tiene lo 0.0% del volo dentro l'ingombro delle eliche (misurato
+    # sulla verita' del simulatore). L'inflazione serve al pianificatore per
+    # scegliere percorsi ragionevoli, non e' piu' l'ultima linea di difesa.
+    # Ottobre 2026, portato da office_small: con 0.199 il pianificatore considerava libero un punto a 20 cm da un muro (3 urti su 8 run).
+    sdf_map.obstacles_inflation: 0.3
+    sdf_map.local_bound_inflate: 0.5
+    sdf_map.local_map_margin: 50
+    # ESDF ricalcolato solo entro 10 m (in orizzontale) dal drone: lo leggono solo
+    # l'ottimizzatore B-spline (tratti di al massimo 7 m dal drone) e il controllo
+    # di partenza del planner. Sul Jetson l'ESDF dell'intero riquadro visto dal
+    # lidar costava 0.12 s a nuvola nel thread della pianificazione (17 ott 2026).
+    sdf_map.esdf_radius: 10.0
+    # ESDF: si ricalcola su richiesta prima di ogni pianificazione (FSM, PLAN_TRAJ);
+    # il timer periodico resta solo di riserva, ogni 1 s (di serie 0.05 = a ogni nuvola).
+    map_ros.esdf_period: 1.0
+    sdf_map.ground_height: -0.5
+    sdf_map.default_dist: 0.5
+    # p_hit bumped from the empty_room default 0.70: at 0.70, a single lidar hit's
+    # log-odds contribution (~0.85) doesn't cross the p_occ=0.80 threshold (~1.39) on its
+    # own - a voxel needs 2 consecutive corroborating hits (~0.2s at 10Hz) before the
+    # planner treats it as occupied. On this cluttered scene that convergence lag let the
+    # drone fly into real geometry that had genuinely been hit by the lidar but hadn't
+    # "counted" as occupied yet. 0.82 crosses the threshold on the first hit.
+    sdf_map.p_hit: 0.82
+    sdf_map.p_miss: 0.35
+    sdf_map.p_min: 0.12
+    sdf_map.p_max: 0.97
+    sdf_map.p_occ: 0.80
+    sdf_map.max_ray_length: 20.0
+    sdf_map.virtual_ceil_height: -10.0
+    sdf_map.optimistic: false
+    sdf_map.signed_dist: true
+    sdf_map.no_drone_1: false
+    # Matches the raw cubicle_office.pcd bounds (x[-15.16,15.84]
+    # y[-15.69,15.31] z[-0.10,2.32]), rounded outward with a small margin.
+    sdf_map.box_min_x: -15.00
+    sdf_map.box_min_y: -7.00
+    sdf_map.box_min_z: -0.5
+    sdf_map.box_max_x: -8.50
+    sdf_map.box_max_y: -1.00
+    sdf_map.box_max_z: 2.20
+
+    map_ros.frame_id: "world"
+    map_ros.esdf_slice_height: 0.5
+    map_ros.visualization_truncate_height: 3.0
+    map_ros.visualization_truncate_low: -1.0
+    map_ros.use_local_only: true
+    map_ros.show_occ_time: true
+    map_ros.show_esdf_time: true
+    map_ros.show_all_map: true
+    map_ros.virtual_ground_enable: true
+    map_ros.virtual_ground_z: 0.0
+    map_ros.virtual_ground_stride: 1
+
+    fsm.thresh_replan1: 0.2
+
+    # Tetto al tempo di esplorazione (s dal via): oltre si rientra con la mappa
+
+    # raccolta. Ufficio 31x31 m, quattro volte office_small (600 s): 1200.
+
+    fsm.max_explore_time: 240.0
+
+    # Frontiere irraggiungibili archiviate dopo 30 pianificazioni fallite di fila.
+
+    fsm.plan_fail_ban_streak: 30
+    fsm.thresh_replan2: 0.2
+    fsm.thresh_replan3: 1.5
+    # cubicle_office: la pianificazione dura 0.5-3.5 s (giro delle celle: grafo di
+    # connettivita' + matrice dei costi, crescono con la mappa scoperta). Con 0.2 s
+    # il server di traiettoria troncava quella in corso molto prima che arrivasse
+    # la nuova: frenata secca, attesa, riferimento che riparte da dietro e
+    # rincorsa (dondolio, e crash nella campagna V17). Con un anticipo piu' lungo
+    # della pianificazione la traiettoria nuova parte da dove sara' davvero il
+    # drone; se la vecchia finisce prima, il drone si ferma come da piano sul
+    # punto di vista e riparte da fermo, senza salti. Le ripianificazioni
+    # anti-collisione usano fsm.replan_time_collision (0.2).
+    # PROVATO E SCARTATO (V18): anticipo piu' lungo del tempo di pianificazione
+    # (0.45 s qui / 2.0 s su cubicle). Toglie le soste ma il drone oscilla di piu':
+    # vedi la nota sul traj_server nel launch. Si resta a 0.20.
+    fsm.replan_time: 0.20
+    fsm.replan_time_collision: 0.2
+    fsm.attempt_interval: 0.5
+    fsm.meeting_opt_interval: 2.5
+    fsm.state_fresh_timeout: 1.2
+    fsm.opt_wait_timeout: 2.5
+    fsm.opt_retry_interval: 0.35
+    fsm.opt_retry_max: 4
+    fsm.opt_reject_backoff: 0.8
+    fsm.opt_reject_backoff_max: 2.5
+    fsm.repeat_send_num: 1
+    fsm.debug_opt_output: false
+    # No-progress watchdog: over a sliding window of no_progress_timeout
+    # seconds, a drone that gained less than no_progress_min_volume of newly
+    # explored space concludes the frontiers it still holds cannot be cleared
+    # from anywhere it can reach, and goes IDLE (-> FINISH). Without it a drone
+    # flies at the same unreachable frontier indefinitely - seen twice, 181 and
+    # 256 plan/execute cycles on a single frontier while the others had long
+    # finished.
+    #
+    # min_volume is in m3 and a voxel is 0.001 m3 (resolution 0.1), so 2.0 m3 =
+    # 2000 new voxels per window. The first version used 0.5 m3 = 500 voxels
+    # and never fired once: at 192k lidar points/s even a drone orbiting one
+    # spot scrapes that many new voxels, so the window kept sliding. A drone
+    # genuinely closing its last frontier cluster reveals far more than this.
+    # Keep the timeout well above the longest legitimate transit across the
+    # scene at manager.max_vel - during which the lidar is mapping new space
+    # anyway, so the window slides on its own. 0 disables the watchdog.
+    fsm.no_progress_timeout: 70.0
+    fsm.no_progress_min_volume: 2.0
+    # Errore di inseguimento oltre il quale si ripianifica dalla posizione reale
+    # invece che da quella predetta sulla traiettoria precedente. 0 = comportamento upstream.
+    fsm.replan_reanchor_dist: 0.5
+
+    color_r: 1.0
+    color_g: 0.0
+    color_b: 0.0
+    color_a: 1.0
+
+    partitioning.alpha_consistency: 1.15
+    partitioning.w_distance: 1.0
+    partitioning.w_global_dist_time: 1.0
+    partitioning.w_global_turn_time: 1.0
+    partitioning.w_global_z_change: 1.0
+    # Measured empirically on this real cluttered scene: 7.5 (25 cells)
+    # -> 1.4-1.5s construction time; 17.5 (4 cells) -> 2.6s - WORSE, not
+    # better. Unlike the empty_room case, fewer/larger cells cost more
+    # here (more geometry per cell to connect), so this is not tunable
+    # down to the 0.5s replan period the way empty_room was. Root cause
+    # of past livelocks was Gazebo GUI CPU starvation of the executor,
+    # not raw construction time alone - keep the GUI killed at runtime
+    # and rely on the mutually-exclusive callback group to just queue
+    # the trigger behind a slow-but-finite frontier cycle.
+    # 10 m invece di 7.5: 16 celle invece di 25 (come office_small). Il giro delle
+    # celle (grafo di connettivita' + matrice dei costi fra coppie di celle) costa
+    # col quadrato del numero di celle, e con 25 la pianificazione durava 1.45 s:
+    # il drone si fermava ad aspettarla a ogni ripianificazione (dondolio).
+    # PROVATO E SCARTATO (V17c): celle da 10 m. La pianificazione partiva piu' veloce
+    # (0.8 s) ma in volo saliva a 2.2 s di mediana, peggio dei 1.45 s con 7.5.
+    partitioning.grid_size: 4.00
+    # RISOLUZIONE DELL'A* DEL GRAFO DI CONNETTIVITA'.
+    #
+    # Non impostata, questa ricade sulla risoluzione della mappa - 0.1 m - e il
+    # grafo cerca a 10 cm dentro scatole che coprono due celle intere. Misurato:
+    # ogni arco costa 25-35 ms di A*, ne servono ~100 per aggiornamento, e la
+    # costruzione del grafo arriva a 2.05 s di mediana (max 7.66 s).
+    # Quella costruzione sta dentro la pianificazione, che sta nel gruppo di
+    # callback mutuamente esclusivo dell'FSM: mentre gira, il drone non decide e
+    # non riparte. In una run da 677 s a tre droni sono 1200 s di grafo su 1510 s
+    # di pianificazione totale - l'84% del tempo in PLAN_TRAJ contro il 13% in
+    # esecuzione. E' il motivo per cui alzare max_vel, max_acc o allungare le
+    # traiettorie non ha mai spostato la velocita' media: il velivolo non e'
+    # limitato dalla dinamica, e' affamato di calcolo.
+    # Il grafo serve a stimare il COSTO di attraversamento fra centri di cella
+    # per ordinare il giro, non a produrre una traiettoria: la rotta volata la
+    # calcola un altro A* a risoluzione piena in planTrajToView. Tant'e' che
+    # quando il percorso di un arco manca, il codice lo sostituisce con un
+    # segmento dritto. A 0.3 m i nodi esplorati calano di ~27 volte in 3D.
+    # MISURATO SU cubicle_office, campagna CGRES da 4 run: il grafo scende da
+    # 2.05 s a 1.04 s di mediana, la permanenza in PLAN_TRAJ da 2.36 s a 1.51 s
+    # (84% -> 78%) e il tempo in esecuzione sale dal 13% al 19%.
+    # Il completamento pero' resta 0/3 su tutte e quattro le run: su questa scena
+    # - 32x32 m, oltre quattro volte l'area di office_small - il tetto di 700 s
+    # non basta, con o senza questa correzione. Quindi la riduzione di costo e'
+    # dimostrata, l'effetto sul completamento no.
+    partitioning.cg_astar_res: 0.3
+    partitioning.use_swarm_tf: false
+    partitioning.ccl_step: 1
+    exploration.refine_local: true
+    exploration.refined_num: 7
+    exploration.refined_radius: 5.0
+    exploration.max_decay: 0.8
+    exploration.top_view_num: 15
+    # STORIA DI QUESTO VALORE - non era "non tarato": 0.35 era una mitigazione
+    # deliberata contro i crash ("vm/am cut to a third of the empty_room default,
+    # down from an initial halving to 0.5 that still let the drone crash into real
+    # geometry mid-flight"). Rallentare dava a PX4 meno margine di sovraelongazione
+    # e alla ripianificazione di sicurezza piu' tempo di reazione.
+    # Riportato a 0.6 perche' a 0.35 l'esplorazione non completa: 972 s di volo
+    # senza crash e senza chiudere la scena, con i droni che si muovono cosi'
+    # piano da sembrare fermi. La contropartita alla maggiore velocita' non e'
+    # piu' "sperare che basti": lo stop reattivo ora ragiona sul TEMPO AL CONTATTO
+    # invece che sulla sola distanza, quindi la protezione scala con la velocita'
+    # - piu' vai veloce, prima interviene. Se i crash risalissero, questo e il
+    # tempo al contatto sono la coppia da tarare insieme.
+    exploration.vm: 0.6
+    exploration.am: 1.0
+    exploration.vz: 0.6
+    exploration.yd: 1.0471975512
+    exploration.ydd: 1.5707963268
+    exploration.w_dir: 1.5
+    exploration.tsp_dir: ""  # impostato dal launch (cartella di lavoro di LKH in /tmp)
+    exploration.mtsp_dir: ""  # impostato dal launch (cartella di lavoro di LKH in /tmp)
+    exploration.drone_num: 3
+    exploration.drone_id: 1
+    exploration.init_plan_num: 2
+    exploration.prob_type: 2
+    exploration.center_switch_penalty: 8.0
+    exploration.center_stay_bonus: 8.0
+
+    # --- Multi-UAV -----------------------------------------------------------
+    # r_comm from the paper (5 m): drones only coordinate - and only exchange
+    # map chunks - while within this distance of each other.
+    communication.connection_threshold: 10.0
+    communication.neighbor_timeout: 2.0
+    communication.heartbeat_interval: 0.04
+
+    # Map-chunk exchange granularity. 200 voxel addresses per chunk keeps a
+    # single ChunkData message small; the partial flush makes sure the tail of
+    # a slow update still gets shipped instead of waiting for a full chunk.
+    multi_map_manager.chunk_size: 200
+    multi_map_manager.chunk_partial_flush_interval: 0.5
+
+    frontier.cluster_min: 60
+    frontier.cluster_size_xy: 3.0
+    frontier.cluster_size_z: 3.0
+    frontier.min_candidate_dist: 0.5
+    # Bumped from the empty_room default 0.11: on this real cluttered scene,
+    # candidate viewpoints were repeatedly landing on raw-occupied voxels right
+    # at thin obstacle edges (desks/partitions), failing the A* goal check every
+    # cycle even after fixing the min_cost_id fallback bug. More clearance
+    # pushes candidates further from real geometry.
+    frontier.min_candidate_clearance: 0.3
+    frontier.candidate_dphi: 0.2617993878
+    frontier.candidate_rnum: 5
+    # Punti di vista lontani dagli ostacoli e nella fascia di quota di volo (come
+    # office_small: stesse altezze, pareti e divisori fino a 2.27 m).
+    frontier.viewpoint_obstacle_clearance: 0.55
+    frontier.viewpoint_min_z: 1.0
+    frontier.viewpoint_max_z: 1.7
+    frontier.candidate_rmin: 0.5
+    # Come office_small: anello di campionamento dei punti di vista 0.5-2.0 m (copertura delle pareti).
+    frontier.candidate_rmax: 2.0
+    frontier.down_sample: 1
+    frontier.min_visib_num: 10
+    frontier.min_view_finish_fraction: 0.2
+
+    # Il sensore simulato e' 360 gradi in orizzontale (model.sdf: min_angle -pi,
+    # max_angle +pi). Qui il modello di visibilita' dichiarava invece +-60 gradi,
+    # cioe' uno spicchio frontale di 120: sottostimava le celle viste da ogni
+    # punto di vista e faceva calcolare un'imbardata "per guardare" la frontiera,
+    # che il sensore vedeva gia'. E ruotare COSTA: planTrajToView impone
+    # time_lb = angolo / yd, quindi 180 gradi a 1.047 rad/s vincolano la
+    # traiettoria ad almeno 3 s a prescindere dalla distanza da percorrere.
+    # Allineato al sensore reale: tutti gli orientamenti sono equivalenti.
+    perception_utils.lidar_pitch: 0.0
+    perception_utils.lidar_top_angle: 0.8726646259971648
+    perception_utils.lidar_bottom_angle: 0.8726646259971648
+    perception_utils.lidar_left_angle: 3.1415926536
+    perception_utils.lidar_right_angle: 3.1415926536
+    perception_utils.lidar_max_dist: 22.0
+    perception_utils.lidar_vis_dist: 1.0
+
+    manager.max_vel: 0.6
+    # Come office_small, dove il planner corretto e' stato validato (campagne V15-V16).
+    manager.max_acc: 2.0
+    manager.local_segment_length: 6.0
+    manager.control_points_distance: 0.5
+    manager.use_geometric_path: true
+    manager.use_kinodynamic_path: true
+    manager.use_optimization: true
+    manager.use_active_perception: true
+    manager.min_time: true
+    manager.relax_time1: 0.3
+    manager.relax_time2: 1.5
+    # Horizontal separation below which checkSwarmCollision declares a conflict
+    # and the higher-id drone yields. Was hardcoded at 0.5m, about the x500's
+    # own rotor span - i.e. it only fired once the two were already overlapping.
+    # Must stay BELOW optimization.swarm_safe_dist (1.2): the optimizer is what
+    # normally holds the drones apart, and this is the backstop for when it
+    # failed. Set above it and the backstop fires while the optimizer is
+    # perfectly happy, and the drones yield to each other continuously.
+    manager.swarm_clearance: 0.9
+    manager.max_yawdot: 2.0943951024
+
+    search.max_tau: 0.8
+    search.init_max_tau: 1.0
+    search.max_vel: 0.6
+    search.vel_margin: 0.25
+    search.max_acc: 2.0
+    search.w_time: 10.0
+    search.horizon: 5.0
+    search.lambda_heu: 10.0
+    search.resolution_astar: 0.025
+    search.time_resolution: 0.8
+    search.allocate_num: 100000
+    search.check_num: 10
+    search.optimistic: false
+
+    astar.lambda_heu: 10.0
+    astar.resolution_astar: 0.3
+    astar.allocate_num: 1000000
+    # The empty_room default of 0.003s (3ms) was tight even there; on this real cluttered
+    # scene the "No path to next viewpoint" failures were traced to Astar::search hitting
+    # this time cutoff (astar2.cpp:90) before finishing, not to an actually-unreachable or
+    # occupied goal (the goal was misread as occupied in exploration_manager's log line -
+    # SDFMap::OCCUPANCY is {UNKNOWN=0,FREE=1,OCCUPIED=2}, so "occ=1" there means FREE).
+    # More time lets it actually finish routing around real obstacles.
+    # 0.05 e NON 0.01 come in office_small: provato (V17b) su questa mappa piu'
+    # grande, le ricerche scadevano e la ricerca paziente (0.15 s) le ripeteva:
+    # pianificazione da 1.45 a 2.3 s di mediana, riferimento fermo nel 57% dei
+    # comandi, e un crash per le rincorse che ne seguono.
+    astar.max_search_time: 0.05
+
+    optimization.ld_smooth: 5.0
+    optimization.ld_dist: 10.0
+    optimization.ld_feasi: 2.0
+    optimization.ld_start: 100.0
+    optimization.ld_end: 0.5
+    optimization.ld_guide: 1.5
+    optimization.ld_waypt: 7.0
+    optimization.ld_view: 0.0
+    optimization.ld_time: 1.5
+    # --- Inter-drone avoidance -----------------------------------------------
+    # ld_swarm/swarm_safe_dist feed the B-spline optimizer's swarm term
+    # (calcSwarmCost): a soft repulsion evaluated on an ellipsoid that is 2.5x
+    # more tolerant vertically than horizontally, so it pushes drones apart
+    # sideways rather than stacking them. Raised from 5.0/1.0 - at that setting
+    # the term was routinely outweighed by ld_dist (10.0) and the drones flew
+    # through each other, then fought over the same space until one tipped over.
+    optimization.ld_swarm: 15.0
+    optimization.swarm_safe_dist: 1.2
+    optimization.dist0: 0.7
+    optimization.max_vel: 0.6
+    optimization.max_acc: 2.0
+    optimization.algorithm1: 15
+    optimization.algorithm2: 11
+    optimization.max_iteration_num1: 2
+    optimization.max_iteration_num2: 2000
+    optimization.max_iteration_num3: 200
+    optimization.max_iteration_num4: 200
+    optimization.max_iteration_time1: 0.0001
+    optimization.max_iteration_time2: 0.005
+    optimization.max_iteration_time3: 0.003
+    optimization.max_iteration_time4: 0.003
+
+    bspline.limit_vel: 0.6
+    bspline.limit_acc: 1.0
+    bspline.limit_ratio: 1.1

@@ -1,0 +1,12 @@
+22:38:54 Collaudo C2-Explorer (DRONE VERO) - registro in /home/draupnir/Documents/Drone_20261018_P/ros2_ws/scripts/collaudo/collaudo_registri/2026-10-19_223854_reale
+22:38:56 == FASE 0: collegamento con PX4 ==
+22:38:56 Attendo lo stato di PX4 (fino a 15 s)...
+22:38:56 PX4 risponde: sistema 1, modalita' POSCTL, disarmato, controlli pre-volo NON superati
+22:38:56 Batteria: 15.93 V, -100%, 0 celle
+22:38:56 PX4 non conosce la carica: se le celle sono 0 imposta BAT1_N_CELLS (e controlla la tensione con un tester).
+22:38:56 Condizioni di failsafe attive: global_position_invalid, global_position_invalid_relaxed, auto_mission_missing, offboard_control_signal_lost, home_position_invalid, manual_control_signal_lost, gcs_connection_lost
+22:38:56 Assetto visto da PX4: rollio 0, beccheggio -0 gradi
+22:38:56 Provo le levette virtuali per 3 s (motori fermi, drone disarmato)...
+22:38:56 Comando manuale accettato da PX4 (sorgente 2).
+22:39:06 Hai caricato collaudo_px4.params con QGroundControl (e controllato MPC_THR_HOVER)? [s/n] -> s
+22:39:06 FASE 0: NON SUPERATA - manuale=True, parametri=True, prevolo=False

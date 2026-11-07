@@ -1,0 +1,87 @@
+# FAST-LIO per il MID-360 simulato di questo progetto.
+#
+# Derivato da mid360.yaml, con tre differenze che contano:
+#
+# 1. lidar_type: 2 (VELO16) e non 4 (MID360). Il gestore MID360 di FAST-LIO
+#    pretende la struttura di punto Livox (reflectivity, tag, line), che il
+#    gpu_lidar di Gazebo non produce. Il gestore Velodyne vuole invece
+#    x,y,z,intensity,time,ring - esattamente cio' che esce dall'adattatore
+#    lidar_lio_adapter. Attenzione al campo "time": l'adattatore lo riempie con
+#    un valore positivo minimo e UGUALE per tutti i punti, per disattivare la
+#    deduzione degli scostamenti dall'angolo di imbardata. Quella deduzione
+#    modella un sensore rotante che campiona nel tempo, mentre il gpu_lidar di
+#    Gazebo cattura tutto in un istante: lasciarla attiva faceva divergere il
+#    filtro appena il velivolo imbardava. La spiegazione completa e' in testa a
+#    lidar_lio_adapter.cpp.
+#
+# 2. Estrinseci IDENTITA'. La IMU e' dentro lidar_sensor_link nella stessa posa
+#    del lidar, quindi non c'e' nessuna trasformazione fra i due. Nel file
+#    originale c'erano gli offset del MID-360 reale (-0.011, -0.023, 0.044), che
+#    qui introdurrebbero un errore sistematico invece di correggerlo.
+#
+# 3. extrinsic_est_en: false. La stima in linea degli estrinseci serve quando
+#    non si conoscono; qui sono noti ed esatti per costruzione, e lasciarla
+#    accesa aggiunge stati liberi al filtro senza alcun guadagno.
+/**:
+    ros__parameters:
+        # L'orologio e' quello della simulazione: lidar e IMU sono entrambi
+        # marcati da Gazebo, e senza questo il nodo integrerebbe intervalli
+        # calcolati su un orologio diverso da quello dei dati.
+        use_sim_time: true
+
+        feature_extract_enable: false
+        point_filter_num: 3
+        max_iteration: 3
+        # 0.5 -> 0.2 (ottobre 2026). Misurato rifacendo girare FAST-LIO sui dati
+        # registrati di un volo, contro la posa vera di Gazebo: con la mappa a
+        # 0.5 m l'assetto stimato sbagliava l'inclinazione di 0.69 gradi
+        # (95%: 1.02) e la mappa 3D usciva inclinata di mezzo grado (8 cm di
+        # quota in fondo all'ufficio). A 0.2: 0.13 gradi, quota entro 3.6 cm.
+        # Conta la risoluzione della MAPPA: solo la scansione a 0.25 non cambia
+        # nulla (0.84), solo la mappa a 0.25 gia' 0.16. A 0.25 e 0.15 la quota
+        # deriva di +9 / -5 cm nei primi 40 s; 0.2 e' il punto migliore.
+        filter_size_surf: 0.2
+        filter_size_map: 0.2
+        cube_side_length: 1000.0
+        runtime_pos_log_enable: false
+        map_file_path: "./test.pcd"
+
+        common:
+            lid_topic:  "/drone_1/lidar/points_lio"
+            imu_topic:  "/drone_1/lidar/imu"
+            time_sync_en: false
+            time_offset_lidar_to_imu: 0.0
+
+        preprocess:
+            lidar_type: 2                # VELO16: vedi nota 1 in testa al file
+            scan_line: 64                # gli anelli verticali del sensore simulato
+            blind: 0.5                   # pari al filtro di autocolpo del ponte nuvola
+            timestamp_unit: 0            # secondi: l'adattatore scrive 1e-6 s per punto
+            scan_rate: 10                # Hz del lidar, usato per dedurre i tempi
+
+        mapping:
+            # Covarianze coerenti con i rumori dichiarati nel modello della IMU
+            # (stddev 0.021 m/s^2 sugli accelerometri, 0.0009 rad/s sui giroscopi).
+            acc_cov: 0.1
+            gyr_cov: 0.1
+            b_acc_cov: 0.0001
+            b_gyr_cov: 0.0001
+            fov_degree: 360.0
+            det_range: 20.0              # come sdf_map.max_ray_length dello stack
+            extrinsic_est_en: false      # vedi nota 3
+            extrinsic_T: [ 0.0, 0.0, 0.0 ]
+            extrinsic_R: [ 1., 0., 0.,
+                           0., 1., 0.,
+                           0., 0., 1.]
+
+        publish:
+            path_en: true
+            effect_map_en: false
+            map_en: true
+            scan_publish_en: true
+            dense_publish_en: false
+            scan_bodyframe_pub_en: true
+
+        pcd_save:
+            pcd_save_en: false           # in validazione non serve, e scriverebbe
+            interval: -1                 # un file per ogni run

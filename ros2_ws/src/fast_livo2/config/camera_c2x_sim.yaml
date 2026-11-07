@@ -1,0 +1,16 @@
+# Telecamera frontale del drone simulato (x500_mid360: 640x480, campo orizzontale
+# 1.5708 rad): fx = fy = 320 / tan(45 gradi) = 320, centro (320, 240), nessuna distorsione.
+/**:
+  ros__parameters:
+    cam_model: Pinhole
+    cam_width: 640
+    cam_height: 480
+    scale: 1.0
+    cam_fx: 320.0
+    cam_fy: 320.0
+    cam_cx: 320.0
+    cam_cy: 240.0
+    cam_d0: 0.0
+    cam_d1: 0.0
+    cam_d2: 0.0
+    cam_d3: 0.0

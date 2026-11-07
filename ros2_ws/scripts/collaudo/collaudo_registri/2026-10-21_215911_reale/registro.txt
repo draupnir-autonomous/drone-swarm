@@ -1,0 +1,24 @@
+21:59:11 Collaudo C2-Explorer (DRONE VERO) - registro in /home/draupnir/Documents/Drone_20261018_P/ros2_ws/scripts/collaudo/collaudo_registri/2026-10-21_215911_reale
+21:59:26 == FASE 5: hover TRATTENUTO (drone legato, eliche montate) ==
+21:59:26 Lega il drone a terra (corda corta, 30-50 cm di gioco) o fallo volare dentro una rete. Nessuno entro 3 m.
+21:59:26 Istruzioni: t per decollare (sale da solo alla quota indicata), resta fermo almeno 30 s, poi l per atterrare. SPAZIO = emergenza.
+21:59:29 Area libera, eliche montate, persone lontane, batteria carica. Procedo? [s/n] -> s
+21:59:29 Attendo che la posizione di PX4 (dalla stima di FAST-LIO) sia valida, fino a 30 s...
+21:59:59 Posizione di PX4 non valida: ripeti le fasi 2 e 3.
+21:59:59 FASE 5: NON SUPERATA - posizione non valida
+22:01:58 == FASE 5: hover TRATTENUTO (drone legato, eliche montate) ==
+22:01:58 Lega il drone a terra (corda corta, 30-50 cm di gioco) o fallo volare dentro una rete. Nessuno entro 3 m.
+22:01:58 Istruzioni: t per decollare (sale da solo alla quota indicata), resta fermo almeno 30 s, poi l per atterrare. SPAZIO = emergenza.
+22:02:00 Area libera, eliche montate, persone lontane, batteria carica. Procedo? [s/n] -> s
+22:02:00 Attendo che la posizione di PX4 (dalla stima di FAST-LIO) sia valida, fino a 30 s...
+22:02:30 Posizione di PX4 non valida: ripeti le fasi 2 e 3.
+22:02:30 FASE 5: NON SUPERATA - posizione non valida
+22:02:36 == FASE 2: FAST-LIO a drone fermo ==
+22:02:36 Drone appoggiato a terra in piano, NESSUNO lo tocca. Misuro per 30 s...
+22:03:06 stima a 10.0 Hz, deriva in 30 s 0.4 cm (massima escursione 1.2 cm), punti agganciati minimi 928
+22:03:06 FASE 2: SUPERATA - 10.0 Hz, escursione 1.2 cm, agganciati min 928
+22:03:25 == FASE 5: hover TRATTENUTO (drone legato, eliche montate) ==
+22:03:25 Lega il drone a terra (corda corta, 30-50 cm di gioco) o fallo volare dentro una rete. Nessuno entro 3 m.
+22:03:25 Istruzioni: t per decollare (sale da solo alla quota indicata), resta fermo almeno 30 s, poi l per atterrare. SPAZIO = emergenza.
+22:03:27 Area libera, eliche montate, persone lontane, batteria carica. Procedo? [s/n] -> s
+22:03:27 Attendo che la posizione di PX4 (dalla stima di FAST-LIO) sia valida, fino a 30 s...

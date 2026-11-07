@@ -1,0 +1,27 @@
+20:31:22 Collaudo C2-Explorer (DRONE VERO) - registro in /home/draupnir/Documents/Drone_20261018_P/ros2_ws/scripts/collaudo/collaudo_registri/2026-10-21_203122_reale
+20:31:22 == FASE 4: motori SENZA ELICHE ==
+20:31:32 Scrivi SENZA ELICHE per confermare che le eliche sono smontate: -> senza eliche
+20:31:32 Schema dei motori (Quad X di PX4), drone visto da SOPRA col muso in alto:
+20:31:32         AVANTI
+     3 (o)   1 (a)
+         \ /
+         / \
+     2 (a)   4 (o)
+   o = orario, a = antiorario, visti da SOPRA
+20:32:15   Quale angolo ha girato? 1 avanti-destra, 2 dietro-sinistra, 3 avanti-sinistra, 4 dietro-destra, 0 nessuno, r = rifai la prova: -> r
+20:32:26   Quale angolo ha girato? 1 avanti-destra, 2 dietro-sinistra, 3 avanti-sinistra, 4 dietro-destra, 0 nessuno, r = rifai la prova: -> 0
+20:32:26   Motore 1: non gira -> da correggere
+20:32:33   Quale angolo ha girato? 1 avanti-destra, 2 dietro-sinistra, 3 avanti-sinistra, 4 dietro-destra, 0 nessuno, r = rifai la prova: -> 0
+20:32:33   Motore 2: non gira -> da correggere
+20:32:43   Quale angolo ha girato? 1 avanti-destra, 2 dietro-sinistra, 3 avanti-sinistra, 4 dietro-destra, 0 nessuno, r = rifai la prova: -> 0
+20:32:43   Motore 3: non gira -> da correggere
+20:32:48   Quale angolo ha girato? 1 avanti-destra, 2 dietro-sinistra, 3 avanti-sinistra, 4 dietro-destra, 0 nessuno, r = rifai la prova: -> 0
+20:32:48   Motore 4: non gira -> da correggere
+20:32:48 
+COSA CORREGGERE:
+20:32:48 Motore 1 (uscita MAIN 1): non ha girato nessun motore. Controlla cavo del segnale su MAIN 1, alimentazione dell'ESC, calibrazione degli ESC.
+20:32:48 Motore 2 (uscita MAIN 2): non ha girato nessun motore. Controlla cavo del segnale su MAIN 2, alimentazione dell'ESC, calibrazione degli ESC.
+20:32:48 Motore 3 (uscita MAIN 3): non ha girato nessun motore. Controlla cavo del segnale su MAIN 3, alimentazione dell'ESC, calibrazione degli ESC.
+20:32:48 Motore 4 (uscita MAIN 4): non ha girato nessun motore. Controlla cavo del segnale su MAIN 4, alimentazione dell'ESC, calibrazione degli ESC.
+20:32:48 Dopo la correzione rifai la fase 4.
+20:32:48 FASE 4: NON SUPERATA - motori da correggere (M1:0 M2:0 M3:0 M4:0)

@@ -1,0 +1,309 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- GENERATO DA scripts/make_parco.py - non modificare a mano. -->
+<sdf version="1.9">
+  <world name="parco">
+    <physics type="ode">
+      <max_step_size>0.004</max_step_size>
+      <real_time_factor>1.0</real_time_factor>
+      <real_time_update_rate>250</real_time_update_rate>
+    </physics>
+    <gravity>0 0 -9.8</gravity>
+    <magnetic_field>6e-06 2.3e-05 -4.2e-05</magnetic_field>
+    <atmosphere type="adiabatic"/>
+    <scene>
+      <grid>false</grid>
+      <ambient>0.55 0.55 0.55 1</ambient>
+      <background>0.6 0.75 0.9 1</background>
+      <shadows>true</shadows>
+    </scene>
+    <!-- Nessun blocco <plugin>: li carica il server.config di PX4 (vedi open_field). -->
+    <light type="directional" name="sole">
+      <pose>0 0 500 0 0 0</pose>
+      <cast_shadows>true</cast_shadows>
+      <diffuse>0.95 0.95 0.9 1</diffuse>
+      <specular>0.2 0.2 0.2 1</specular>
+      <direction>0.3 0.2 -0.9</direction>
+    </light>
+    <spherical_coordinates>
+      <surface_model>EARTH_WGS84</surface_model>
+      <world_frame_orientation>ENU</world_frame_orientation>
+      <latitude_deg>47.397971057728974</latitude_deg>
+      <longitude_deg>8.546163739800146</longitude_deg>
+      <elevation>0</elevation>
+    </spherical_coordinates>
+    <model name="prato">
+      <static>true</static>
+      <link name="link">
+        <collision name="c"><geometry><plane><normal>0 0 1</normal><size>120 120</size></plane></geometry></collision>
+        <visual name="v">
+          <geometry><plane><normal>0 0 1</normal><size>120 120</size></plane></geometry>
+          <material><ambient>0.33 0.45 0.22 1</ambient><diffuse>0.33 0.45 0.22 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+    <model name="strada">
+      <static>true</static>
+      <pose>0.0 -14.0 0.01 0 0 0</pose>
+      <link name="link">
+        
+        <visual name="v">
+          <cast_shadows>false</cast_shadows>
+          <geometry><box><size>44.6 9.0 0.02</size></box></geometry>
+          <material><ambient>0.35 0.35 0.35 1</ambient><diffuse>0.35 0.35 0.35 1</diffuse><pbr><metal><albedo_map>model://asphalt_plane/materials/textures/tarmac.png</albedo_map></metal></pbr></material>
+        </visual>
+      </link>
+    </model>
+    <model name="marciapiede">
+      <static>true</static>
+      <pose>0.0 -8.5 0.06 0 0 0</pose>
+      <link name="link">
+        <collision name='c'><geometry><box><size>44.6 2.0 0.12</size></box></geometry></collision>
+        <visual name="v">
+          <cast_shadows>false</cast_shadows>
+          <geometry><box><size>44.6 2.0 0.12</size></box></geometry>
+          <material><ambient>0.62 0.62 0.6 1</ambient><diffuse>0.62 0.62 0.6 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+    <model name="vialetto_nord_sud">
+      <static>true</static>
+      <pose>-1.0 -3.75 0.005 0 0 0</pose>
+      <link name="link">
+        
+        <visual name="v">
+          <cast_shadows>false</cast_shadows>
+          <geometry><box><size>1.6 7.5 0.01</size></box></geometry>
+          <material><ambient>0.72 0.66 0.52 1</ambient><diffuse>0.72 0.66 0.52 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+    <model name="vialetto_est_ovest">
+      <static>true</static>
+      <pose>-1.0 0.0 0.005 0 0 0</pose>
+      <link name="link">
+        
+        <visual name="v">
+          <cast_shadows>false</cast_shadows>
+          <geometry><box><size>26.0 1.6 0.01</size></box></geometry>
+          <material><ambient>0.72 0.66 0.52 1</ambient><diffuse>0.72 0.66 0.52 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+    <model name="siepe_ovest">
+      <static>true</static>
+      <pose>-15.9 0.0 2.0 0 0 0</pose>
+      <link name="link">
+        <collision name='c'><geometry><box><size>0.8 32.6 4.0</size></box></geometry></collision>
+        <visual name="v">
+          <cast_shadows>false</cast_shadows>
+          <geometry><box><size>0.8 32.6 4.0</size></box></geometry>
+          <material><ambient>0.18 0.32 0.12 1</ambient><diffuse>0.18 0.32 0.12 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+    <model name="siepe_est">
+      <static>true</static>
+      <pose>15.9 0.0 2.0 0 0 0</pose>
+      <link name="link">
+        <collision name='c'><geometry><box><size>0.8 32.6 4.0</size></box></geometry></collision>
+        <visual name="v">
+          <cast_shadows>false</cast_shadows>
+          <geometry><box><size>0.8 32.6 4.0</size></box></geometry>
+          <material><ambient>0.18 0.32 0.12 1</ambient><diffuse>0.18 0.32 0.12 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+    <model name="siepe_nord">
+      <static>true</static>
+      <pose>0.0 15.9 2.0 0 0 0</pose>
+      <link name="link">
+        <collision name='c'><geometry><box><size>32.6 0.8 4.0</size></box></geometry></collision>
+        <visual name="v">
+          <cast_shadows>false</cast_shadows>
+          <geometry><box><size>32.6 0.8 4.0</size></box></geometry>
+          <material><ambient>0.18 0.32 0.12 1</ambient><diffuse>0.18 0.32 0.12 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+    <model name="siepe_sud_ovest">
+      <static>true</static>
+      <pose>-15.9 -18.5 2.0 0 0 0</pose>
+      <link name="link">
+        <collision name='c'><geometry><box><size>0.8 6.0 4.0</size></box></geometry></collision>
+        <visual name="v">
+          <cast_shadows>false</cast_shadows>
+          <geometry><box><size>0.8 6.0 4.0</size></box></geometry>
+          <material><ambient>0.18 0.32 0.12 1</ambient><diffuse>0.18 0.32 0.12 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+    <model name="siepe_sud_est">
+      <static>true</static>
+      <pose>15.9 -18.5 2.0 0 0 0</pose>
+      <link name="link">
+        <collision name='c'><geometry><box><size>0.8 6.0 4.0</size></box></geometry></collision>
+        <visual name="v">
+          <cast_shadows>false</cast_shadows>
+          <geometry><box><size>0.8 6.0 4.0</size></box></geometry>
+          <material><ambient>0.18 0.32 0.12 1</ambient><diffuse>0.18 0.32 0.12 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+    <include>
+      <uri>model://house_3</uri>
+      <name>casa_sud_ovest</name>
+      <pose>-7.5 -19.95 0 0 0 0.000000</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <uri>model://house_1</uri>
+      <name>casa_sud_est</name>
+      <pose>7.5 -21.7 0 0 0 0.000000</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <uri>model://suv</uri>
+      <name>suv</name>
+      <pose>-9.0 -11.3 0 0 0 0.000000</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <uri>model://hatchback</uri>
+      <name>utilitaria</name>
+      <pose>-1.0 -11.3 0 0 0 0.000000</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <uri>model://hatchback_red</uri>
+      <name>utilitaria_rossa</name>
+      <pose>8.0 -13.8 0 0 0 3.141593</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <uri>model://lamp_post</uri>
+      <name>lampione_1</name>
+      <pose>-12.0 -8.0 0 0 0 0.000000</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <uri>model://lamp_post</uri>
+      <name>lampione_2</name>
+      <pose>0.0 -8.0 0 0 0 0.000000</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <uri>model://lamp_post</uri>
+      <name>lampione_3</name>
+      <pose>12.0 -8.0 0 0 0 0.000000</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <uri>model://fire_hydrant</uri>
+      <name>idrante</name>
+      <pose>-5.0 -8.2 0 0 0 0.000000</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <uri>model://mailbox</uri>
+      <name>cassetta_postale</name>
+      <pose>5.0 -8.0 0 0 0 0.000000</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <uri>model://stop_sign</uri>
+      <name>stop</name>
+      <pose>14.5 -8.3 0 0 0 1.570796</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <uri>model://playground</uri>
+      <name>area_giochi</name>
+      <pose>-9.0 10.5 0 0 0 0.000000</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <uri>model://house_2</uri>
+      <name>casa_nord</name>
+      <pose>6.6 19.8 0 0 0 0.000000</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <uri>model://Oak tree</uri>
+      <name>quercia_nord_est</name>
+      <pose>8.5 8.5 0 0 0 1.000000</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <uri>model://Pine Tree</uri>
+      <name>pino_4</name>
+      <pose>12.5 12.5 0 0 0 0.000000</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <uri>model://FoodCourtBenchLong</uri>
+      <name>panchina_nord</name>
+      <pose>3.5 11.0 0 0 0 1.570796</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <uri>model://fountain</uri>
+      <name>fontana</name>
+      <pose>-1.0 0.0 0 0 0 0.000000</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <uri>model://FoodCourtBenchLong</uri>
+      <name>panchina_ovest</name>
+      <pose>-4.0 0.0 0 0 0 0.000000</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <uri>model://FoodCourtBenchLong</uri>
+      <name>panchina_est</name>
+      <pose>2.0 0.0 0 0 0 3.141593</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <uri>model://TrashBin</uri>
+      <name>cestino_1</name>
+      <pose>-4.0 -1.6 0 0 0 0.000000</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <uri>model://TrashBin</uri>
+      <name>cestino_2</name>
+      <pose>2.0 1.6 0 0 0 0.000000</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <uri>model://Oak tree</uri>
+      <name>quercia_est</name>
+      <pose>9.5 -3.5 0 0 0 0.000000</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <uri>model://Oak tree</uri>
+      <name>quercia_ovest</name>
+      <pose>-12.0 -1.0 0 0 0 2.000000</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <uri>model://Pine Tree</uri>
+      <name>pino_1</name>
+      <pose>-5.5 5.0 0 0 0 0.000000</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <uri>model://Pine Tree</uri>
+      <name>pino_2</name>
+      <pose>4.5 -4.0 0 0 0 0.000000</pose>
+      <static>true</static>
+    </include>
+    <include>
+      <uri>model://Pine Tree</uri>
+      <name>pino_3</name>
+      <pose>-1.5 10.0 0 0 0 0.000000</pose>
+      <static>true</static>
+    </include>
+  </world>
+</sdf>

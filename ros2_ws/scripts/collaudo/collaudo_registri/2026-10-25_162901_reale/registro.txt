@@ -1,0 +1,52 @@
+16:29:01 Collaudo C2-Explorer (DRONE VERO) - registro in /home/draupnir/Documents/Drone_20261018_P/ros2_ws/scripts/collaudo/collaudo_registri/2026-10-25_162901_reale
+16:29:16 == FASE 0: collegamento con PX4 ==
+16:29:16 Attendo lo stato di PX4 (fino a 15 s)...
+16:29:16 PX4 risponde: sistema 1, modalita' LOITER, disarmato, controlli pre-volo NON superati
+16:29:16 Batteria: 16.06 V, 94%, 4 celle
+16:29:16 Condizioni di failsafe attive: local_position_invalid, local_position_invalid_relaxed, local_velocity_invalid, global_position_invalid, global_position_invalid_relaxed, auto_mission_missing, offboard_control_signal_lost, home_position_invalid, manual_control_signal_lost, gcs_connection_lost
+16:29:16 Assetto visto da PX4: rollio -2, beccheggio -1 gradi
+16:29:16 Provo le levette virtuali per 3 s (motori fermi, drone disarmato)...
+16:29:16 Comando manuale accettato da PX4 (sorgente 2).
+16:29:19 Hai caricato collaudo_px4.params con QGroundControl (e controllato MPC_THR_HOVER)? [s/n] -> s
+16:29:19 FASE 0: SUPERATA - manuale=True, parametri=True, prevolo=False
+16:29:26 == FASE 3: assi e stima dentro PX4 (drone mosso A MANO, motori spenti) ==
+16:29:36 FASE 3: NON SUPERATA - mancano stima o assetto di PX4
+16:29:52 == FASE 2: FAST-LIO a drone fermo ==
+16:29:52 Drone appoggiato a terra in piano, NESSUNO lo tocca. Misuro per 30 s...
+16:30:02 Nessuna stima su /drone_1/lio/odometry: FAST-LIO non gira o non riceve il lidar.
+16:30:02 FASE 2: NON SUPERATA - nessuna stima
+16:30:20 == FASE 0: collegamento con PX4 ==
+16:30:20 Attendo lo stato di PX4 (fino a 15 s)...
+16:30:20 PX4 risponde: sistema 1, modalita' POSCTL, disarmato, controlli pre-volo NON superati
+16:30:20 Batteria: 16.07 V, 93%, 4 celle
+16:30:20 Condizioni di failsafe attive: local_position_invalid, local_position_invalid_relaxed, local_velocity_invalid, global_position_invalid, global_position_invalid_relaxed, auto_mission_missing, offboard_control_signal_lost, home_position_invalid, manual_control_signal_lost, gcs_connection_lost
+16:30:20 Assetto visto da PX4: rollio -2, beccheggio -1 gradi
+16:30:20 Provo le levette virtuali per 3 s (motori fermi, drone disarmato)...
+16:30:20 Comando manuale accettato da PX4 (sorgente 2).
+16:30:22 Hai caricato collaudo_px4.params con QGroundControl (e controllato MPC_THR_HOVER)? [s/n] -> s
+16:30:22 FASE 0: SUPERATA - manuale=True, parametri=True, prevolo=False
+16:30:27 == FASE 1: sensori ==
+16:30:27 /livox/lidar: livox_ros_driver2/msg/CustomMsg
+16:30:27 /livox/imu: sensor_msgs/msg/Imu
+16:30:27 /camera/image_raw: NON PUBBLICATO
+16:30:27 Misuro per 5 s...
+16:30:32 lidar /livox/lidar: 10.0 Hz (atteso ~10)
+16:30:32 IMU /livox/imu: 201 Hz (atteso >= 100), accelerazione a riposo 0.99 (1.00 se in g come il Mid-360, 9.81 se in m/s2)
+16:30:32 telecamera /camera/image_raw: 0.0 Hz (serve solo alla mappa colorata)
+16:30:32 FASE 1: SUPERATA - lidar 10.0 Hz, imu 201 Hz, acc 0.99, camera 0.0 Hz
+16:30:40 == FASE 2: FAST-LIO a drone fermo ==
+16:30:40 Drone appoggiato a terra in piano, NESSUNO lo tocca. Misuro per 30 s...
+16:30:50 Nessuna stima su /drone_1/lio/odometry: FAST-LIO non gira o non riceve il lidar.
+16:30:50 FASE 2: NON SUPERATA - nessuna stima
+16:31:33 == FASE 2: FAST-LIO a drone fermo ==
+16:31:33 Drone appoggiato a terra in piano, NESSUNO lo tocca. Misuro per 30 s...
+16:32:03 stima a 10.0 Hz, deriva in 30 s 780659.5 cm (massima escursione 780659.5 cm), punti agganciati minimi 0
+16:32:03 FASE 2: NON SUPERATA - 10.0 Hz, escursione 780659.5 cm, agganciati min 0
+16:33:37 == FASE 2: FAST-LIO a drone fermo ==
+16:33:37 Drone appoggiato a terra in piano, NESSUNO lo tocca. Misuro per 30 s...
+16:34:07 stima a 10.0 Hz, deriva in 30 s 5822502.1 cm (massima escursione 5822502.1 cm), punti agganciati minimi 0
+16:34:07 FASE 2: NON SUPERATA - 10.0 Hz, escursione 5822502.1 cm, agganciati min 0
+16:37:10 == FASE 2: FAST-LIO a drone fermo ==
+16:37:10 Drone appoggiato a terra in piano, NESSUNO lo tocca. Misuro per 30 s...
+16:37:40 stima a 10.0 Hz, deriva in 30 s 17856262.3 cm (massima escursione 17856262.3 cm), punti agganciati minimi 0
+16:37:40 FASE 2: NON SUPERATA - 10.0 Hz, escursione 17856262.3 cm, agganciati min 0

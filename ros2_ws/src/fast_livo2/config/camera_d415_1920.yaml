@@ -1,0 +1,30 @@
+# Camera intrinsics — Intel RealSense D415 at 1920x1080@15fps
+#
+# Source: ros2 topic echo /camera/camera/color/camera_info --once (1920x1080@15fps,
+#         captured 2026-05-15 on an internal Intel PTL test rig, device S/N 249322064339)
+# Note:   Camera intrinsics (K matrix) are FPS-independent; values valid for
+#         1920x1080@15fps used in E1 C3/C4 experiments.
+#
+# The realsense2_camera ROS2 driver (v4.57.7) publishes rectified images by default
+# → all distortion coefficients are zero (hardware/software undistortion applied)
+# → image_raw topic carries undistorted image at 1920×1080
+#
+# scale=0.43: effective resolution ~826×464 = 383k pixels
+# Matches paper's working resolution range (max 720×540 = 389k pixels in HILTI22)
+# vikit camera_loader applies scale to intrinsics and dimensions internally
+#
+# Camera-LiDAR extrinsics (Rcl/Pcl) unchanged (rigid transform, resolution-independent)
+/**:
+  ros__parameters:
+    cam_model: Pinhole
+    cam_width: 1920
+    cam_height: 1080
+    scale: 0.43
+    cam_fx: 1364.502197265625
+    cam_fy: 1360.041259765625
+    cam_cx: 932.1047973632812
+    cam_cy: 526.2387084960938
+    cam_d0: 0.0
+    cam_d1: 0.0
+    cam_d2: 0.0
+    cam_d3: 0.0

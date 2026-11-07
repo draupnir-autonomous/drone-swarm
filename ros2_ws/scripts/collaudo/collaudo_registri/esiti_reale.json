@@ -1,0 +1,42 @@
+{
+ "0": {
+  "ok": true,
+  "quando": "2026-10-25 16:38:51",
+  "dettagli": "manuale=True, parametri=True, prevolo=False"
+ },
+ "1": {
+  "ok": true,
+  "quando": "2026-10-25 16:39:00",
+  "dettagli": "lidar 10.0 Hz, imu 200 Hz, acc 0.99, camera 0.0 Hz"
+ },
+ "2": {
+  "ok": true,
+  "quando": "2026-10-25 16:39:35",
+  "dettagli": "10.0 Hz, escursione 1.9 cm, agganciati min 565"
+ },
+ "3": {
+  "ok": true,
+  "quando": "2026-10-25 16:46:11",
+  "dettagli": "riposo True, prove [True, True, True, True]"
+ },
+ "4": {
+  "ok": true,
+  "quando": "2026-10-21 20:43:04",
+  "dettagli": "motori ok, emergenza 11 ms"
+ },
+ "5": {
+  "ok": true,
+  "quando": "2026-10-25 16:53:41",
+  "dettagli": "volo 48 s, distanza max 0.51 m, quota max 0.47 m, oscillazione da fermo 13 cm, allarme: nessuno"
+ },
+ "6": {
+  "ok": true,
+  "quando": "2026-10-25 16:58:15",
+  "dettagli": "volo 54 s, distanza max 0.52 m, quota max 1.27 m, oscillazione da fermo 18 cm, allarme: nessuno"
+ },
+ "7": {
+  "ok": false,
+  "quando": "2026-10-25 17:03:02",
+  "dettagli": "volo 183 s, distanza max 1.15 m, quota max 1.13 m, oscillazione da fermo 19 cm, allarme: batteria al 25%"
+ }
+}

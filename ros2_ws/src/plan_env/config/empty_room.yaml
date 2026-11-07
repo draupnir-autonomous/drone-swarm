@@ -1,0 +1,31 @@
+plan_env_test_node:
+  ros__parameters:
+    sdf_map.resolution: 0.1
+    sdf_map.map_size_x: 20.0
+    sdf_map.map_size_y: 20.0
+    sdf_map.map_size_z: 5.0
+    sdf_map.obstacles_inflation: 0.2
+    sdf_map.ground_height: -0.5
+    sdf_map.default_dist: 5.0
+    sdf_map.optimistic: true
+    sdf_map.signed_dist: false
+    sdf_map.p_hit: 0.70
+    sdf_map.p_miss: 0.35
+    sdf_map.p_min: 0.12
+    sdf_map.p_max: 0.97
+    sdf_map.p_occ: 0.80
+    sdf_map.max_ray_length: 20.0
+    sdf_map.box_min_x: -9.0
+    sdf_map.box_min_y: -9.0
+    sdf_map.box_min_z: -0.5
+    sdf_map.box_max_x: 9.0
+    sdf_map.box_max_y: 9.0
+    sdf_map.box_max_z: 4.0
+
+    map_ros.frame_id: "world"
+    map_ros.esdf_slice_height: 1.0
+    map_ros.visualization_truncate_height: 3.0
+    map_ros.visualization_truncate_low: -1.0
+    map_ros.use_local_only: true
+    map_ros.show_occ_time: false
+    map_ros.show_esdf_time: false

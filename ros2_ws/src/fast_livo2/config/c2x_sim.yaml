@@ -1,0 +1,111 @@
+# FAST-LIVO2 sul drone simulato di C2-Explorer (x500_mid360 in Gazebo), ottobre 2026.
+# Partenza: mid360-a2w.yaml (profilo Intel per Livox Mid-360); cambiano sensori e calibrazioni.
+/**:
+  ros__parameters:
+    use_sim_time: true
+    common:
+      # Le stesse sorgenti di FAST-LIO: la nuvola gia' preparata da lidar_lio_adapter
+      # (formato Velodyne con tempo e anello per punto, solo punti finiti) e l'IMU co-locata
+      # col lidar. La telecamera frontale la porta in ROS registra_mappa.py (5 Hz).
+      img_topic: "/drone_1/camera/image"
+      lid_topic: "/drone_1/lidar/points_lio"
+      imu_topic: "/drone_1/lidar/imu"
+      img_en: true
+      lidar_en: true
+      ros_driver_bug_fix: false
+
+    extrin_calib:
+      # IMU nello stesso punto e con gli stessi assi del lidar (x500_mid360/model.sdf).
+      extrinsic_T: [0.0, 0.0, 0.0]
+      extrinsic_R: [1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]
+      # Lidar -> telecamera (terna ottica: z avanti, x destra, y giu'), dal modello: lidar a
+      # (0, 0, 0.25) dal corpo, telecamera a (0.10, 0, 0.12) con beccheggio +0.15 rad (in
+      # basso). Le stesse costanti di registra_mappa.py (CAM_T_BODY, CAM_PITCH).
+      Rcl: [ 0.0,      -1.0,  0.0,
+            -0.149438,  0.0, -0.988771,
+             0.988771,  0.0, -0.149438]
+      Pcl: [0.0, -0.113596, -0.118304]
+
+    time_offset:
+      imu_time_offset: 0.0
+      img_time_offset: 0.0
+      exposure_time_init: 0.0
+
+    preprocess:
+      point_filter_num: 3      # come FAST-LIO (c2x_sim.yaml): ~5500 punti per scansione
+      filter_size_surf: 0.2    # come FAST-LIO
+      lidar_type: 2            # VELO16: nuvola PointCloud2 con campi time e ring
+      scan_line: 64            # anelli del lidar simulato
+      blind: 0.5
+      lidar_inverted: false
+
+    vio:
+      max_iterations: 5
+      outlier_threshold: 1000.0
+      img_point_cov: 100.0
+      patch_size: 8
+      patch_pyrimid_level: 4
+      normal_en: true
+      raycast_en: false
+      inverse_composition_en: false
+      exposure_estimate_en: false   # la telecamera di Gazebo ha esposizione fissa
+      inv_expo_cov: 0.1
+      grid_size: 5
+      grid_n_height: 17
+
+    imu:
+      imu_en: true
+      imu_int_frame: 30
+      acc_cov: 0.5
+      gyr_cov: 0.3
+      b_acc_cov: 0.0001
+      b_gyr_cov: 0.0001
+      gravity_est_en: true
+      ba_bg_est_en: true
+
+    lio:
+      max_iterations: 3     # come FAST-LIO (era 5): il LIO e' ~2/3 del calcolo, sul Jetson a 10 Hz non stava in tempo
+      dept_err: 0.02
+      beam_err: 0.05
+      min_eigen_value: 0.0025
+      voxel_size: 0.5
+      max_layer: 2
+      max_points_num: 50
+      layer_init_num: [5, 5, 5, 5, 5]
+
+    local_map:
+      map_sliding_en: false
+      half_map_size: 100
+      sliding_thresh: 8.0
+
+    uav:
+      imu_rate_odom: false
+      # false (era true): con true il mondo viene ruotato per allineare all'asse z la gravita'
+      # stimata all'avvio dalla media dell'accelerometro, che contiene l'errore costante
+      # dell'IMU simulata (bias 0.05 m/s2 in x e y, model.sdf): mondo inclinato di 0.35-0.39
+      # gradi in tutte le run, pavimento della mappa 3D inclinato di 0.3-0.45 gradi e quota
+      # sbagliata di ~11 cm in mediana. Con false il mondo e' la terna dell'IMU alla partenza,
+      # come in FAST-LIO: il drone parte appoggiato in piano.
+      gravity_align_en: false
+
+    publish:
+      dense_map_en: false     # /cloud_registered non lo legge nessuno: meno lavoro
+      pub_effect_point_en: false
+      pub_plane_en: false
+      pub_scan_num: 1
+      blind_rgb_points: 0.0
+
+    evo:
+      seq_name: "c2x"
+      pose_output_en: false
+
+    pcd_save:
+      pcd_save_en: false
+      type: 0
+      colmap_output_en: false
+      filter_size_pcd: 0.15
+      interval: -1
+
+    image_save:
+      img_save_en: false
+      interval: 1

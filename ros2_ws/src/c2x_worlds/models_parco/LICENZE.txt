@@ -1,0 +1,34 @@
+Modelli del mondo "parco" (17 ottobre 2026), scaricati dal catalogo Gazebo Fuel
+(https://app.gazebosim.org/fuel, server fuel.ignitionrobotics.org) e copiati qui perche'
+la simulazione non dipenda dalla rete. Nomi delle cartelle = nomi usati nei model://.
+
+  cartella            modello Fuel                    licenza
+  Oak tree            OpenRobotics/Oak Tree           CC0 1.0
+  Pine Tree           OpenRobotics/Pine Tree          CC0 1.0
+  house_1/2/3         OpenRobotics/House 1/2/3        CC0 1.0
+  suv                 OpenRobotics/SUV                CC0 1.0
+  hatchback           OpenRobotics/Hatchback          CC0 1.0
+  hatchback_red       OpenRobotics/Hatchback red      CC0 1.0
+  lamp_post           OpenRobotics/Lamp Post          CC0 1.0
+  fountain            OpenRobotics/Fountain           CC0 1.0
+  playground          OpenRobotics/Playground         CC0 1.0
+  FoodCourtBenchLong  OpenRobotics/FoodCourtBenchLong CC0 1.0
+  fire_hydrant        OpenRobotics/Fire hydrant       CC0 1.0
+  stop_sign           OpenRobotics/Stop Sign          CC0 1.0
+  mailbox             OpenRobotics/Mailbox            CC0 1.0
+  asphalt_plane       OpenRobotics/Asphalt Plane      CC0 1.0 (solo la texture della strada)
+  TrashBin            OpenRobotics/TrashBin           CC BY 4.0 - autrice Roselle Carmen
+                      https://creativecommons.org/licenses/by/4.0/
+
+Le cartelle sono quelle dell'archivio originale senza le miniature (thumbnails/).
+
+Modifiche ai modelli originali (solo percorsi delle texture, nessuna geometria):
+- hatchback, hatchback_red, fountain, fire_hydrant: collegamenti in meshes/ alle
+  texture di materials/textures/ (le mesh le cercano accanto a se', Gazebo Harmonic
+  segnalava "Could not resolve file");
+- hatchback_red: copiata materials/textures/wheels3.png da hatchback (l'archivio
+  originale non la conteneva).
+- Pine Tree, Oak tree (18 ottobre 2026): aggiunto il visual "chioma_lidar" (mesh
+  meshes/*_lidar.dae generata da scripts/make_parco.py: la geometria di collisione con
+  i triangoli nei due versi, trasparenza 1). Serve perche' il lidar simulato veda le
+  chiome come collidono; le telecamere non la disegnano. Collisione e aspetto invariati.

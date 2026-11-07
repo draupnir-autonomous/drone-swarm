@@ -1,0 +1,4 @@
+[15:23] office_small, 3 droni, VISITA=1
+[15:35] office_small, 3 droni, VISITA=0
+[15:44] empty_room, 3 droni, VISITA=1
+[16:02] empty_room, 3 droni, VISITA=0

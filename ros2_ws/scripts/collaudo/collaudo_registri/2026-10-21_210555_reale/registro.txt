@@ -1,0 +1,9 @@
+21:05:55 Collaudo C2-Explorer (DRONE VERO) - registro in /home/draupnir/Documents/Drone_20261018_P/ros2_ws/scripts/collaudo/collaudo_registri/2026-10-21_210555_reale
+21:06:00 == FASE 5: hover TRATTENUTO (drone legato, eliche montate) ==
+21:06:00 Lega il drone a terra (corda corta, 30-50 cm di gioco) o fallo volare dentro una rete. Nessuno entro 3 m.
+21:06:00 Istruzioni: t per decollare (sale da solo alla quota indicata), resta fermo almeno 30 s, poi l per atterrare. SPAZIO = emergenza.
+21:06:06 Area libera, eliche montate, persone lontane, batteria carica. Procedo? [s/n] -> s
+21:06:25 decollo verso 0.5 m (offboard, 0.4 m/s)
+21:06:33 EMERGENZA: motori spenti
+21:06:33 armamento rifiutato da PX4 (controlli pre-volo?)
+21:06:39 EMERGENZA: motori spenti

@@ -1,0 +1,27 @@
+# Camera intrinsics — Intel RealSense D415 on Unitree A2-W robot
+#
+# Source: ros2 topic echo /camera/camera/color/camera_info --once (640x480@15fps,
+#         captured 2026-04-14 during FAST-Calib calibration session)
+# Note:   Camera intrinsics (K matrix) are FPS-independent; values valid for
+#         640x480@30fps used in E1 experiments.
+#
+# The realsense2_camera ROS2 driver (v4.56.4) publishes rectified images by default
+# → all distortion coefficients are zero (hardware/software undistortion applied)
+# → image_raw topic carries undistorted image at 640×480
+#
+# mid360.yaml img_topic: /camera/camera/color/image_raw
+# Camera model: Pinhole (rectified, no fisheye)
+/**:
+  ros__parameters:
+    cam_model: Pinhole
+    cam_width: 640
+    cam_height: 480
+    scale: 1.0
+    cam_fx: 606.4454345703125
+    cam_fy: 604.4627685546875
+    cam_cx: 307.6021423339844
+    cam_cy: 233.88388061523438
+    cam_d0: 0.0
+    cam_d1: 0.0
+    cam_d2: 0.0
+    cam_d3: 0.0

@@ -1,0 +1,13 @@
+{
+ "nome": "open_field",
+ "origine": "/home/draupnir/Documents/Drone_20261025_SWARM/ros2_ws/src/c2x_worlds/worlds/open_field.sdf",
+ "droni": 1,
+ "tarato": true,
+ "config_origine": "multi_drone_open_field.yaml",
+ "partenze": [
+  "0.000,-3.000,0.227,0,0,0.0000"
+ ],
+ "avvisi": [],
+ "sdf": "/tmp/c2x_run_multi/mondo/open_field.sdf",
+ "config": "/tmp/c2x_run_multi/mondo/config.yaml"
+}

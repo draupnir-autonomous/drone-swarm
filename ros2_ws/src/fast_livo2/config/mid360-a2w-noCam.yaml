@@ -1,0 +1,102 @@
+/**:
+  ros__parameters:
+    common:
+      img_topic: "/camera/camera/color/image_raw_throttled"  # D415 15fps → 10Hz (topic_tools throttle); with img_en=false the callback returns immediately without processing the image
+      lid_topic: "/livox/lidar"
+      imu_topic: "/livox/imu"
+      img_en: false   # C5 / ONLY_LIO mode: camera disabled; slam_mode_=ONLY_LIO
+      lidar_en: true
+      ros_driver_bug_fix: true
+
+    extrin_calib:
+      # Mid-360 IMU position expressed in the FLIPPED point cloud frame.
+      # Raw hardware value (Livox Mid-360 User Manual, p.15): x=11 mm, y=23.29 mm, z=-44.12 mm.
+      # preprocess.cpp applies lidar_inverted flip (Y->-Y, Z->-Z) before IMU undistortion,
+      # so extrinsic_T must be in the same flipped (standard) frame: y and z are negated.
+      # extrinsic_R = I: IMU and LiDAR axes are hardware-aligned (manual p.15).
+      extrinsic_T: [0.011, -0.02329, 0.04412]
+      extrinsic_R: [1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]
+      # Camera-LiDAR extrinsic (Rcl, Pcl) - calibrated with FAST-Calib (10-scene, 2026-04-22)
+      # lidar_inverted: true applied (Y/Z flipped to compensate upside-down Mid-360 mount)
+      Rcl: [ 0.010425, -0.999820, -0.015823,
+             0.038903,  0.016218, -0.999111,
+             0.999189,  0.009800,  0.039065]
+      Pcl: [ 0.032676, -0.383969, -0.285749]
+
+    time_offset:
+      imu_time_offset: 0.0
+      img_time_offset: 0.0
+      exposure_time_init: 0.0
+
+    preprocess:
+      point_filter_num: 1
+      filter_size_surf: 0.1
+      lidar_type: 1  # 1: Livox LiDAR
+      scan_line: 4   # Mid-360: 4 lines (vs Avia: 6)
+      blind: 0.5     # Mid-360 min detection range: 0.5m
+      lidar_inverted: true  # Mid-360 mounted upside-down; flip Y/Z to match FAST-Calib convention
+
+    vio:
+      max_iterations: 5
+      outlier_threshold: 1000.0
+      img_point_cov: 100.0
+      patch_size: 8
+      patch_pyrimid_level: 4
+      normal_en: true
+      raycast_en: false
+      inverse_composition_en: false
+      exposure_estimate_en: true
+      inv_expo_cov: 0.1
+      grid_size: 5        # D415 640x480: 640/5=128 cols
+      grid_n_height: 17   # D415 640x480: 480/17~=28 rows
+
+    imu:
+      imu_en: true
+      imu_int_frame: 30
+      acc_cov: 0.5
+      gyr_cov: 0.3
+      b_acc_cov: 0.0001
+      b_gyr_cov: 0.0001
+      gravity_est_en: true   # estimate gravity during init
+      ba_bg_est_en: true     # estimate IMU bias
+
+    lio:
+      max_iterations: 5
+      dept_err: 0.02
+      beam_err: 0.05
+      min_eigen_value: 0.0025
+      voxel_size: 0.5
+      max_layer: 2
+      max_points_num: 50
+      layer_init_num: [5, 5, 5, 5, 5]
+
+    local_map:
+      map_sliding_en: false
+      half_map_size: 100
+      sliding_thresh: 8.0
+
+    uav:
+      imu_rate_odom: false
+      gravity_align_en: true
+
+    publish:
+      dense_map_en: true
+      pub_effect_point_en: false
+      pub_plane_en: false
+      pub_scan_num: 1
+      blind_rgb_points: 0.0
+
+    evo:
+      seq_name: "a2w_scan"
+      pose_output_en: false
+
+    pcd_save:
+      pcd_save_en: false
+      type: 0  # 0: World Frame, 1: Body Frame
+      colmap_output_en: false  # requires /Log writeable; enable after setting output path
+      filter_size_pcd: 0.15
+      interval: -1
+
+    image_save:
+      img_save_en: false  # disable for initial smoke test
+      interval: 1

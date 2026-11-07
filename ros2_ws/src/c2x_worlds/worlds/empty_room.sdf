@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sdf version="1.9">
+  <world name="empty_room">
+    <physics type="ode">
+      <max_step_size>0.004</max_step_size>
+      <real_time_factor>1.0</real_time_factor>
+      <real_time_update_rate>250</real_time_update_rate>
+    </physics>
+    <gravity>0 0 -9.8</gravity>
+    <magnetic_field>6e-06 2.3e-05 -4.2e-05</magnetic_field>
+    <atmosphere type="adiabatic"/>
+    <scene>
+      <grid>false</grid>
+      <ambient>0.4 0.4 0.4 1</ambient>
+      <background>0.7 0.7 0.7 1</background>
+      <shadows>true</shadows>
+    </scene>
+
+    <model name="ground_plane">
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>1 1</size>
+            </plane>
+          </geometry>
+          <surface>
+            <friction><ode/></friction>
+            <bounce/>
+            <contact/>
+          </surface>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>60 60</size>
+            </plane>
+          </geometry>
+          <material>
+            <ambient>0.8 0.8 0.8 1</ambient>
+            <diffuse>0.8 0.8 0.8 1</diffuse>
+            <specular>0.8 0.8 0.8 1</specular>
+          </material>
+        </visual>
+        <pose>0 0 0 0 -0 0</pose>
+        <inertial>
+          <pose>0 0 0 0 -0 0</pose>
+          <mass>1</mass>
+          <inertia>
+            <ixx>1</ixx><ixy>0</ixy><ixz>0</ixz>
+            <iyy>1</iyy><iyz>0</iyz><izz>1</izz>
+          </inertia>
+        </inertial>
+        <enable_wind>false</enable_wind>
+      </link>
+      <pose>0 0 0 0 -0 0</pose>
+      <self_collide>false</self_collide>
+    </model>
+
+    <light name="sunUTC" type="directional">
+      <pose>0 0 500 0 -0 0</pose>
+      <cast_shadows>true</cast_shadows>
+      <intensity>1</intensity>
+      <direction>0.001 0.625 -0.78</direction>
+      <diffuse>0.904 0.904 0.904 1</diffuse>
+      <specular>0.271 0.271 0.271 1</specular>
+      <attenuation>
+        <range>2000</range>
+        <linear>0</linear>
+        <constant>1</constant>
+        <quadratic>0</quadratic>
+      </attenuation>
+      <spot>
+        <inner_angle>0</inner_angle>
+        <outer_angle>0</outer_angle>
+        <falloff>0</falloff>
+      </spot>
+    </light>
+
+    <spherical_coordinates>
+      <surface_model>EARTH_WGS84</surface_model>
+      <world_frame_orientation>ENU</world_frame_orientation>
+      <latitude_deg>47.397971057728974</latitude_deg>
+      <longitude_deg>8.546163739800146</longitude_deg>
+      <elevation>0</elevation>
+    </spherical_coordinates>
+
+    <!-- Ostacoli interni: nati come anello di verifica del point cloud (fase 1),
+         restano utili come geometria da aggirare. Non delimitano l'ambiente -
+         quello lo fa il perimetro chiuso in fondo al file. -->
+    <model name="wall_north">
+      <static>true</static>
+      <pose>6 0 1 0 0 1.5708</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry><box><size>0.2 4 2</size></box></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><box><size>0.2 4 2</size></box></geometry>
+          <material>
+            <ambient>0.6 0.2 0.2 1</ambient>
+            <diffuse>0.6 0.2 0.2 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="wall_south">
+      <static>true</static>
+      <pose>-6 0 1 0 0 1.5708</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry><box><size>0.2 4 2</size></box></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><box><size>0.2 4 2</size></box></geometry>
+          <material>
+            <ambient>0.2 0.6 0.2 1</ambient>
+            <diffuse>0.2 0.6 0.2 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="wall_east">
+      <static>true</static>
+      <pose>0 6 1 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry><box><size>4 0.2 2</size></box></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><box><size>4 0.2 2</size></box></geometry>
+          <material>
+            <ambient>0.2 0.2 0.6 1</ambient>
+            <diffuse>0.2 0.2 0.6 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="wall_west">
+      <static>true</static>
+      <pose>0 -6 1 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry><box><size>4 0.2 2</size></box></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><box><size>4 0.2 2</size></box></geometry>
+          <material>
+            <ambient>0.6 0.6 0.2 1</ambient>
+            <diffuse>0.6 0.6 0.2 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="center_pillar">
+      <static>true</static>
+      <pose>2 2 1 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry><cylinder><radius>0.3</radius><length>2</length></cylinder></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.3</radius><length>2</length></cylinder></geometry>
+          <material>
+            <ambient>0.5 0.5 0.5 1</ambient>
+            <diffuse>0.5 0.5 0.5 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Perimetro chiuso e soffitto.
+         Senza questi, il mondo era terreno aperto con quattro pannelli isolati:
+         i raggi lidar diretti verso l'alto o verso i varchi agli angoli non
+         colpivano nulla e non tornavano, e un raggio senza ritorno non marca
+         libero niente. Il volume interno alla exploration box (+-9.8 m, fino a
+         2.6 m) restava quindi in gran parte NON OSSERVABILE: le frontiere che si
+         formavano sul bordo del cono visibile non potevano essere cancellate da
+         nessuna osservazione, e i droni le inseguivano all'infinito replanificando
+         ogni 0.8 s (il sintomo del "drone che si impalla e va avanti e indietro").
+         Con l'ambiente delimitato ogni raggio termina su una superficie, lo
+         sconosciuto e' finito e l'esplorazione ha una condizione di fine reale.
+         Le facce interne stanno a +-9.9 m e il soffitto a 3.0 m, appena oltre la
+         box, cosi' che tutto cio' che va esplorato sia anche raggiungibile. -->
+    <model name="boundary_x_pos">
+      <static>true</static>
+      <pose>10 0 1.6 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry><box><size>0.2 20.2 3.2</size></box></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><box><size>0.2 20.2 3.2</size></box></geometry>
+          <material>
+            <ambient>0.45 0.45 0.5 1</ambient>
+            <diffuse>0.45 0.45 0.5 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="boundary_x_neg">
+      <static>true</static>
+      <pose>-10 0 1.6 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry><box><size>0.2 20.2 3.2</size></box></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><box><size>0.2 20.2 3.2</size></box></geometry>
+          <material>
+            <ambient>0.45 0.45 0.5 1</ambient>
+            <diffuse>0.45 0.45 0.5 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="boundary_y_pos">
+      <static>true</static>
+      <pose>0 10 1.6 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry><box><size>20.2 0.2 3.2</size></box></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><box><size>20.2 0.2 3.2</size></box></geometry>
+          <material>
+            <ambient>0.45 0.45 0.5 1</ambient>
+            <diffuse>0.45 0.45 0.5 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="boundary_y_neg">
+      <static>true</static>
+      <pose>0 -10 1.6 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry><box><size>20.2 0.2 3.2</size></box></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><box><size>20.2 0.2 3.2</size></box></geometry>
+          <material>
+            <ambient>0.45 0.45 0.5 1</ambient>
+            <diffuse>0.45 0.45 0.5 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="ceiling">
+      <static>true</static>
+      <pose>0 0 3.1 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry><box><size>20.2 20.2 0.2</size></box></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><box><size>20.2 20.2 0.2</size></box></geometry>
+          <!-- Trasparente solo alla vista, per guardare dentro dalla GUI: la
+               collisione sopra resta piena. -->
+          <transparency>0.75</transparency>
+          <material>
+            <ambient>0.55 0.55 0.6 1</ambient>
+            <diffuse>0.55 0.55 0.6 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+  </world>
+</sdf>

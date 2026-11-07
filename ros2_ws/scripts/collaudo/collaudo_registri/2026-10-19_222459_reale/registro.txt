@@ -1,0 +1,21 @@
+22:24:59 Collaudo C2-Explorer (DRONE VERO) - registro in /home/draupnir/Documents/Drone_20261018_P/ros2_ws/scripts/collaudo/collaudo_registri/2026-10-19_222459_reale
+22:25:28 == FASE 0: collegamento con PX4 ==
+22:25:28 Attendo lo stato di PX4 (fino a 15 s)...
+22:25:28 PX4 risponde: sistema 1, modalita' LOITER, disarmato, controlli pre-volo NON superati
+22:25:28 Batteria: 0.06 V, -100%
+22:25:28 Condizioni di failsafe attive: global_position_invalid, global_position_invalid_relaxed, auto_mission_missing, offboard_control_signal_lost, home_position_invalid, manual_control_signal_lost, gcs_connection_lost
+22:25:28 Provo le levette virtuali per 3 s (motori fermi, drone disarmato)...
+22:25:28 Comando manuale accettato da PX4 (sorgente 2).
+22:25:43 Hai caricato collaudo_px4.params con QGroundControl (e controllato MPC_THR_HOVER)? [s/n] -> s
+22:25:43 Batteria sotto il 50%: caricala prima di volare.
+22:25:43 FASE 0: NON SUPERATA - manuale=True, parametri=True, prevolo=False
+22:25:52 == FASE 0: collegamento con PX4 ==
+22:25:52 Attendo lo stato di PX4 (fino a 15 s)...
+22:25:52 PX4 risponde: sistema 1, modalita' POSCTL, disarmato, controlli pre-volo NON superati
+22:25:52 Batteria: 0.06 V, -100%
+22:25:52 Condizioni di failsafe attive: global_position_invalid, global_position_invalid_relaxed, auto_mission_missing, offboard_control_signal_lost, home_position_invalid, manual_control_signal_lost, gcs_connection_lost
+22:25:52 Provo le levette virtuali per 3 s (motori fermi, drone disarmato)...
+22:25:52 Comando manuale accettato da PX4 (sorgente 2).
+22:25:54 Hai caricato collaudo_px4.params con QGroundControl (e controllato MPC_THR_HOVER)? [s/n] -> s
+22:25:54 Batteria sotto il 50%: caricala prima di volare.
+22:25:54 FASE 0: NON SUPERATA - manuale=True, parametri=True, prevolo=False

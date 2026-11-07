@@ -1,0 +1,78 @@
+16:38:44 Collaudo C2-Explorer (DRONE VERO) - registro in /home/draupnir/Documents/Drone_20261018_P/ros2_ws/scripts/collaudo/collaudo_registri/2026-10-25_163844_reale
+16:38:49 == FASE 0: collegamento con PX4 ==
+16:38:49 Attendo lo stato di PX4 (fino a 15 s)...
+16:38:49 PX4 risponde: sistema 1, modalita' POSCTL, disarmato, controlli pre-volo NON superati
+16:38:49 Batteria: 16.00 V, 87%, 4 celle
+16:38:49 Condizioni di failsafe attive: global_position_invalid, global_position_invalid_relaxed, auto_mission_missing, offboard_control_signal_lost, home_position_invalid, manual_control_signal_lost, gcs_connection_lost
+16:38:49 Assetto visto da PX4: rollio -5, beccheggio -1 gradi
+16:38:49 Provo le levette virtuali per 3 s (motori fermi, drone disarmato)...
+16:38:49 Comando manuale accettato da PX4 (sorgente 2).
+16:38:51 Hai caricato collaudo_px4.params con QGroundControl (e controllato MPC_THR_HOVER)? [s/n] -> s
+16:38:51 FASE 0: SUPERATA - manuale=True, parametri=True, prevolo=False
+16:38:55 == FASE 1: sensori ==
+16:38:55 /livox/lidar: livox_ros_driver2/msg/CustomMsg
+16:38:55 /livox/imu: sensor_msgs/msg/Imu
+16:38:55 /camera/image_raw: NON PUBBLICATO
+16:38:55 Misuro per 5 s...
+16:39:00 lidar /livox/lidar: 10.0 Hz (atteso ~10)
+16:39:00 IMU /livox/imu: 200 Hz (atteso >= 100), accelerazione a riposo 0.99 (1.00 se in g come il Mid-360, 9.81 se in m/s2)
+16:39:00 telecamera /camera/image_raw: 0.0 Hz (serve solo alla mappa colorata)
+16:39:00 FASE 1: SUPERATA - lidar 10.0 Hz, imu 200 Hz, acc 0.99, camera 0.0 Hz
+16:39:05 == FASE 2: FAST-LIO a drone fermo ==
+16:39:05 Drone appoggiato a terra in piano, NESSUNO lo tocca. Misuro per 30 s...
+16:39:35 stima a 10.0 Hz, deriva in 30 s 0.9 cm (massima escursione 1.9 cm), punti agganciati minimi 565
+16:39:35 FASE 2: SUPERATA - 10.0 Hz, escursione 1.9 cm, agganciati min 565
+16:39:41 == FASE 3: assi e stima dentro PX4 (drone mosso A MANO, motori spenti) ==
+16:39:41 EKF2 usa la visione: {'cs_ev_pos': True, 'cs_ev_hgt': True, 'cs_ev_yaw': True}; posizione PX4 valida xy=True z=True
+16:39:41 a riposo: posizione PX4 - FAST-LIO 0.4 cm, rollio 4.6 gradi, beccheggio 1.1 gradi di differenza
+16:40:05   PX4 -19.1 gradi, FAST-LIO -17.8 gradi -> OK
+16:40:26   PX4 +24.1 gradi, FAST-LIO +25.9 gradi -> OK
+16:40:38   in avanti: PX4 80 cm, FAST-LIO 78 cm -> SBAGLIATO
+16:40:57   rotazione: PX4 -96 gradi, FAST-LIO -96 gradi (attesi circa -90 in NED) -> OK
+16:40:57 FASE 3: NON SUPERATA - riposo False, prove [True, True, False, True]
+16:41:06 == FASE 3: assi e stima dentro PX4 (drone mosso A MANO, motori spenti) ==
+16:41:06 EKF2 usa la visione: {'cs_ev_pos': True, 'cs_ev_hgt': True, 'cs_ev_yaw': True}; posizione PX4 valida xy=True z=True
+16:41:06 a riposo: posizione PX4 - FAST-LIO 8.0 cm, rollio 1.3 gradi, beccheggio 1.1 gradi di differenza
+16:41:21   PX4 -22.0 gradi, FAST-LIO -20.4 gradi -> OK
+16:41:37   PX4 +26.1 gradi, FAST-LIO +27.0 gradi -> OK
+16:41:51   in avanti: PX4 -16 cm, FAST-LIO -11 cm -> SBAGLIATO
+16:42:13   rotazione: PX4 -92 gradi, FAST-LIO -92 gradi (attesi circa -90 in NED) -> OK
+16:42:13 FASE 3: NON SUPERATA - riposo True, prove [True, True, False, True]
+16:42:24 == FASE 3: assi e stima dentro PX4 (drone mosso A MANO, motori spenti) ==
+16:42:24 EKF2 usa la visione: {'cs_ev_pos': True, 'cs_ev_hgt': True, 'cs_ev_yaw': True}; posizione PX4 valida xy=True z=True
+16:42:24 a riposo: posizione PX4 - FAST-LIO 2.9 cm, rollio 0.7 gradi, beccheggio 1.0 gradi di differenza
+16:42:40   PX4 -26.5 gradi, FAST-LIO -24.7 gradi -> OK
+16:42:55   PX4 +22.0 gradi, FAST-LIO +23.3 gradi -> OK
+16:43:16   in avanti: PX4 160 cm, FAST-LIO 157 cm -> SBAGLIATO
+16:43:42   rotazione: PX4 -94 gradi, FAST-LIO -94 gradi (attesi circa -90 in NED) -> OK
+16:43:42 FASE 3: NON SUPERATA - riposo True, prove [True, True, False, True]
+16:44:05 == FASE 3: assi e stima dentro PX4 (drone mosso A MANO, motori spenti) ==
+16:44:05 EKF2 usa la visione: {'cs_ev_pos': True, 'cs_ev_hgt': True, 'cs_ev_yaw': True}; posizione PX4 valida xy=True z=True
+16:44:05 a riposo: posizione PX4 - FAST-LIO 2.4 cm, rollio 0.2 gradi, beccheggio 1.2 gradi di differenza
+16:44:19   PX4 -32.8 gradi, FAST-LIO -31.7 gradi -> OK
+16:44:34   PX4 +22.8 gradi, FAST-LIO +23.1 gradi -> OK
+16:44:52   in avanti: PX4 81 cm, FAST-LIO 81 cm -> SBAGLIATO
+16:45:09   rotazione: PX4 -88 gradi, FAST-LIO -88 gradi (attesi circa -90 in NED) -> OK
+16:45:09 FASE 3: NON SUPERATA - riposo True, prove [True, True, False, True]
+16:45:20 == FASE 3: assi e stima dentro PX4 (drone mosso A MANO, motori spenti) ==
+16:45:20 EKF2 usa la visione: {'cs_ev_pos': True, 'cs_ev_hgt': True, 'cs_ev_yaw': True}; posizione PX4 valida xy=True z=True
+16:45:20 a riposo: posizione PX4 - FAST-LIO 1.2 cm, rollio 0.4 gradi, beccheggio 1.0 gradi di differenza
+16:45:33   PX4 -24.9 gradi, FAST-LIO -23.2 gradi -> OK
+16:45:49   PX4 +23.3 gradi, FAST-LIO +23.9 gradi -> OK
+16:46:00   in avanti: PX4 53 cm, FAST-LIO 50 cm -> OK
+16:46:11   rotazione: PX4 -91 gradi, FAST-LIO -91 gradi (attesi circa -90 in NED) -> OK
+16:46:11 FASE 3: SUPERATA - riposo True, prove [True, True, True, True]
+16:48:25 == FASE 5: hover TRATTENUTO (drone legato, eliche montate) ==
+16:48:25 Lega il drone a terra (corda corta, 30-50 cm di gioco) o fallo volare dentro una rete. Nessuno entro 3 m.
+16:48:25 Istruzioni: t per decollare (sale da solo alla quota indicata), resta fermo almeno 30 s, poi l per atterrare. SPAZIO = emergenza.
+16:48:27 Area libera, eliche montate, persone lontane, batteria carica. Procedo? [s/n] -> s
+16:48:27 Attendo che la posizione di PX4 (dalla stima di FAST-LIO) sia valida, fino a 30 s...
+16:48:58 Posizione di PX4 non valida: ripeti le fasi 2 e 3.
+16:48:58 FASE 5: NON SUPERATA - posizione non valida
+16:49:58 == FASE 5: hover TRATTENUTO (drone legato, eliche montate) ==
+16:49:58 Lega il drone a terra (corda corta, 30-50 cm di gioco) o fallo volare dentro una rete. Nessuno entro 3 m.
+16:49:58 Istruzioni: t per decollare (sale da solo alla quota indicata), resta fermo almeno 30 s, poi l per atterrare. SPAZIO = emergenza.
+16:50:00 Area libera, eliche montate, persone lontane, batteria carica. Procedo? [s/n] -> s
+16:50:00 Attendo che la posizione di PX4 (dalla stima di FAST-LIO) sia valida, fino a 30 s...
+16:50:30 Posizione di PX4 non valida: ripeti le fasi 2 e 3.
+16:50:30 FASE 5: NON SUPERATA - posizione non valida

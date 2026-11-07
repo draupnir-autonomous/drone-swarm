@@ -1,0 +1,2 @@
+uxrce_dds_client stop
+uxrce_dds_client start -t serial -d /dev/ttyACM0 -b 921600

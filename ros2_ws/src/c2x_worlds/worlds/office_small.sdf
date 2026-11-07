@@ -1,0 +1,1604 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- GENERATO DA scripts/pcd_to_world.py - non modificare a mano.
+     Sorgente: reference/C2-Explorer/src/MARSIM/map_generator/resource/cubicle_office.pcd
+     Estensione: x [-7.66, 8.34]  y [-8.19, 7.81]  altezza 2.27 m
+     113 box di collisione da 555 celle occupate a 0.2 m. -->
+<sdf version="1.9">
+  <world name="office_small">
+    <physics type="ode">
+      <max_step_size>0.004</max_step_size>
+      <real_time_factor>1.0</real_time_factor>
+      <real_time_update_rate>250</real_time_update_rate>
+    </physics>
+    <gravity>0 0 -9.8</gravity>
+    <magnetic_field>6e-06 2.3e-05 -4.2e-05</magnetic_field>
+    <atmosphere type="adiabatic"/>
+    <scene>
+      <grid>false</grid>
+      <ambient>0.4 0.4 0.4 1</ambient>
+      <background>0.7 0.7 0.7 1</background>
+      <shadows>true</shadows>
+    </scene>
+
+    <!-- Nessun blocco <plugin>, di proposito: dichiararne una lista esplicita
+         SOSTITUISCE il set predefinito di Gazebo invece di aggiungersi. Una
+         versione precedente di questo generatore elencava physics/sensors/imu/
+         air-pressure e cosi' facendo lasciava fuori magnetometro e navsat: PX4
+         rifiutava di armare con "Preflight Fail: Found 0 compass (required: 1)"
+         e nessun drone decollava, pur continuando a pianificare a terra. Il
+         mondo empty_room, che funziona, non dichiara plugin. -->
+
+    <light type="directional" name="sunUTC">
+      <pose>0 0 500 0 0 0</pose>
+      <cast_shadows>false</cast_shadows>
+      <diffuse>0.9 0.9 0.9 1</diffuse>
+      <specular>0.2 0.2 0.2 1</specular>
+      <direction>0.1 0.1 -0.9</direction>
+    </light>
+
+    <spherical_coordinates>
+      <surface_model>EARTH_WGS84</surface_model>
+      <world_frame_orientation>ENU</world_frame_orientation>
+      <latitude_deg>47.397971057728974</latitude_deg>
+      <longitude_deg>8.546163739800146</longitude_deg>
+      <elevation>0</elevation>
+    </spherical_coordinates>
+
+    <model name="ground_plane">
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><plane><normal>0 0 1</normal><size>100 100</size></plane></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><plane><normal>0 0 1</normal><size>100 100</size></plane></geometry>
+          <material>
+            <ambient>0.75 0.75 0.75 1</ambient>
+            <diffuse>0.75 0.75 0.75 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <model name="building">
+      <static>true</static>
+      <pose>0 0 0 0 0 0</pose>
+      <link name="link">
+      <collision name="cw0">
+        <pose>-6.055 -4.589 1.133 0 0 0</pose>
+        <geometry><box><size>3.200 0.400 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw0">
+        <pose>-6.055 -4.589 1.133 0 0 0</pose>
+        <geometry><box><size>3.200 0.400 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw1">
+        <pose>-7.555 1.411 1.133 0 0 0</pose>
+        <geometry><box><size>0.200 0.800 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw1">
+        <pose>-7.555 1.411 1.133 0 0 0</pose>
+        <geometry><box><size>0.200 0.800 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw2">
+        <pose>-7.355 1.611 1.133 0 0 0</pose>
+        <geometry><box><size>0.200 0.800 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw2">
+        <pose>-7.355 1.611 1.133 0 0 0</pose>
+        <geometry><box><size>0.200 0.800 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw3">
+        <pose>-7.155 1.211 1.133 0 0 0</pose>
+        <geometry><box><size>0.200 0.400 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw3">
+        <pose>-7.155 1.211 1.133 0 0 0</pose>
+        <geometry><box><size>0.200 0.400 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw4">
+        <pose>-7.055 1.911 1.133 0 0 0</pose>
+        <geometry><box><size>0.400 0.600 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw4">
+        <pose>-7.055 1.911 1.133 0 0 0</pose>
+        <geometry><box><size>0.400 0.600 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw5">
+        <pose>-6.855 6.511 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw5">
+        <pose>-6.855 6.511 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw6">
+        <pose>-6.955 1.011 1.133 0 0 0</pose>
+        <geometry><box><size>0.200 0.400 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw6">
+        <pose>-6.955 1.011 1.133 0 0 0</pose>
+        <geometry><box><size>0.200 0.400 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw7">
+        <pose>-6.855 1.511 1.133 0 0 0</pose>
+        <geometry><box><size>0.400 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw7">
+        <pose>-6.855 1.511 1.133 0 0 0</pose>
+        <geometry><box><size>0.400 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw8">
+        <pose>-6.655 2.311 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw8">
+        <pose>-6.655 2.311 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw9">
+        <pose>-6.855 6.311 1.133 0 0 0</pose>
+        <geometry><box><size>0.400 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw9">
+        <pose>-6.855 6.311 1.133 0 0 0</pose>
+        <geometry><box><size>0.400 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw10">
+        <pose>-6.655 6.711 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw10">
+        <pose>-6.655 6.711 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw11">
+        <pose>-6.755 0.811 1.133 0 0 0</pose>
+        <geometry><box><size>0.200 0.400 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw11">
+        <pose>-6.755 0.811 1.133 0 0 0</pose>
+        <geometry><box><size>0.200 0.400 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw12">
+        <pose>-6.655 1.311 1.133 0 0 0</pose>
+        <geometry><box><size>0.400 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw12">
+        <pose>-6.655 1.311 1.133 0 0 0</pose>
+        <geometry><box><size>0.400 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw13">
+        <pose>-6.755 2.011 1.133 0 0 0</pose>
+        <geometry><box><size>0.200 0.400 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw13">
+        <pose>-6.755 2.011 1.133 0 0 0</pose>
+        <geometry><box><size>0.200 0.400 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw14">
+        <pose>-6.455 2.511 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw14">
+        <pose>-6.455 2.511 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw15">
+        <pose>-6.455 6.911 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw15">
+        <pose>-6.455 6.911 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw16">
+        <pose>-6.555 0.611 1.133 0 0 0</pose>
+        <geometry><box><size>0.200 0.400 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw16">
+        <pose>-6.555 0.611 1.133 0 0 0</pose>
+        <geometry><box><size>0.200 0.400 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw17">
+        <pose>-6.455 1.111 1.133 0 0 0</pose>
+        <geometry><box><size>0.400 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw17">
+        <pose>-6.455 1.111 1.133 0 0 0</pose>
+        <geometry><box><size>0.400 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw18">
+        <pose>-6.555 2.111 1.133 0 0 0</pose>
+        <geometry><box><size>0.200 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw18">
+        <pose>-6.555 2.111 1.133 0 0 0</pose>
+        <geometry><box><size>0.200 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw19">
+        <pose>-6.255 2.711 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw19">
+        <pose>-6.255 2.711 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw20">
+        <pose>-6.255 7.111 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw20">
+        <pose>-6.255 7.111 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw21">
+        <pose>-6.355 0.411 1.133 0 0 0</pose>
+        <geometry><box><size>0.200 0.400 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw21">
+        <pose>-6.355 0.411 1.133 0 0 0</pose>
+        <geometry><box><size>0.200 0.400 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw22">
+        <pose>-6.255 0.911 1.133 0 0 0</pose>
+        <geometry><box><size>0.400 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw22">
+        <pose>-6.255 0.911 1.133 0 0 0</pose>
+        <geometry><box><size>0.400 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw23">
+        <pose>-6.055 2.911 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw23">
+        <pose>-6.055 2.911 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw24">
+        <pose>-6.055 7.311 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw24">
+        <pose>-6.055 7.311 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw25">
+        <pose>-6.155 0.211 1.133 0 0 0</pose>
+        <geometry><box><size>0.200 0.400 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw25">
+        <pose>-6.155 0.211 1.133 0 0 0</pose>
+        <geometry><box><size>0.200 0.400 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw26">
+        <pose>-6.055 0.711 1.133 0 0 0</pose>
+        <geometry><box><size>0.400 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw26">
+        <pose>-6.055 0.711 1.133 0 0 0</pose>
+        <geometry><box><size>0.400 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw27">
+        <pose>-5.855 3.111 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw27">
+        <pose>-5.855 3.111 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw28">
+        <pose>-5.855 7.511 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw28">
+        <pose>-5.855 7.511 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw29">
+        <pose>-5.955 0.011 1.133 0 0 0</pose>
+        <geometry><box><size>0.200 0.400 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw29">
+        <pose>-5.955 0.011 1.133 0 0 0</pose>
+        <geometry><box><size>0.200 0.400 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw30">
+        <pose>-5.955 0.511 1.133 0 0 0</pose>
+        <geometry><box><size>0.200 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw30">
+        <pose>-5.955 0.511 1.133 0 0 0</pose>
+        <geometry><box><size>0.200 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw31">
+        <pose>-5.655 3.311 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw31">
+        <pose>-5.655 3.311 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw32">
+        <pose>-5.655 7.711 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw32">
+        <pose>-5.655 7.711 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw33">
+        <pose>-5.755 -0.189 1.133 0 0 0</pose>
+        <geometry><box><size>0.200 0.400 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw33">
+        <pose>-5.755 -0.189 1.133 0 0 0</pose>
+        <geometry><box><size>0.200 0.400 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw34">
+        <pose>-5.655 0.311 1.133 0 0 0</pose>
+        <geometry><box><size>0.400 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw34">
+        <pose>-5.655 0.311 1.133 0 0 0</pose>
+        <geometry><box><size>0.400 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw35">
+        <pose>-5.455 3.511 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw35">
+        <pose>-5.455 3.511 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw36">
+        <pose>-5.555 -0.389 1.133 0 0 0</pose>
+        <geometry><box><size>0.200 0.400 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw36">
+        <pose>-5.555 -0.389 1.133 0 0 0</pose>
+        <geometry><box><size>0.200 0.400 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw37">
+        <pose>-5.455 0.111 1.133 0 0 0</pose>
+        <geometry><box><size>0.400 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw37">
+        <pose>-5.455 0.111 1.133 0 0 0</pose>
+        <geometry><box><size>0.400 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw38">
+        <pose>-5.255 3.711 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw38">
+        <pose>-5.255 3.711 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw39">
+        <pose>-5.355 -0.589 1.133 0 0 0</pose>
+        <geometry><box><size>0.200 0.400 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw39">
+        <pose>-5.355 -0.589 1.133 0 0 0</pose>
+        <geometry><box><size>0.200 0.400 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw40">
+        <pose>-5.355 -0.089 1.133 0 0 0</pose>
+        <geometry><box><size>0.200 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw40">
+        <pose>-5.355 -0.089 1.133 0 0 0</pose>
+        <geometry><box><size>0.200 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw41">
+        <pose>-5.055 3.911 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw41">
+        <pose>-5.055 3.911 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw42">
+        <pose>-5.155 -0.789 1.133 0 0 0</pose>
+        <geometry><box><size>0.200 0.400 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw42">
+        <pose>-5.155 -0.789 1.133 0 0 0</pose>
+        <geometry><box><size>0.200 0.400 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw43">
+        <pose>-5.055 -0.289 1.133 0 0 0</pose>
+        <geometry><box><size>0.400 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw43">
+        <pose>-5.055 -0.289 1.133 0 0 0</pose>
+        <geometry><box><size>0.400 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw44">
+        <pose>-4.855 4.111 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw44">
+        <pose>-4.855 4.111 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw45">
+        <pose>-4.955 -0.989 1.133 0 0 0</pose>
+        <geometry><box><size>0.200 0.400 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw45">
+        <pose>-4.955 -0.989 1.133 0 0 0</pose>
+        <geometry><box><size>0.200 0.400 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw46">
+        <pose>-4.855 -0.489 1.133 0 0 0</pose>
+        <geometry><box><size>0.400 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw46">
+        <pose>-4.855 -0.489 1.133 0 0 0</pose>
+        <geometry><box><size>0.400 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw47">
+        <pose>-4.655 4.311 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw47">
+        <pose>-4.655 4.311 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw48">
+        <pose>-4.755 -1.189 1.133 0 0 0</pose>
+        <geometry><box><size>0.200 0.400 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw48">
+        <pose>-4.755 -1.189 1.133 0 0 0</pose>
+        <geometry><box><size>0.200 0.400 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw49">
+        <pose>-4.655 -0.689 1.133 0 0 0</pose>
+        <geometry><box><size>0.400 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw49">
+        <pose>-4.655 -0.689 1.133 0 0 0</pose>
+        <geometry><box><size>0.400 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw50">
+        <pose>-4.455 4.511 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw50">
+        <pose>-4.455 4.511 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw51">
+        <pose>-4.555 -6.489 1.133 0 0 0</pose>
+        <geometry><box><size>0.200 3.400 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw51">
+        <pose>-4.555 -6.489 1.133 0 0 0</pose>
+        <geometry><box><size>0.200 3.400 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw52">
+        <pose>-4.455 -1.289 1.133 0 0 0</pose>
+        <geometry><box><size>0.400 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw52">
+        <pose>-4.455 -1.289 1.133 0 0 0</pose>
+        <geometry><box><size>0.400 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw53">
+        <pose>-4.455 -0.889 1.133 0 0 0</pose>
+        <geometry><box><size>0.400 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw53">
+        <pose>-4.455 -0.889 1.133 0 0 0</pose>
+        <geometry><box><size>0.400 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw54">
+        <pose>-4.255 4.711 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw54">
+        <pose>-4.255 4.711 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw55">
+        <pose>-4.255 -4.489 1.133 0 0 0</pose>
+        <geometry><box><size>0.400 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw55">
+        <pose>-4.255 -4.489 1.133 0 0 0</pose>
+        <geometry><box><size>0.400 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw56">
+        <pose>-4.355 -1.089 1.133 0 0 0</pose>
+        <geometry><box><size>0.200 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw56">
+        <pose>-4.355 -1.089 1.133 0 0 0</pose>
+        <geometry><box><size>0.200 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw57">
+        <pose>-4.055 4.911 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw57">
+        <pose>-4.055 4.911 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw58">
+        <pose>-4.155 -6.389 1.133 0 0 0</pose>
+        <geometry><box><size>0.200 3.600 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw58">
+        <pose>-4.155 -6.389 1.133 0 0 0</pose>
+        <geometry><box><size>0.200 3.600 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw59">
+        <pose>-3.855 5.111 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw59">
+        <pose>-3.855 5.111 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw60">
+        <pose>-3.655 5.311 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw60">
+        <pose>-3.655 5.311 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw61">
+        <pose>-3.455 5.511 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw61">
+        <pose>-3.455 5.511 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw62">
+        <pose>-3.255 5.711 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw62">
+        <pose>-3.255 5.711 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw63">
+        <pose>-3.055 5.911 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw63">
+        <pose>-3.055 5.911 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw64">
+        <pose>-2.855 6.111 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw64">
+        <pose>-2.855 6.111 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw65">
+        <pose>-2.655 6.311 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw65">
+        <pose>-2.655 6.311 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw66">
+        <pose>-2.455 6.511 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw66">
+        <pose>-2.455 6.511 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw67">
+        <pose>-2.255 6.711 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw67">
+        <pose>-2.255 6.711 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw68">
+        <pose>-2.055 6.911 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw68">
+        <pose>-2.055 6.911 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw69">
+        <pose>-1.955 3.011 1.133 0 0 0</pose>
+        <geometry><box><size>0.600 0.400 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw69">
+        <pose>-1.955 3.011 1.133 0 0 0</pose>
+        <geometry><box><size>0.600 0.400 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw70">
+        <pose>-1.855 7.111 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw70">
+        <pose>-1.855 7.111 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw71">
+        <pose>-1.655 2.711 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw71">
+        <pose>-1.655 2.711 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw72">
+        <pose>-1.955 3.311 1.133 0 0 0</pose>
+        <geometry><box><size>0.200 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw72">
+        <pose>-1.955 3.311 1.133 0 0 0</pose>
+        <geometry><box><size>0.200 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw73">
+        <pose>-1.655 7.311 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw73">
+        <pose>-1.655 7.311 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw74">
+        <pose>-1.455 2.511 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw74">
+        <pose>-1.455 2.511 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw75">
+        <pose>-1.455 7.511 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw75">
+        <pose>-1.455 7.511 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw76">
+        <pose>-1.255 2.311 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw76">
+        <pose>-1.255 2.311 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw77">
+        <pose>-1.555 2.911 1.133 0 0 0</pose>
+        <geometry><box><size>0.200 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw77">
+        <pose>-1.555 2.911 1.133 0 0 0</pose>
+        <geometry><box><size>0.200 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw78">
+        <pose>-1.255 7.711 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw78">
+        <pose>-1.255 7.711 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw79">
+        <pose>-1.155 -1.189 1.133 0 0 0</pose>
+        <geometry><box><size>0.600 0.400 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw79">
+        <pose>-1.155 -1.189 1.133 0 0 0</pose>
+        <geometry><box><size>0.600 0.400 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw80">
+        <pose>-1.055 2.111 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw80">
+        <pose>-1.055 2.111 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw81">
+        <pose>-0.855 -0.889 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw81">
+        <pose>-0.855 -0.889 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw82">
+        <pose>-0.855 1.911 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw82">
+        <pose>-0.855 1.911 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw83">
+        <pose>-0.655 -0.689 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw83">
+        <pose>-0.655 -0.689 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw84">
+        <pose>-0.655 1.711 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw84">
+        <pose>-0.655 1.711 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw85">
+        <pose>-0.755 -1.089 1.133 0 0 0</pose>
+        <geometry><box><size>0.200 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw85">
+        <pose>-0.755 -1.089 1.133 0 0 0</pose>
+        <geometry><box><size>0.200 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw86">
+        <pose>-0.455 -0.489 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw86">
+        <pose>-0.455 -0.489 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw87">
+        <pose>-0.455 1.511 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw87">
+        <pose>-0.455 1.511 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw88">
+        <pose>-0.255 -0.289 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw88">
+        <pose>-0.255 -0.289 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw89">
+        <pose>-0.255 1.311 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw89">
+        <pose>-0.255 1.311 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw90">
+        <pose>-0.055 -0.089 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw90">
+        <pose>-0.055 -0.089 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw91">
+        <pose>-0.055 1.111 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw91">
+        <pose>-0.055 1.111 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw92">
+        <pose>0.145 0.111 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw92">
+        <pose>0.145 0.111 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw93">
+        <pose>0.545 0.911 1.133 0 0 0</pose>
+        <geometry><box><size>1.600 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw93">
+        <pose>0.545 0.911 1.133 0 0 0</pose>
+        <geometry><box><size>1.600 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw94">
+        <pose>0.345 0.311 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw94">
+        <pose>0.345 0.311 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw95">
+        <pose>0.545 0.711 1.133 0 0 0</pose>
+        <geometry><box><size>1.200 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw95">
+        <pose>0.545 0.711 1.133 0 0 0</pose>
+        <geometry><box><size>1.200 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw96">
+        <pose>0.545 0.511 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw96">
+        <pose>0.545 0.511 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw97">
+        <pose>1.145 1.111 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw97">
+        <pose>1.145 1.111 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw98">
+        <pose>1.345 1.311 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw98">
+        <pose>1.345 1.311 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw99">
+        <pose>1.545 1.511 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw99">
+        <pose>1.545 1.511 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw100">
+        <pose>1.745 1.711 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw100">
+        <pose>1.745 1.711 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw101">
+        <pose>1.945 1.911 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw101">
+        <pose>1.945 1.911 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw102">
+        <pose>2.145 2.111 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw102">
+        <pose>2.145 2.111 1.133 0 0 0</pose>
+        <geometry><box><size>0.800 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw103">
+        <pose>2.245 2.311 1.133 0 0 0</pose>
+        <geometry><box><size>0.600 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw103">
+        <pose>2.245 2.311 1.133 0 0 0</pose>
+        <geometry><box><size>0.600 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw104">
+        <pose>2.245 -4.189 1.133 0 0 0</pose>
+        <geometry><box><size>0.200 4.000 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw104">
+        <pose>2.245 -4.189 1.133 0 0 0</pose>
+        <geometry><box><size>0.200 4.000 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw105">
+        <pose>4.345 -6.289 1.133 0 0 0</pose>
+        <geometry><box><size>4.000 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw105">
+        <pose>4.345 -6.289 1.133 0 0 0</pose>
+        <geometry><box><size>4.000 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw106">
+        <pose>4.345 -2.289 1.133 0 0 0</pose>
+        <geometry><box><size>4.000 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw106">
+        <pose>4.345 -2.289 1.133 0 0 0</pose>
+        <geometry><box><size>4.000 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw107">
+        <pose>5.645 4.411 1.133 0 0 0</pose>
+        <geometry><box><size>2.600 0.400 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw107">
+        <pose>5.645 4.411 1.133 0 0 0</pose>
+        <geometry><box><size>2.600 0.400 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw108">
+        <pose>6.245 -4.289 1.133 0 0 0</pose>
+        <geometry><box><size>0.200 3.800 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw108">
+        <pose>6.245 -4.289 1.133 0 0 0</pose>
+        <geometry><box><size>0.200 3.800 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw109">
+        <pose>6.845 6.211 1.133 0 0 0</pose>
+        <geometry><box><size>0.200 3.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw109">
+        <pose>6.845 6.211 1.133 0 0 0</pose>
+        <geometry><box><size>0.200 3.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw110">
+        <pose>7.645 4.311 1.133 0 0 0</pose>
+        <geometry><box><size>1.400 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw110">
+        <pose>7.645 4.311 1.133 0 0 0</pose>
+        <geometry><box><size>1.400 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw111">
+        <pose>7.245 6.111 1.133 0 0 0</pose>
+        <geometry><box><size>0.200 3.400 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw111">
+        <pose>7.245 6.111 1.133 0 0 0</pose>
+        <geometry><box><size>0.200 3.400 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cw112">
+        <pose>7.845 4.511 1.133 0 0 0</pose>
+        <geometry><box><size>1.000 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vw112">
+        <pose>7.845 4.511 1.133 0 0 0</pose>
+        <geometry><box><size>1.000 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.55 0.55 0.6 1</ambient>
+          <diffuse>0.55 0.55 0.6 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cs0">
+        <pose>-7.755 -0.189 1.133 0 0 0</pose>
+        <geometry><box><size>0.200 16.399 2.266</size></box></geometry>
+      </collision>
+      <visual name="vs0">
+        <pose>-7.755 -0.189 1.133 0 0 0</pose>
+        <geometry><box><size>0.200 16.399 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.5 0.5 0.55 1</ambient>
+          <diffuse>0.5 0.5 0.55 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cs1">
+        <pose>8.444 -0.189 1.133 0 0 0</pose>
+        <geometry><box><size>0.200 16.399 2.266</size></box></geometry>
+      </collision>
+      <visual name="vs1">
+        <pose>8.444 -0.189 1.133 0 0 0</pose>
+        <geometry><box><size>0.200 16.399 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.5 0.5 0.55 1</ambient>
+          <diffuse>0.5 0.5 0.55 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cs2">
+        <pose>0.344 -8.289 1.133 0 0 0</pose>
+        <geometry><box><size>16.399 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vs2">
+        <pose>0.344 -8.289 1.133 0 0 0</pose>
+        <geometry><box><size>16.399 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.5 0.5 0.55 1</ambient>
+          <diffuse>0.5 0.5 0.55 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cs3">
+        <pose>0.344 7.910 1.133 0 0 0</pose>
+        <geometry><box><size>16.399 0.200 2.266</size></box></geometry>
+      </collision>
+      <visual name="vs3">
+        <pose>0.344 7.910 1.133 0 0 0</pose>
+        <geometry><box><size>16.399 0.200 2.266</size></box></geometry>
+        <transparency>0.0</transparency>
+        <material>
+          <ambient>0.5 0.5 0.55 1</ambient>
+          <diffuse>0.5 0.5 0.55 1</diffuse>
+        </material>
+      </visual>
+      <collision name="cceil">
+        <pose>0.344 -0.189 2.366 0 0 0</pose>
+        <geometry><box><size>16.399 16.399 0.200</size></box></geometry>
+      </collision>
+      <visual name="vceil">
+        <pose>0.344 -0.189 2.366 0 0 0</pose>
+        <geometry><box><size>16.399 16.399 0.200</size></box></geometry>
+        <transparency>0.75</transparency>
+        <material>
+          <ambient>0.62 0.62 0.66 1</ambient>
+          <diffuse>0.62 0.62 0.66 1</diffuse>
+        </material>
+      </visual>
+      </link>
+    </model>
+  </world>
+</sdf>
