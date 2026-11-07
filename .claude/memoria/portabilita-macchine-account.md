@@ -17,6 +17,12 @@ Non viaggia: le conversazioni (restano nella macchina dove sono nate), le build
 (`ros2_ws/build|install|log`, `PX4-Autopilot/build`: architetture diverse), PX4 stesso (si clona
 v1.17.0 e si applica `patches/px4/`), i dati pesanti di `risultati_prova/` (in git solo txt/md/json/yaml/csv).
 
+ARM↔x86 (7 nov): build mai condivise (anche `-march=native`); dipendenze comuni a entrambe in
+`setup_macchina.sh --dipendenze` (rosdep del workspace, python3-scipy, Open3D 0.20.0 via pip --user,
+che prima non installava nessuno script); i 6 collegamenti PX4 Tools/simulation/gz -> modello
+x500_mid360 e mondi stanno in patches/px4/collegamenti.txt (senza il modello il drone non parte).
+Non ancora provato su un PC x86 reale.
+
 **Why:** l'utente vuole cambiare account o computer a fine lavoro e ripartire con tutto il contesto.
 **How to apply:** a fine lavoro usare /consegne (aggiorna CONSEGNE.md, salva patch PX4, commit, push);
 all'inizio /riprendi. Mai `git pull` con una run in corso (bash legge gli script mentre girano). Una run

@@ -50,7 +50,7 @@ if [ -n "$attive" ]; then
   echo "$attive" | head -5 | cut -c1-160 | sed 's/^/    /'
 fi
 
-[ -x tools/px4_patch.sh ] && echo "- $(bash tools/px4_patch.sh stato --breve 2>/dev/null | head -1)"
+[ -x tools/px4_patch.sh ] && bash tools/px4_patch.sh stato --breve 2>/dev/null | head -2 | sed 's/^/- /'
 
 if [ ! -d ros2_ws/install ]; then
   echo "- build ROS2 assente su questa macchina (tools/setup_macchina.sh --compila)."

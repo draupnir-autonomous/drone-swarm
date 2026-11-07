@@ -1,0 +1,6 @@
+Tools/simulation/gz/models/x500_mid360 ../../../../../ros2_ws/src/c2x_description/models/x500_mid360
+Tools/simulation/gz/worlds/cubicle_office.sdf ../../../../../ros2_ws/src/c2x_worlds/worlds/cubicle_office.sdf
+Tools/simulation/gz/worlds/empty_room.sdf ../../../../../ros2_ws/src/c2x_worlds/worlds/empty_room.sdf
+Tools/simulation/gz/worlds/office_small.sdf ../../../../../ros2_ws/src/c2x_worlds/worlds/office_small.sdf
+Tools/simulation/gz/worlds/open_field.sdf ../../../../../ros2_ws/src/c2x_worlds/worlds/open_field.sdf
+Tools/simulation/gz/worlds/parco.sdf ../../../../../ros2_ws/src/c2x_worlds/worlds/parco.sdf

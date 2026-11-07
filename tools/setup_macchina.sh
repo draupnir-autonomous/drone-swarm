@@ -57,6 +57,17 @@ if [ "$DIPENDENZE" = 1 ]; then
   else
     passo "Dipendenze di sistema (setup_jazzy.sh, chiede sudo)"; bash setup_jazzy.sh
   fi
+  # Uguali su Jetson e PC. I due script sopra hanno elenchi di pacchetti diversi: rosdep
+  # installa quelli dichiarati nei package.xml del workspace, qualunque sia l'architettura.
+  passo "Dipendenze comuni: rosdep del workspace, SciPy, Open3D 0.20.0 (come sulla Jetson)"
+  ( set +u; source /opt/ros/jazzy/setup.bash; set -u
+    rosdep install --from-paths ros2_ws/src --ignore-src -r -y --rosdistro jazzy \
+      --skip-keys "cmake_modules" ) || echo "ATTENZIONE: rosdep non ha installato tutto (vedi sopra)."
+  sudo apt-get install -y python3-scipy
+  # Open3D: lo usano prepara_mondo.py e geometria_mondo.py (preparazione di ogni missione) e
+  # ricostruisci_mappa.py. Stessa versione della Jetson; c'e' la ruota sia aarch64 sia x86_64.
+  python3 -c "import open3d" 2>/dev/null \
+    || python3 -m pip install --user --break-system-packages open3d==0.20.0
 fi
 
 if [ "$COMPILA" = 1 ]; then

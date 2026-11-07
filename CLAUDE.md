@@ -30,7 +30,7 @@ Le note specifiche della macchina corrente sono in `CLAUDE.local.md` (non versio
 | `ros2_ws/scripts/run_multi_exploration.sh` | la missione su qualsiasi mondo, con N droni |
 | `ros2_ws/scripts/campagna_sciame.sh`, `pagella_sciame.py` | campagne 1 vs N droni e pagella |
 | `ros2_ws/scripts/collaudo/` | drone vero (Mid-360S, Pixhawk): procedure e registri |
-| `patches/px4/` | modifiche locali a PX4 v1.17.0 (airframe 22000, gz_bridge) |
+| `patches/px4/` | modifiche locali a PX4 v1.17.0 (airframe 22000, gz_bridge) e collegamenti dal sottomodulo gz di PX4 al modello x500_mid360 e ai mondi |
 | `tools/` | portabilità: `setup_macchina.sh`, `px4_patch.sh`, `claude/` |
 
 I commenti nel codice riportano anche le modifiche provate e scartate, con i numeri: leggerli prima

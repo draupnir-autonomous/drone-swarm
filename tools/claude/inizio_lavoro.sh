@@ -67,13 +67,21 @@ else
   if [ -n "$a" ] && [ "$a" != "$arch" ]; then
     echo "ROS2: build fatta per $a, questa macchina e' $arch -> rm -rf ros2_ws/build ros2_ws/install ros2_ws/log e ricompilare"
   else
-    nuovi="$(find ros2_ws/src -type f -newer ros2_ws/install \( -name '*.cpp' -o -name '*.h' -o -name '*.hpp' -o -name '*.py' -o -name 'CMakeLists.txt' -o -name '*.msg' -o -name '*.launch.py' -o -name '*.yaml' \) 2>/dev/null | head -200)"
-    if [ -n "$nuovi" ]; then
-      echo "ROS2: $(echo "$nuovi" | wc -l) sorgenti piu' recenti della build, pacchetti:"
-      echo "$nuovi" | awk -F/ '{print ($3=="terze_parti") ? $4 : $3}' | sort -u | tr '\n' ' ' | sed 's/^/  /'; echo
-      echo "  -> cd ros2_ws && colcon build --symlink-install --packages-select <pacchetti> (vedi CLAUDE.md)"
+    # Per pacchetto: sorgenti piu' recenti dell'ultima build di QUEL pacchetto (build/<p>/colcon_build.rc)
+    vecchi=""; mai=""
+    while IFS= read -r xml; do
+      d="$(dirname "$xml")"; [ -f "$d/COLCON_IGNORE" ] && continue
+      p="$(sed -n 's:.*<name>\(.*\)</name>.*:\1:p' "$xml" | head -1)"
+      rc="ros2_ws/build/$p/colcon_build.rc"
+      if [ ! -f "$rc" ]; then mai="$mai $p"; continue; fi
+      [ -n "$(find "$d" -type f -newer "$rc" \( -name '*.cpp' -o -name '*.h' -o -name '*.hpp' -o -name '*.py' -o -name 'CMakeLists.txt' -o -name '*.msg' -o -name '*.srv' -o -name '*.yaml' -o -name 'package.xml' \) -print -quit 2>/dev/null)" ] && vecchi="$vecchi $p"
+    done < <(find ros2_ws/src -name package.xml -not -path '*/build/*')
+    if [ -n "$vecchi$mai" ]; then
+      [ -n "$vecchi" ] && echo "ROS2: sorgenti piu' recenti della build in:$vecchi"
+      [ -n "$mai" ]    && echo "ROS2: pacchetti mai compilati qui:$mai"
+      echo "  -> cd ros2_ws && colcon build --symlink-install --packages-up-to <pacchetti> (opzioni in CLAUDE.md)"
     else
-      echo "ROS2: build presente e piu' recente dei sorgenti."
+      echo "ROS2: ogni pacchetto e' compilato dopo l'ultima modifica dei suoi sorgenti."
     fi
   fi
 fi
@@ -83,6 +91,7 @@ if [ -x PX4-Autopilot/build/px4_sitl_default/bin/px4 ]; then
 elif [ -d PX4-Autopilot ]; then
   echo "PX4: build assente -> cd PX4-Autopilot && make px4_sitl_default"
 fi
+python3 -c "import open3d" 2>/dev/null || echo "Open3D: mancante (serve a preparare ogni missione) -> pip install --user --break-system-packages open3d==0.20.0"
 command -v MicroXRCEAgent >/dev/null || [ -x "$HOME/.local/bin/MicroXRCEAgent" ] || echo "MicroXRCEAgent: non installato -> tools/setup_macchina.sh --compila"
 [ -f terze_parti/livox_sdk2/lib/liblivox_lidar_sdk_static.a ] || echo "Livox SDK2: non compilato (serve solo per il drone vero) -> tools/setup_macchina.sh --compila"
 

@@ -9,20 +9,55 @@
 #   tools/px4_patch.sh applica   patch -> PX4-Autopilot   (dopo un git pull o su una macchina nuova)
 #   tools/px4_patch.sh stato     dice se PX4 e patch coincidono   [--breve: una riga]
 #
-# Le modifiche dentro i sottomoduli di PX4 NON sono coperte (oggi non ce ne sono).
+# Oltre alla patch: nel sottomodulo Gazebo di PX4 (Tools/simulation/gz) ci sono collegamenti al
+# modello x500_mid360 e ai mondi del progetto (ros2_ws/...). Senza il modello PX4 non fa partire
+# il drone. "salva" li elenca in patches/px4/collegamenti.txt, "applica" li ricrea.
+# Altre modifiche dentro i sottomoduli di PX4 NON sono coperte (oggi non ce ne sono).
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PX4="$ROOT/PX4-Autopilot"
 DIR="$ROOT/patches/px4"
 PATCH="$DIR/px4-locale.patch"
+LINK="$DIR/collegamenti.txt"
+GZ_SUB="Tools/simulation/gz"
 TAG="$(cat "$DIR/VERSIONE" 2>/dev/null || echo v1.17.0)"
+
+# Collegamenti dal sottomodulo gz di PX4 verso il progetto: "<percorso in PX4> <destinazione>"
+collegamenti_attuali() (
+  cd "$PX4"
+  find "$GZ_SUB" -type l -printf '%p %l\n' 2>/dev/null | while read -r p l; do
+    case "$(cd "$(dirname "$p")" && realpath -m "$l")" in "$ROOT"/ros2_ws/*) echo "$p $l" ;; esac
+  done | sort
+)
+
+# Ricrea i collegamenti che mancano; stampa quanti ne ha creati.
+ricrea_collegamenti() {
+  [ -f "$LINK" ] || return 0
+  local n=0 p l
+  while read -r p l; do
+    [ -n "$p" ] || continue
+    if [ ! -e "$PX4/$p" ] && [ ! -L "$PX4/$p" ]; then
+      mkdir -p "$(dirname "$PX4/$p")"; ln -s "$l" "$PX4/$p"; n=$((n + 1))
+    fi
+  done < "$LINK"
+  [ "$n" -gt 0 ] && echo "PX4: ricreati $n collegamenti a modello/mondi del progetto in $GZ_SUB."
+  return 0
+}
+
+collegamenti_mancanti() {
+  [ -f "$LINK" ] || { echo 0; return; }
+  local n=0 p l
+  while read -r p l; do [ -n "$p" ] && [ ! -e "$PX4/$p" ] && n=$((n + 1)); done < "$LINK"
+  echo "$n"
+}
 
 # Diff completo di PX4 rispetto a HEAD: file modificati + file nuovi non ignorati.
 diff_attuale() (
   cd "$PX4"
   git -c core.quotepath=off diff --binary --ignore-submodules=all HEAD
-  git -c core.quotepath=off ls-files --others --exclude-standard -z \
+  # (il sottomodulo gz e' escluso: i suoi collegamenti al progetto stanno in collegamenti.txt)
+  git -c core.quotepath=off ls-files --others --exclude-standard -z -- . ":(exclude)$GZ_SUB" \
     | while IFS= read -r -d '' f; do
         # --no-index esce con 1 quando i file sono diversi: e' il caso normale
         git diff --binary --no-index /dev/null "$f" || true
@@ -55,6 +90,13 @@ case "$cmd" in
       echo "PX4: patch aggiornata -> patches/px4/px4-locale.patch ($(grep -c '^diff --git' "$PATCH") file):"
       grep '^diff --git' "$PATCH" | sed 's|^diff --git a/[^ ]* b/|  |'
     fi
+    tmp="$(mktemp)"; collegamenti_attuali > "$tmp"
+    if [ -f "$LINK" ] && cmp -s "$tmp" "$LINK"; then
+      rm -f "$tmp"
+    else
+      mv "$tmp" "$LINK"
+      echo "PX4: collegamenti a modello/mondi aggiornati -> patches/px4/collegamenti.txt ($(wc -l < "$LINK"))."
+    fi
     ;;
 
   applica)
@@ -62,7 +104,7 @@ case "$cmd" in
     [ -f "$PATCH" ] || { echo "Nessuna patch in $PATCH"; exit 1; }
     tmp="$(mktemp)"; diff_attuale > "$tmp"
     if cmp -s "$tmp" "$PATCH"; then
-      echo "PX4: gia' allineato alla patch."; rm -f "$tmp"; exit 0
+      echo "PX4: gia' allineato alla patch."; rm -f "$tmp"; ricrea_collegamenti; exit 0
     fi
     cd "$PX4"
     if [ -s "$tmp" ]; then
@@ -76,6 +118,7 @@ case "$cmd" in
     rm -f "$tmp"
     git apply --whitespace=nowarn "$PATCH"
     echo "PX4: patch applicata ($(grep -c '^diff --git' "$PATCH") file). Ricompilare PX4: cd PX4-Autopilot && make px4_sitl_default"
+    ricrea_collegamenti
     ;;
 
   stato)
@@ -95,8 +138,11 @@ case "$cmd" in
       echo "  Se hai modificato PX4 qui: tools/px4_patch.sh salva. Se la patch arriva da un pull: tools/px4_patch.sh applica."
     fi
     rm -f "$tmp"
+    m="$(collegamenti_mancanti)"
+    [ "$m" -gt 0 ] && echo "PX4: mancano $m collegamenti a modello/mondi del progetto (senza, il drone non parte) -> tools/px4_patch.sh applica"
+    exit 0
     ;;
 
   *)
-    sed -n '2,13p' "$0"; exit 1 ;;
+    sed -n '2,17p' "$0"; exit 1 ;;
 esac

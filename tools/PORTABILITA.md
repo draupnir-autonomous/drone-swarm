@@ -50,6 +50,24 @@ usano solo percorsi relativi. La prima volta lo script scarica PX4 (alcuni GB), 
 e Gazebo (chiede `sudo`) e compila tutto: conta un'ora o più. La build della Jetson (aarch64)
 non vale sul PC (x86_64) e viceversa.
 
+### Jetson (ARM, aarch64) e PC (x86_64): cosa cambia davvero
+- **Le build non si scambiano mai.** `ros2_ws/build install log`, `PX4-Autopilot/build`, l'SDK
+  Livox e l'agente DDS si compilano su ogni macchina; alcuni pacchetti usano `-march=native`,
+  quindi la build vale solo sulla CPU dove è stata fatta. Git le esclude già.
+- **I flag di compilazione si scelgono da soli**: fast_lio, fast_livo2 e rpg_vikit hanno il ramo
+  ARM e il ramo x86 (`CMAKE_SYSTEM_PROCESSOR`). Nel repo non ci sono binari compilati.
+- **Dipendenze**: `setup_macchina.sh --dipendenze` lancia `setup_jetson_jazzy.sh` su ARM e
+  `setup_jazzy.sh` su x86, poi su tutte e due la parte comune: `rosdep` sui `package.xml` del
+  workspace, SciPy e **Open3D 0.20.0** (serve a preparare ogni missione; prima non lo installava
+  nessuno script).
+- **PX4**: oltre alla patch, nel sottomodulo Gazebo di PX4 servono i collegamenti al modello
+  `x500_mid360` e ai mondi del progetto (`patches/px4/collegamenti.txt`): li ricrea
+  `tools/px4_patch.sh applica`, che `setup_macchina.sh` lancia da solo.
+- **Dati**: mondi, `.npz`, `.pcd` e i riassunti delle prove si leggono uguali su ARM e x86. I tempi
+  delle missioni sono in secondi simulati e si confrontano; il tempo reale sul PC sarà più breve.
+- **Da provare la prima volta su ogni PC**: build completa senza errori e una missione a drone
+  singolo, per esempio `office_small`, da confrontare con i tempi della Jetson.
+
 ---
 
 ## Ogni volta
