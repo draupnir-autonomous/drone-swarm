@@ -74,11 +74,17 @@ if [ "$COMPILA" = 1 ]; then
   [ -f /opt/ros/jazzy/setup.bash ] || { echo "ROS2 Jazzy non installato: rilancia con --dipendenze"; exit 1; }
 
   passo "Livox SDK2 -> terze_parti/livox_sdk2 (serve al driver del Mid-360, drone vero)"
-  if [ ! -f terze_parti/livox_sdk2/lib/liblivox_lidar_sdk_static.a ]; then
+  # -fPIC obbligatorio: la libreria statica finisce dentro liblivox_ros_driver2.so e su x86_64
+  # senza -fPIC il collegamento fallisce ("relocation R_X86_64_TPOFF32 ... recompile with -fPIC",
+  # PC A, 7 nov 2026). Il file .pic segna le installazioni fatte cosi'; senza, si ricompila.
+  if [ ! -f terze_parti/livox_sdk2/lib/liblivox_lidar_sdk_static.a ] || [ ! -f terze_parti/livox_sdk2/.pic ]; then
+    rm -rf terze_parti/livox_sdk2 terze_parti/Livox-SDK2/build
     cmake -S terze_parti/Livox-SDK2 -B terze_parti/Livox-SDK2/build \
-      -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$ROOT/terze_parti/livox_sdk2"
+      -DCMAKE_BUILD_TYPE=Release -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
+      -DCMAKE_INSTALL_PREFIX="$ROOT/terze_parti/livox_sdk2"
     cmake --build terze_parti/Livox-SDK2/build -j"$JOBS"
     cmake --install terze_parti/Livox-SDK2/build
+    touch terze_parti/livox_sdk2/.pic
   else
     echo "gia' compilato."
   fi
