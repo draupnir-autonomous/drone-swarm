@@ -17,6 +17,13 @@ Parte dalla cartella prodotta da registra_mappa.py durante il volo:
      (punti colorati), anteprime PNG (dall'alto e in prospettiva).
 
 Uso: ricostruisci_mappa.py [cartella] [--depth 9] [--max_triangoli 1500000]
+
+DRONE VERO (novembre 2026): i fotogrammi della webcam (registra_mappa.py --reale) dicono in
+pose.json con quali misure e' stata calcolata la posa della telecamera; la maschera delle eliche
+(modello simulato) non si applica. Se dopo il volo i colori risultano spostati, le misure della
+webcam si correggono senza rivolare: --cam_pos, --cam_giu, --cam_hfov ricalcolano la posa di
+ogni foto dalla posa del drone salvata allo scatto. L'archivio della run tiene punti e foto:
+  ricostruisci_mappa.py risultati_prova/<run>/rel_mappa3d_1_1 --cam_giu 12 --cam_hfov 48
 """
 import argparse
 import json
@@ -112,16 +119,56 @@ def maschera_eliche(w, h, fx, fy, cx, cy):
     return np.asarray(img) > 0
 
 
-def colora(mesh, cartella, max_dist, max_fotogrammi, eliche=True):
+def quat_to_rot(qw, qx, qy, qz):
+    return np.array([
+        [1 - 2 * (qy * qy + qz * qz), 2 * (qx * qy - qz * qw), 2 * (qx * qz + qy * qw)],
+        [2 * (qx * qy + qz * qw), 1 - 2 * (qx * qx + qz * qz), 2 * (qy * qz - qx * qw)],
+        [2 * (qx * qz - qy * qw), 2 * (qy * qz + qx * qw), 1 - 2 * (qx * qx + qy * qy)]])
+
+
+def ricalcola_pose(info, tele, cam_pos=None, cam_giu=None, cam_hfov=None):
+    """Nuova posa e ottica di ogni foto con misure della telecamera corrette dopo il volo, dalla
+    posa del drone salvata allo scatto (p_corpo, q_corpo). Stessa formula di
+    registra_mappa.posa_telecamera: col drone vero (FAST-LIO) il lidar sta in p + lidar_offset."""
+    if any('p_corpo' not in f for f in info):
+        sys.exit('[ricostruisci] i fotogrammi non hanno la posa del drone (registrati prima del '
+                 'novembre 2026): le misure della telecamera non si possono correggere')
+    t_cam = np.array(cam_pos if cam_pos is not None else tele['cam_pos'])
+    giu = np.radians(cam_giu if cam_giu is not None else tele['cam_giu_gradi'])
+    hfov = np.radians(cam_hfov if cam_hfov is not None else tele['cam_hfov_gradi'])
+    off = np.array(tele['lidar_offset'])
+    r_giu = np.array([[np.cos(giu), 0, np.sin(giu)], [0, 1, 0], [-np.sin(giu), 0, np.cos(giu)]])
+    for f in info:
+        p, r = np.array(f['p_corpo']), quat_to_rot(*f['q_corpo'])
+        t = p + off + r @ (t_cam - off) if tele['reale'] else p + r @ t_cam
+        f['t'], f['R'] = t.tolist(), (r @ r_giu).tolist()
+        f['fx'] = f['fy'] = (f['w'] / 2.0) / np.tan(hfov / 2.0)
+        f['cx'], f['cy'] = f['w'] / 2.0, f['h'] / 2.0
+    print(f'[ricostruisci] pose delle foto ricalcolate: telecamera in {t_cam.tolist()} m, '
+          f'{np.degrees(giu):.1f} gradi in giu\', campo {np.degrees(hfov):.1f} gradi', flush=True)
+    return info
+
+
+def colora(mesh, cartella, max_dist, max_fotogrammi, eliche=True, correzioni=None):
     # Senza fotogrammi (registra_mappa.py di serie non salva piu' la telecamera)
     # la superficie resta grigia.
     pose = os.path.join(cartella, 'fotogrammi', 'pose.json')
-    info = json.load(open(pose))['fotogrammi'] if os.path.exists(pose) else []
+    dati = json.load(open(pose)) if os.path.exists(pose) else {}
+    info = dati.get('fotogrammi', [])
+    tele = dati.get('telecamera')
     v = np.asarray(mesh.vertices)
     somma = np.zeros((len(v), 3))
     peso = np.zeros(len(v))
     if not info:
         return np.full((len(v), 3), 0.6), 0
+    if correzioni and any(x is not None for x in correzioni):
+        if tele is None:
+            sys.exit('[ricostruisci] pose.json senza le misure della telecamera: niente correzioni')
+        info = ricalcola_pose(info, tele, *correzioni)
+    if eliche and tele and tele.get('reale'):
+        # La maschera descrive le eliche del modello simulato viste dalla sua telecamera.
+        print('[ricostruisci] foto del drone vero: nessuna maschera delle eliche', flush=True)
+        eliche = False
     if len(info) > max_fotogrammi:
         info = [info[i] for i in np.linspace(0, len(info) - 1, max_fotogrammi).astype(int)]
     scena = o3d.t.geometry.RaycastingScene()
@@ -228,27 +275,37 @@ def anteprime(mesh, cartella):
     # Jetson: il renderer fuori schermo (Filament su Vulkan) restituisce immagini
     # tutte nere con la mesh intera (1.2 M triangoli) e oltre 1280x720 circa: per
     # l'anteprima si riduce la mesh e la risoluzione (vedi video_demo.py). Sul
-    # Jetson resta solo come riserva del visualizzatore OpenGL qui sopra.
+    # Jetson e' la riserva del visualizzatore OpenGL qui sopra, ma nei voli veri,
+    # lanciati via SSH senza DISPLAY, e' l'unica strada.
+    # 8 nov 2026, volo reale (mesh da 875k triangoli ridotta a 250k): a 1280x960
+    # con 3 tentativi le due anteprime uscivano TUTTE NERE e venivano salvate come
+    # buone; a 1280x720 la stessa mesh rende al 2o-4o tentativo (6 viste su 6).
     if arm and len(senza_soffitto.triangles) > 250000:
         senza_soffitto = senza_soffitto.simplify_quadric_decimation(250000)
         senza_soffitto.compute_vertex_normals()
-    r = o3d.visualization.rendering.OffscreenRenderer(*((1280, 960) if arm else (1600, 1200)))
+    r = o3d.visualization.rendering.OffscreenRenderer(*((1280, 720) if arm else (1600, 1200)))
     mat = o3d.visualization.rendering.MaterialRecord()
     mat.shader = 'defaultLit'
     r.scene.set_background([1, 1, 1, 1])
     r.scene.add_geometry('mappa', senza_soffitto, mat)
     uscite = []
-    # Il primo fotogramma del renderer fuori schermo esce spesso nero (il motore
-    # non ha ancora caricato la geometria sulla GPU): se ne butta uno a vuoto.
-    r.setup_camera(55.0, centro, viste['alto'][0], viste['alto'][1])
-    r.render_to_image()
     for nome, (occhio, su, _) in viste.items():
         r.setup_camera(55.0, centro, occhio, su)
         p = os.path.join(cartella, f'anteprima_{nome}.png')
-        for _ in range(3):   # un fotogramma tutto nero si riprova (Jetson)
+        # Un fotogramma tutto nero si riprova (Jetson): i primi escono neri finche'
+        # il motore non ha caricato la geometria sulla GPU. 30 come in video_demo.rendi.
+        for _ in range(30):
             img = r.render_to_image()
             if np.asarray(img).max() > 0:
                 break
+        else:
+            # Meglio nessuna anteprima che una nera presa per buona; e via quella di
+            # una run precedente rimasta nella cartella, che verrebbe archiviata con questa.
+            if os.path.exists(p):
+                os.remove(p)
+            print(f'[ricostruisci] anteprima {nome}: ancora nera dopo 30 tentativi, non salvata',
+                  flush=True)
+            continue
         o3d.io.write_image(p, img)
         uscite.append(p)
     return uscite
@@ -280,14 +337,29 @@ def main():
     # Pixel dove passano le pale delle eliche anteriori esclusi dal colore (vedi
     # maschera_eliche); --con_eliche torna al comportamento di prima.
     ap.add_argument('--con_eliche', action='store_true')
+    # Misure della telecamera corrette dopo il volo (vedi ricalcola_pose).
+    ap.add_argument('--cam_pos', default=None, help='x,y,z della telecamera dal punto di riferimento [m]')
+    ap.add_argument('--cam_giu', type=float, default=None, help='inclinazione verso il basso [gradi]')
+    ap.add_argument('--cam_hfov', type=float, default=None, help='campo di vista orizzontale [gradi]')
     a = ap.parse_args()
+    if a.cam_pos is not None:
+        try:
+            a.cam_pos = [float(x) for x in a.cam_pos.split(',')]
+            assert len(a.cam_pos) == 3
+        except (ValueError, AssertionError):
+            sys.exit(f'[ricostruisci] --cam_pos "{a.cam_pos}" non e\' "x,y,z"')
 
     punti, direz = carica_punti(a.cartella, a.min_conteggio)
-    print(f'[ricostruisci] {len(punti)} punti lidar a 2 cm', flush=True)
+    try:   # lato delle celle salvato da registra_mappa.py (all'aperto 5 cm, VOXEL_MAPPA)
+        voxel = float(np.load(os.path.join(a.cartella, 'punti.npz'))['voxel'])
+    except (KeyError, ValueError, OSError):
+        voxel = 0.02
+    print(f'[ricostruisci] {len(punti)} punti lidar a {100 * voxel:.0f} cm', flush=True)
     mesh, pc = superficie(punti, direz, a.depth, a.taglio, a.max_triangoli)
     print(f'[ricostruisci] superficie: {len(mesh.vertices)} vertici, {len(mesh.triangles)} triangoli',
           flush=True)
-    colori, visti = colora(mesh, a.cartella, a.max_dist, a.max_fotogrammi, eliche=not a.con_eliche)
+    colori, visti = colora(mesh, a.cartella, a.max_dist, a.max_fotogrammi, eliche=not a.con_eliche,
+                           correzioni=(a.cam_pos, a.cam_giu, a.cam_hfov))
     mesh.vertex_colors = o3d.utility.Vector3dVector(colori)
     print(f'[ricostruisci] colore dalle foto per {visti}/{len(colori)} vertici '
           f'({100.0 * visti / max(1, len(colori)):.0f}%)', flush=True)

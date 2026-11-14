@@ -1,0 +1,31 @@
+10:23:46 Collaudo C2-Explorer (DRONE VERO) - registro in /home/draupnir/Documents/Drone_20261025_SWARM/ros2_ws/scripts/collaudo/collaudo_registri/2026-11-08_102346_reale
+10:23:49 == FASE 8: missione completa con mappa 3D (webcam) ==
+10:23:49 Il drone DECOLLA DA SOLO a 1 m, gira su se stesso, esplora lo spazio a 0.3 m/s per al massimo 240 s, torna sul punto di decollo e atterra.
+10:23:49 Poi la mappa 3D: superficie dal lidar, colori dalle foto della webcam (qualche minuto).
+10:23:49 Il collaudo ferma la sua stima e passa la mano a run_reale_exploration.sh: controlli a terra, consenso (scrivi VOLA), sorvegliante con SPAZIO = EMERGENZA e l = atterra.
+10:23:49 Spazio libero: niente sotto 1 m vicino al drone (il Mid-360 non vede in basso vicino), soffitto ad almeno 2.8 m.
+10:23:54 Il drone e' al CENTRO dello spazio libero di 5 x 5 m (2.5 m da ogni bordo), col muso verso un lato? [s/n] -> s
+10:23:54 Recinto della missione BOX="-2,-2,2,2" (m dal decollo, x avanti, y sinistra): il sorvegliante fa atterrare a 0.5 m oltre, al bordo dello spazio.
+10:23:54 Misure del drone (INVIO = valore proposto; restano in collaudo_registri/misure_drone.json per le volte successive).
+10:23:54 Punto di riferimento: il punto del drone da cui misuri tutto, per esempio il centro del Pixhawk. Assi del drone: x avanti (muso), y a sinistra, z in su.
+10:24:00 Quota da terra del punto di riferimento, drone appoggiato [m] -> 0.2
+10:24:08 Centro del Mid-360 dal punto di riferimento, x,y,z [m] -> 0,0,0.1
+10:24:14 Obiettivo della webcam dal punto di riferimento, x,y,z [m] -> 0.1,0,0.05
+10:24:15 Inclinazione della webcam verso il basso [gradi, 0 = orizzontale] -> 0.0
+10:24:15 Campo di vista orizzontale della webcam: a distanza D da una parete segna dove cadono i bordi sinistro e destro dell'immagine, distanti L fra loro: campo = 2*atan(L/(2*D)) (per esempio L = 1.9 m a D = 2 m: 51 gradi).
+10:24:19 Campo di vista orizzontale della webcam [gradi] -> 50.0
+10:24:22 webcam /camera/image_raw: 10.0 fotogrammi/s
+10:24:27 Drone appoggiato nel punto di decollo col muso lungo x, eliche montate, spazio sgombro, nessuno entro 3 m, batteria carica. Passo alla missione? [s/n] -> s
+10:24:27 Fermo la stima del collaudo (FAST-LIO, ponte verso PX4, webcam); agente DDS e driver del lidar restano accesi per la missione...
+10:24:27 Missione: BOX="-2,-2,2,2" VEL_MAX="0.3" TEMPO_MAX="240" FOTO="1" DAL_COLLAUDO="1" PARTENZA_Z="0.2" LIDAR_POS="0,0,0.1" CAMERA_DEV="/dev/video0" CAMERA_POS="0.1,0,0.05" CAMERA_GIU="0" CAMERA_HFOV="50" /home/draupnir/Documents/Drone_20261025_SWARM/ros2_ws/scripts/run_reale_exploration.sh /dev/ttyACM0
+10:25:46 == FASE 8: risultato della missione ==
+10:25:46 volo: sorveglianza conclusa con codice 2 (vedi sorveglianza.log); esplorazione: non conclusa
+10:25:46 mappa 3D: /home/draupnir/Documents/Drone_20261025_SWARM/risultati_prova/2026-11-08_1024_reale_lio_v0.3/rel_mappa3d_1_1/mappa_realistica.ply
+10:25:46   12 foto, 5% della superficie colorata; anteprime in /home/draupnir/Documents/Drone_20261025_SWARM/risultati_prova/2026-11-08_1024_reale_lio_v0.3/rel_mappa3d_1_1/anteprima_*.png
+10:25:46   Colori spostati rispetto alle forme? Si correggono le misure della webcam senza rivolare, per esempio:
+10:25:46   python3 /home/draupnir/Documents/Drone_20261025_SWARM/ros2_ws/scripts/ricostruisci_mappa.py /home/draupnir/Documents/Drone_20261025_SWARM/risultati_prova/2026-11-08_1024_reale_lio_v0.3/rel_mappa3d_1_1 --cam_giu 10 --cam_hfov 48
+10:25:46 archivio della run: /home/draupnir/Documents/Drone_20261025_SWARM/risultati_prova/2026-11-08_1024_reale_lio_v0.3
+10:25:46 Registro di volo di PX4 (.ulg): sulla scheda SD del Pixhawk.
+10:25:46 Da guardare: volo: sorveglianza conclusa con codice 2 (vedi sorveglianza.log); esplorazione non conclusa
+10:25:46 La stima del collaudo e' stata fermata per la missione: per altre fasi rilancia avvia_collaudo.sh.
+10:25:46 FASE 8: NON SUPERATA - sorveglianza conclusa con codice 2 (vedi sorveglianza.log); esplorazione non conclusa; mappa 3D si, 12 foto, 5% colorato

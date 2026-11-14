@@ -77,6 +77,8 @@ if [ "$COMPILA" = 1 ]; then
   # -fPIC obbligatorio: la libreria statica finisce dentro liblivox_ros_driver2.so e su x86_64
   # senza -fPIC il collegamento fallisce ("relocation R_X86_64_TPOFF32 ... recompile with -fPIC",
   # PC A, 7 nov 2026). Il file .pic segna le installazioni fatte cosi'; senza, si ricompila.
+  # Vale uguale su aarch64: provato sulla Jetson (SDK con -fPIC + driver collegato, nessun errore;
+  # stesse rilocazioni TLS della libreria che c'era gia').
   if [ ! -f terze_parti/livox_sdk2/lib/liblivox_lidar_sdk_static.a ] || [ ! -f terze_parti/livox_sdk2/.pic ]; then
     rm -rf terze_parti/livox_sdk2 terze_parti/Livox-SDK2/build
     cmake -S terze_parti/Livox-SDK2 -B terze_parti/Livox-SDK2/build \

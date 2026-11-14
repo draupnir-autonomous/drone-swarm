@@ -1,0 +1,10 @@
+esito=atterrato, atterraggio comandato dal sorvegliante
+missione_avviata=1
+archivio=/home/draupnir/Documents/Drone_20261025_SWARM/risultati_prova/2026-11-07_1714_reale-sim_cubicle_office_lio_v0.3
+fine_esplorazione=
+atterraggio_sorvegliante=esplorazione non partita 60 s dopo il decollo
+failsafe_px4=0
+foto_attive=1
+mappa3d=/home/draupnir/Documents/Drone_20261025_SWARM/risultati_prova/2026-11-07_1714_reale-sim_cubicle_office_lio_v0.3/rel_mappa3d_1_1/mappa_realistica.ply
+foto=33
+colore=36

@@ -1,0 +1,7 @@
+inizio:          2026-11-14 12:01:06
+fine:            2026-11-14 12:07:10
+comando:         BOX="-15,-15,15,15" VEL_MAX=1.0 QUOTA_ZONA=2.2 TEMPO_MAX=240 TEMPO_VOLO_MAX=420 VISITA=0 GIRO_INIZIALE=0.5 PARTENZA_Z=0.227 LIDAR_POS="0,0,0.10" MAPPA_REALISTICA=0 FOTO=0 RECINTO_VIRTUALE=0 MARGINE_RECINTO=2 VOXEL_MAPPA=0.02 TAGLIO_MAPPA=0.10 SIM_RECINTO=0 SIM_PX4_VEL_MAX=1.2 ./scripts/run_reale_exploration.sh sim /tmp/claude-1000/-home-draupnir-Documents-Drone-20261025-SWARM/d1720fc2-19ec-4719-8c66-3bf4a63e3faa/scratchpad/mondi/campo_aperto.sdf
+modo:            prova in simulazione (campo_aperto)
+esito:           atterrato
+esplorazione finita: 1/1
+divergenze FAST-LIO: 0

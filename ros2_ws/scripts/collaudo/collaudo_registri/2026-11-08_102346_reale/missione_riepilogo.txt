@@ -1,0 +1,10 @@
+esito=sorveglianza conclusa con codice 2 (vedi sorveglianza.log)
+missione_avviata=1
+archivio=/home/draupnir/Documents/Drone_20261025_SWARM/risultati_prova/2026-11-08_1024_reale_lio_v0.3
+fine_esplorazione=
+atterraggio_sorvegliante=
+failsafe_px4=0
+foto_attive=1
+mappa3d=/home/draupnir/Documents/Drone_20261025_SWARM/risultati_prova/2026-11-08_1024_reale_lio_v0.3/rel_mappa3d_1_1/mappa_realistica.ply
+foto=12
+colore=5

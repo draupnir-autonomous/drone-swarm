@@ -30,9 +30,18 @@ partenza), quindi fondere e' solo accumulare. Tre registratori separati non ci
 stavano nella RAM del Jetson: uno costa ~1.8 GB a fine volo su cubicle_office, e le
 zone viste da piu' droni sarebbero state tenute tre volte.
 
+DRONE VERO (--reale, novembre 2026, run_reale_exploration.sh): niente Gazebo. Le foto arrivano
+dalla webcam USB (cam2image su /camera/image_raw, QoS best effort come il publisher), marcate
+con l'orologio di parete come tutto lo stack; posizione, inclinazione e campo di vista della
+webcam e posizione del lidar sono le misure del drone (--cam_pos, --cam_giu, --cam_hfov,
+--lidar_offset), non quelle del modello simulato. In pose.json resta anche la posa del drone
+a ogni scatto: ricostruisci_mappa.py puo' ricolorare la mappa dopo il volo con misure migliori.
+
 Uso (a simulazione avviata, con ROS caricato):
   registra_mappa.py --world office_small --drone 1 --out /tmp/c2x_mappa_realistica
   registra_mappa.py --world office_small --drone 1,2,3 --tempo_sim --out /tmp/c2x_sciame
+  registra_mappa.py --reale --foto --cam_pos 0.1,0,0.05 --cam_giu 10 --cam_hfov 50 \\
+                    --lidar_offset 0,0,0.1 --out /tmp/c2x_run_reale/mappa_realistica_drone1
 """
 import argparse
 import json
@@ -71,6 +80,32 @@ def rot_y(a):
     return np.array([[c, 0, s], [0, 1, 0], [-s, 0, c]])
 
 
+def posa_telecamera(p, r_corpo, cam_t, cam_pitch, lidar_off, da_fast_lio):
+    """Posizione e orientamento della telecamera nel mondo, dalla posa di odom_world.
+
+    Con la posa di PX4 p e' il punto di riferimento del drone e la telecamera sta a r_corpo @
+    cam_t da li'. Con FAST-LIO, invece, odom_world e' partenza + spostamento della terna del
+    LIDAR (odometry_bridge; cloud_transform_bridge mette infatti il lidar in p + lidar_off):
+    la telecamera sta a cam_t - lidar_off dal lidar, nella terna del corpo. Le due formule
+    differiscono di (I - R) lidar_off, zero ruotando attorno a un lidar sulla verticale del
+    punto di riferimento. La seconda si usa solo col drone vero (da_fast_lio): le run simulate
+    restano come prima. Stessa formula in ricostruisci_mappa.py (ricolorazione)."""
+    r_cam = r_corpo @ rot_y(cam_pitch)
+    if da_fast_lio:
+        return p + lidar_off + r_corpo @ (cam_t - lidar_off), r_cam
+    return p + r_corpo @ cam_t, r_cam
+
+
+def vettore3(testo, nome):
+    try:
+        v = [float(x) for x in str(testo).split(',')]
+    except ValueError:
+        v = []
+    if len(v) != 3:
+        sys.exit(f'[registra_mappa] {nome}="{testo}" non e\' "x,y,z"')
+    return np.array(v)
+
+
 def slerp(q0, q1, s):
     d = float(np.dot(q0, q1))
     if d < 0:
@@ -104,6 +139,12 @@ class Registratore(Node):
         self.vox = a.voxel
         self.lock = threading.Lock()
         self.flussi = {d: Flusso(d) for d in a.droni}
+        # Geometria di telecamera e lidar: di serie quella del modello simulato, col drone vero
+        # le misure passate da run_reale_exploration.sh.
+        self.cam_t = CAM_T_BODY if a.cam_pos is None else a.cam_pos
+        self.cam_pitch = CAM_PITCH if a.cam_giu is None else math.radians(a.cam_giu)
+        self.cam_hfov = CAM_HFOV if a.cam_hfov is None else math.radians(a.cam_hfov)
+        self.lidar_off = LIDAR_OFFSET if a.lidar_offset is None else a.lidar_offset
         self.clock = None          # ultimo tempo simulato [s] (solo senza tempo_sim)
         self.buffer = []           # (chiavi, punti, direzioni) delle scansioni non ancora fuse
         # Voxel gia' fusi, in pezzi di dimensione crescente (vedi fondi()).
@@ -126,13 +167,21 @@ class Registratore(Node):
             # Telecamera solo con --foto: senza nessuno in ascolto Gazebo non la rende
             # nemmeno (always_on=0), e sul Jetson sono GPU e CPU risparmiate.
             if a.foto:
-                self.create_subscription(Image, f'{ns}/camera/image',
-                                         lambda m, fl=fl: self.on_image(m, fl), q_aff)
+                if a.reale:
+                    # Webcam del drone vero: cam2image pubblica best effort, e una
+                    # sottoscrizione RELIABLE con un publisher best effort non riceve NULLA.
+                    q_cam = QoSProfile(depth=5, reliability=ReliabilityPolicy.BEST_EFFORT,
+                                       history=HistoryPolicy.KEEP_LAST)
+                    topic = a.camera_topic or '/camera/image_raw'
+                else:
+                    q_cam, topic = q_aff, a.camera_topic or f'{ns}/camera/image'
+                self.create_subscription(Image, topic, lambda m, fl=fl: self.on_image(m, fl), q_cam)
         # /clock serve solo a datare i fotogrammi (on_image) quando il nodo e' sull'orologio
         # di parete: senza --foto non ci si iscrive. Gazebo lo pubblica a ogni passo di
         # simulazione (centinaia di Hz), e ogni messaggio era una callback Python sul Jetson
-        # gia' saturo. Con tempo_sim l'orologio del nodo E' gia' quello della simulazione.
-        if a.foto and not a.tempo_sim:
+        # gia' saturo. Con tempo_sim l'orologio del nodo E' gia' quello della simulazione; sul
+        # drone vero non c'e' nessun orologio simulato.
+        if a.foto and not a.tempo_sim and not a.reale:
             self.create_subscription(Clock, '/clock', self.on_clock,
                                      QoSProfile(depth=1, reliability=ReliabilityPolicy.BEST_EFFORT))
 
@@ -140,8 +189,9 @@ class Registratore(Node):
         return self.get_clock().now().nanoseconds * 1e-9
 
     def ora_sim(self):
-        """Tempo della simulazione [s], o None se non ancora noto."""
-        if self.a.tempo_sim:
+        """Tempo della simulazione [s], o None se non ancora noto. Sul drone vero l'orologio di
+        parete del nodo, lo stesso con cui cam2image marca le foto."""
+        if self.a.tempo_sim or self.a.reale:
             t = self.ora()
             return t if t > 0.0 else None
         return self.clock
@@ -184,12 +234,18 @@ class Registratore(Node):
         pts = np.stack([raw[:, campi[k]:campi[k] + 4].copy().view(np.float32).ravel()
                         for k in 'xyz'], axis=1).astype(np.float64)
         pts = pts[np.isfinite(pts).all(axis=1)]
+        if self.a.ritaglio is not None:
+            # All'aperto il lidar vede fino a 40 m: fuori dalla zona della missione solo celle
+            # (e RAM) in piu' per una mappa che li' resta comunque rada.
+            x0, y0, x1, y1 = self.a.ritaglio
+            pts = pts[(pts[:, 0] >= x0) & (pts[:, 0] <= x1) & (pts[:, 1] >= y0) & (pts[:, 1] <= y1)]
         if len(pts) == 0:
             return
         # Origine del sensore: la nuvola arriva gia' posata, quindi basta la
         # posa piu' recente per sapere da che parte e' stata vista ogni cella.
         pos, q = fl.storico[-1][1], fl.storico[-1][2]
-        sensore = pos + quat_to_rot(*q) @ LIDAR_OFFSET
+        # Drone vero (FAST-LIO): il lidar sta in pos + offset (vedi posa_telecamera).
+        sensore = pos + (self.lidar_off if self.a.reale else quat_to_rot(*q) @ self.lidar_off)
         direz = sensore - pts
         direz /= np.maximum(np.linalg.norm(direz, axis=1, keepdims=True), 1e-6)
         k = np.floor(pts / self.vox).astype(np.int64) + (1 << 20)
@@ -248,14 +304,16 @@ class Registratore(Node):
         # CPU satura, e un fotogramma elaborato con piu' di 0.5 s di ritardo prendeva
         # la posa di 0.5 s prima, cioe' quella sbagliata. La storia delle pose
         # (storico, 300-400 campioni) copre ben piu' di 2 s.
-        eta = min(max(ora_sim - stamp, 0.0), 2.0)
+        # cam_ritardo: lo scatto avviene prima della marca (esposizione e lettura del
+        # fotogramma prima che cam2image metta l'ora); in simulazione 0.
+        eta = min(max(ora_sim - stamp + self.a.cam_ritardo, 0.0), 2.0)
         pc = self.posa(fl.storico, self.ora() - eta)
         if pc is None:
             return
         p, q = pc
         r_corpo = quat_to_rot(*q)
-        r_cam = r_corpo @ rot_y(CAM_PITCH)
-        t_cam = p + r_corpo @ CAM_T_BODY
+        t_cam, r_cam = posa_telecamera(p, r_corpo, self.cam_t, self.cam_pitch, self.lidar_off,
+                                       self.a.reale)
         if fl.ultimo_kf is not None:
             t0, r0 = fl.ultimo_kf
             ang = math.degrees(math.acos(min(1.0, max(-1.0, (np.trace(r0.T @ r_cam) - 1) / 2))))
@@ -273,11 +331,15 @@ class Registratore(Node):
                 else f'd{fl.drone}_{fl.fotogrammi:05d}.jpg')
         PILImage.fromarray(np.ascontiguousarray(img)).save(
             os.path.join(self.a.out, 'fotogrammi', nome), quality=92)
-        fx = (m.width / 2.0) / math.tan(CAM_HFOV / 2.0)
+        fx = (m.width / 2.0) / math.tan(self.cam_hfov / 2.0)
         with self.lock:
             self.fotogrammi.append({'file': nome, 'drone': fl.drone, 't': t_cam.tolist(),
                                     'R': r_cam.tolist(), 'w': m.width, 'h': m.height,
-                                    'fx': fx, 'fy': fx, 'cx': m.width / 2.0, 'cy': m.height / 2.0})
+                                    'fx': fx, 'fy': fx, 'cx': m.width / 2.0, 'cy': m.height / 2.0,
+                                    # posa del drone allo scatto (odom_world, quaternione wxyz):
+                                    # con questa ricostruisci_mappa.py ricalcola la posa della
+                                    # telecamera se le misure si correggono dopo il volo
+                                    'p_corpo': p.tolist(), 'q_corpo': q.tolist()})
         fl.fotogrammi += 1
         fl.ultimo_kf = (t_cam, r_cam)
 
@@ -309,6 +371,15 @@ class Registratore(Node):
         with open(os.path.join(self.a.out, 'fotogrammi', 'pose.json'), 'w') as f:
             json.dump({'convenzione': 'mondo ENU; telecamera con asse x in avanti, y a '
                                       'sinistra, z in alto (convenzione Gazebo)',
+                       # misure con cui sono state calcolate t, R e fx (reale: drone vero, le
+                       # eliche del modello simulato non c'entrano: niente maschera in
+                       # ricostruisci_mappa.py)
+                       'telecamera': {'reale': bool(self.a.reale),
+                                      'cam_pos': [float(v) for v in self.cam_t],
+                                      'cam_giu_gradi': math.degrees(self.cam_pitch),
+                                      'cam_hfov_gradi': math.degrees(self.cam_hfov),
+                                      'cam_ritardo': self.a.cam_ritardo,
+                                      'lidar_offset': [float(v) for v in self.lidar_off]},
                        'fotogrammi': self.fotogrammi}, f)
         print(f'[registra_mappa] salvati {len(self.chiavi)} voxel da {self.scansioni} scansioni '
               f'e {len(self.fotogrammi)} fotogrammi chiave in {self.a.out} ({per_drone})', flush=True)
@@ -329,14 +400,45 @@ def main():
     ap.add_argument('--foto', action='store_true')
     # --tempo_sim: orologio della simulazione (lo stack gira con tempo_sim:=true).
     ap.add_argument('--tempo_sim', action='store_true')
+    # Drone vero (run_reale_exploration.sh): webcam USB, orologio di parete, misure del drone.
+    ap.add_argument('--reale', action='store_true',
+                    help='drone vero: niente Gazebo, foto da --camera_topic (best effort), '
+                         'orologio di parete')
+    ap.add_argument('--camera_topic', default='',
+                    help='di serie /drone_N/camera/image (simulazione) o /camera/image_raw (--reale)')
+    ap.add_argument('--cam_pos', default=None,
+                    help='x,y,z della telecamera dal punto di riferimento del drone, x avanti, '
+                         'y sinistra, z su [m] (di serie il modello simulato)')
+    ap.add_argument('--cam_giu', type=float, default=None,
+                    help='inclinazione della telecamera verso il basso [gradi]')
+    ap.add_argument('--cam_hfov', type=float, default=None,
+                    help='campo di vista orizzontale della telecamera [gradi]')
+    ap.add_argument('--cam_ritardo', type=float, default=0.0,
+                    help='ritardo fra scatto e marca temporale del fotogramma [s]')
+    ap.add_argument('--lidar_offset', default=None,
+                    help='x,y,z del lidar dal punto di riferimento [m] (di serie 0,0,0.25 del modello)')
+    ap.add_argument('--ritaglio', default=None,
+                    help='xmin,ymin,xmax,ymax in coordinate mondo: si tengono solo i punti dentro')
     a = ap.parse_args()
+    if a.ritaglio is not None:
+        try:
+            a.ritaglio = [float(v) for v in a.ritaglio.split(',')]
+            assert len(a.ritaglio) == 4 and a.ritaglio[0] < a.ritaglio[2] and a.ritaglio[1] < a.ritaglio[3]
+        except (ValueError, AssertionError):
+            sys.exit(f'[registra_mappa] --ritaglio "{a.ritaglio}" non e\' "xmin,ymin,xmax,ymax"')
     a.droni = [int(v) for v in str(a.drone).split(',') if v.strip()]
+    if a.cam_pos is not None:
+        a.cam_pos = vettore3(a.cam_pos, '--cam_pos')
+    if a.lidar_offset is not None:
+        a.lidar_offset = vettore3(a.lidar_offset, '--lidar_offset')
+    if a.reale and len(a.droni) != 1:
+        sys.exit('[registra_mappa] --reale vuole un drone solo (una webcam sola)')
 
     # Ponte Gazebo -> ROS delle sole telecamere (uno per tutti i droni): il sensore ha
     # always_on=0, quindi Gazebo la rende solo finche' qualcuno e' in ascolto, cioe'
-    # finche' gira questo registratore con --foto.
+    # finche' gira questo registratore con --foto. Sul drone vero nessun Gazebo.
     ponte = None
-    if a.foto:
+    if a.foto and not a.reale:
         argomenti, rinomine = [], []
         for d in a.droni:
             gz_topic = (f'/world/{a.world}/model/x500_mid360_{d - 1}'

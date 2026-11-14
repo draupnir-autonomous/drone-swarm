@@ -1,0 +1,23 @@
+10:17:14 Collaudo C2-Explorer (DRONE VERO) - registro in /home/draupnir/Documents/Drone_20261025_SWARM/ros2_ws/scripts/collaudo/collaudo_registri/2026-11-08_101714_reale
+10:17:40 == FASE 8: missione completa con mappa 3D (webcam) ==
+10:17:40 Il drone DECOLLA DA SOLO a 1 m, gira su se stesso, esplora lo spazio a 0.3 m/s per al massimo 240 s, torna sul punto di decollo e atterra.
+10:17:40 Poi la mappa 3D: superficie dal lidar, colori dalle foto della webcam (qualche minuto).
+10:17:40 Il collaudo ferma la sua stima e passa la mano a run_reale_exploration.sh: controlli a terra, consenso (scrivi VOLA), sorvegliante con SPAZIO = EMERGENZA e l = atterra.
+10:17:40 Spazio libero: niente sotto 1 m vicino al drone (il Mid-360 non vede in basso vicino), soffitto ad almeno 2.8 m.
+10:18:16 Il drone e' al CENTRO dello spazio libero di 5 x 5 m (2.5 m da ogni bordo), col muso verso un lato? [s/n] -> s
+10:18:16 Recinto della missione BOX="-2,-2,2,2" (m dal decollo, x avanti, y sinistra): il sorvegliante fa atterrare a 0.5 m oltre, al bordo dello spazio.
+10:18:16 Misure del drone (INVIO = valore proposto; restano in collaudo_registri/misure_drone.json per le volte successive).
+10:18:16 Punto di riferimento: il punto del drone da cui misuri tutto, per esempio il centro del Pixhawk. Assi del drone: x avanti (muso), y a sinistra, z in su.
+10:18:47 Quota da terra del punto di riferimento, drone appoggiato [m] -> 0.2
+10:18:53 Centro del Mid-360 dal punto di riferimento, x,y,z [m] -> 0,0,0.1
+10:19:00 Obiettivo della webcam dal punto di riferimento, x,y,z [m] -> 0.1,0,0.05
+10:19:04 Inclinazione della webcam verso il basso [gradi, 0 = orizzontale] -> 0.0
+10:19:04 Campo di vista orizzontale della webcam: a distanza D da una parete segna dove cadono i bordi sinistro e destro dell'immagine, distanti L fra loro: campo = 2*atan(L/(2*D)) (per esempio L = 1.9 m a D = 2 m: 51 gradi).
+10:19:11 Campo di vista orizzontale della webcam [gradi] -> 50.0
+10:19:14 webcam /camera/image_raw: 10.0 fotogrammi/s
+10:19:33 Drone appoggiato nel punto di decollo col muso lungo x, eliche montate, spazio sgombro, nessuno entro 3 m, batteria carica. Passo alla missione? [s/n] -> s
+10:19:33 Fermo la stima del collaudo (FAST-LIO, ponte verso PX4, webcam); agente DDS e driver del lidar restano accesi per la missione...
+10:19:34 Missione: BOX="-2,-2,2,2" VEL_MAX="0.3" TEMPO_MAX="240" FOTO="1" DAL_COLLAUDO="1" PARTENZA_Z="0.2" LIDAR_POS="0,0,0.1" CAMERA_DEV="/dev/video0" CAMERA_POS="0.1,0,0.05" CAMERA_GIU="0" CAMERA_HFOV="50" /home/draupnir/Documents/Drone_20261025_SWARM/ros2_ws/scripts/run_reale_exploration.sh /dev/ttyACM0
+10:20:00 == FASE 8: risultato della missione ==
+10:20:00 Missione non partita: interrotta prima del volo. Il perche' e' nelle ultime righe qui sopra o in /tmp/c2x_run_reale/run.log.
+10:20:00 FASE 8: NON SUPERATA - missione non partita: interrotta prima del volo

@@ -1,0 +1,18 @@
+17:14:20 Collaudo C2-Explorer (SIMULAZIONE) - registro in /home/draupnir/Documents/Drone_20261025_SWARM/ros2_ws/scripts/collaudo/collaudo_registri/2026-11-07_171420_sim
+17:14:20 ATTENZIONE: fase 8 con fasi non superate [0, 1, 2, 3, 4, 5, 6, 7] (--forza)
+17:14:20 == FASE 8: missione completa con mappa 3D (webcam) ==
+17:14:20 Il drone DECOLLA DA SOLO a 1 m, gira su se stesso, esplora lo spazio a 0.3 m/s per al massimo 240 s, torna sul punto di decollo e atterra.
+17:14:20 Poi la mappa 3D: superficie dal lidar, colori dalle foto della webcam (qualche minuto).
+17:14:20 Il collaudo ferma la sua stima e passa la mano a run_reale_exploration.sh: controlli a terra, consenso (scrivi VOLA), sorvegliante con SPAZIO = EMERGENZA e l = atterra.
+17:14:20 Spazio libero: niente sotto 1 m vicino al drone (il Mid-360 non vede in basso vicino), soffitto ad almeno 2.8 m.
+17:14:20 Recinto della missione BOX="-2,-2,2,2" (m dal decollo, x avanti, y sinistra): il sorvegliante fa atterrare a 0.5 m oltre, al bordo dello spazio.
+17:14:20 Fermo la simulazione del collaudo (la missione ne avvia una sua)...
+17:14:21 Missione: BOX="-2,-2,2,2" VEL_MAX="0.3" TEMPO_MAX="240" FOTO="1" /home/draupnir/Documents/Drone_20261025_SWARM/ros2_ws/scripts/run_reale_exploration.sh sim cubicle_office
+17:17:27 == FASE 8: risultato della missione ==
+17:17:27 volo: atterrato, atterraggio comandato dal sorvegliante; esplorazione: non conclusa
+17:17:27 mappa 3D: /home/draupnir/Documents/Drone_20261025_SWARM/risultati_prova/2026-11-07_1714_reale-sim_cubicle_office_lio_v0.3/rel_mappa3d_1_1/mappa_realistica.ply
+17:17:27   33 foto, 36% della superficie colorata; anteprime in /home/draupnir/Documents/Drone_20261025_SWARM/risultati_prova/2026-11-07_1714_reale-sim_cubicle_office_lio_v0.3/rel_mappa3d_1_1/anteprima_*.png
+17:17:27 archivio della run: /home/draupnir/Documents/Drone_20261025_SWARM/risultati_prova/2026-11-07_1714_reale-sim_cubicle_office_lio_v0.3
+17:17:27 Da guardare: volo: atterrato, atterraggio comandato dal sorvegliante (esplorazione non partita 60 s dopo il decollo); esplorazione non conclusa
+17:17:27 La stima del collaudo e' stata fermata per la missione: per altre fasi rilancia avvia_collaudo.sh.
+17:17:27 FASE 8: NON SUPERATA - atterrato, atterraggio comandato dal sorvegliante; esplorazione non conclusa; mappa 3D si, 33 foto, 36% colorato

@@ -1,0 +1,11 @@
+18:21:56 Collaudo C2-Explorer (DRONE VERO) - registro in /home/draupnir/Documents/Drone_20261025_SWARM/ros2_ws/scripts/collaudo/collaudo_registri/2026-11-07_182156_reale
+18:22:01 == FASE 7: quadrato automatico (o per partire) ==
+18:22:01 Istruzioni: t per decollare (sale da solo a 1 m). Quando compare "IN QUOTA: premi o", premi o: il drone fa DA SOLO un quadrato di 1.0 m (avanti, destra, indietro, sinistra) e torna fermo sul punto di partenza. Poi l per atterrare. Il quadrato NON parte da solo. SPAZIO = emergenza.
+18:22:05 Area libera, eliche montate, persone lontane, batteria carica. Procedo? [s/n] -> s
+18:22:22 decollo verso 1.0 m (offboard, 0.4 m/s)
+18:22:34 quota di decollo raggiunta (0.95 m): fermo in POSCTL
+18:22:34 IN QUOTA: premi o per il quadrato automatico
+18:22:38 quadrato di 1.0 m a 0.3 m/s (offboard)
+18:23:00 quadrato finito: fermo in POSCTL (l per atterrare)
+18:23:02 atterraggio comandato (l)
+18:23:10 FASE 7: SUPERATA - volo 46 s, distanza max 1.93 m, quota max 1.03 m, oscillazione da fermo 14 cm, allarme: nessuno, quadrato completato

@@ -1,0 +1,10 @@
+esito=interrotta prima del volo
+missione_avviata=0
+archivio=
+fine_esplorazione=
+atterraggio_sorvegliante=
+failsafe_px4=0
+foto_attive=1
+mappa3d=
+foto=0
+colore=

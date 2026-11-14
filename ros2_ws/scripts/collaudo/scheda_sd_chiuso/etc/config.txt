@@ -1,0 +1,3 @@
+param set MPC_XY_VEL_MAX 0.6
+param set MPC_XY_CRUISE 0.5
+param save

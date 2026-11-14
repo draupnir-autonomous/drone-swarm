@@ -8,7 +8,9 @@
 #
 # Variabili utili: GUI=1 (sim: finestra di Gazebo), BAUD (reale, di serie 921600),
 # LIVOX_LAUNCH (reale, di serie msg_MID360s_launch.py: il lidar del drone e' un Mid-360S),
-# CAMERA_DEV (reale, di serie /dev/video0; CAMERA=0 per non avviarla), e gli argomenti di collaudo.py dopo
+# CAMERA_DEV (reale, di serie /dev/video0; CAMERA=0 per non avviarla), FAST_LIO_CONFIG (reale: file
+# accanto a questo script, di serie fast_lio_mid360.yaml; all'aperto fast_lio_mid360_aperto.yaml,
+# vale anche per le fasi 9 e 10), e gli argomenti di collaudo.py dopo
 # "--", per esempio:  ./avvia_collaudo.sh reale /dev/ttyACM0 -- --joystick /dev/input/js0
 # Alla chiusura di collaudo.py (che a drone in volo comanda prima l'atterraggio) si ferma tutto.
 # (niente "set -u": gli script di ambiente di ROS usano variabili non definite)
@@ -49,6 +51,16 @@ ferma() {
   for p in "${GRUPPI[@]}"; do kill -KILL -- "-$p" 2>/dev/null; done
 }
 trap ferma EXIT
+# Mentre gira collaudo.py un segnale (sessione SSH caduta, Ctrl+C, SIGTERM) non deve spegnere
+# subito agente, lidar e stima: col drone in aria (fasi 5-8) servono a collaudo.py, o al
+# sorvegliante della missione, per atterrare. Con un trap bash aspetta che collaudo.py finisca,
+# cioe' a drone atterrato, e solo uscendo ferma tutto. Fino al 7 novembre 2026 non c'era: alla
+# caduta dell'SSH bash usciva subito e fermava i componenti col drone ancora in volo. Un comando
+# e non '' (ignora): un segnale ignorato passerebbe ignorato a collaudo.py e allo script della
+# missione, e bash non potrebbe piu' intercettarlo.
+rimanda_segnali() {
+  trap 'echo "(segnale ricevuto: fermo tutto quando collaudo.py ha finito)"' HUP INT TERM
+}
 
 case "$MODO" in
   sim)
@@ -70,6 +82,9 @@ case "$MODO" in
       sleep 1
     done
     grep -q "Pronto per il collaudo" "$LOG/simulazione.log" || { echo "simulazione non pronta"; exit 1; }
+    # Fase 8: la missione avvia una simulazione sua, collaudo.py ferma questa.
+    export C2X_COLLAUDO_SIM="${PIDS[0]}" C2X_COLLAUDO_MONDO="$MONDO"
+    rimanda_segnali
     python3 "$QUI/collaudo.py" --sim "${EXTRA[@]}"
     ;;
   reale)
@@ -145,12 +160,21 @@ case "$MODO" in
       fi
       exit 1
     fi
-    echo "FAST-LIO e ponte della stima verso PX4$([ -e "${CAMERA_DEV:-/dev/video0}" ] && [ "${CAMERA:-1}" = 1 ] && echo ", telecamera ${CAMERA_DEV:-/dev/video0}")..."
+    if [ -n "$FAST_LIO_CONFIG" ] && [ ! -f "$QUI/$FAST_LIO_CONFIG" ]; then
+      echo "FAST_LIO_CONFIG=$FAST_LIO_CONFIG: file non trovato in $QUI"; exit 1
+    fi
+    export FAST_LIO_CONFIG="${FAST_LIO_CONFIG:-fast_lio_mid360.yaml}"
+    echo "FAST-LIO ($FAST_LIO_CONFIG) e ponte della stima verso PX4$([ -e "${CAMERA_DEV:-/dev/video0}" ] && [ "${CAMERA:-1}" = 1 ] && echo ", telecamera ${CAMERA_DEV:-/dev/video0}")..."
     export C2X_LIO_DIR="$LOG/fast_lio"
     setsid ros2 launch "$QUI/collaudo_reale.launch.py" > "$LOG/stima.log" 2>&1 < /dev/null &
     GRUPPI+=($!)
+    STIMA_PG=$!
     sleep 5
     echo "Registri dei processi in $LOG"
+    # Fase 8 (missione completa): collaudo.py ferma questa stima (FAST-LIO, ponte, webcam) e
+    # lascia agente e driver allo script della missione (DAL_COLLAUDO=1); li ferma poi ferma().
+    export C2X_COLLAUDO_STIMA="$STIMA_PG" C2X_COLLAUDO_PORTA="$PORTA" C2X_COLLAUDO_LOG="$LOG"
+    rimanda_segnali
     python3 "$QUI/collaudo.py" "${EXTRA[@]}"
     ;;
   *)

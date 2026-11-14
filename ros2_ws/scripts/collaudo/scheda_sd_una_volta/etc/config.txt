@@ -1,3 +1,5 @@
+param set BAT1_N_CELLS 4
+param set BAT1_V_DIV 18.8
+param set BAT1_R_INTERNAL 0.008
 param set UXRCE_DDS_SYNCT 0
-param set BAT1_V_DIV 18.922
 param save

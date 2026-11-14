@@ -29,10 +29,10 @@ index 0001356..a81c084 100644
  </server_config>
 diff --git a/ROMFS/px4fmu_common/init.d-posix/airframes/22000_gz_x500_mid360 b/ROMFS/px4fmu_common/init.d-posix/airframes/22000_gz_x500_mid360
 new file mode 100644
-index 0000000..f615687
+index 0000000..2d6c597
 --- /dev/null
 +++ b/ROMFS/px4fmu_common/init.d-posix/airframes/22000_gz_x500_mid360
-@@ -0,0 +1,309 @@
+@@ -0,0 +1,312 @@
 +#!/bin/sh
 +#
 +# @name Gazebo x500 with Mid-360-like 3D LiDAR (C2-Explorer)
@@ -324,10 +324,13 @@ index 0000000..f615687
 +if [ "$PX4_COLLAUDO" = "1" ]; then
 +    # Tetto di velocita' e inclinazione del drone vero (collaudo_px4.params): mancavano, e
 +    # la prova in simulazione volava col tetto di 1.2 m/s invece di 0.6 (code review).
-+    param set MPC_XY_VEL_MAX 0.6
++    # PX4_COLLAUDO_VEL_MAX / _CRUISE (novembre 2026): il profilo all'aperto del drone vero
++    # (scripts/collaudo/scheda_sd_aperto, 1.2 e 1.0) per la prova generale della missione a
++    # 1 m/s (run_reale_exploration.sh SIM_PX4_VEL_MAX).
++    param set MPC_XY_VEL_MAX ${PX4_COLLAUDO_VEL_MAX:-0.6}
 +    param set MPC_TILTMAX_AIR 20
 +    param set MPC_VEL_MANUAL 0.5
-+    param set MPC_XY_CRUISE 0.5
++    param set MPC_XY_CRUISE ${PX4_COLLAUDO_CRUISE:-0.5}
 +    param set MPC_Z_VEL_MAX_UP 1.0
 +    param set MPC_Z_VEL_MAX_DN 0.4
 +    param set MPC_Z_V_AUTO_UP 0.5

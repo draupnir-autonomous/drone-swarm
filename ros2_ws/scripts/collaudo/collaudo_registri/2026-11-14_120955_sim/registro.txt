@@ -1,0 +1,18 @@
+12:09:55 Collaudo C2-Explorer (SIMULAZIONE) - registro in /home/draupnir/Documents/Drone_20261025_SWARM/ros2_ws/scripts/collaudo/collaudo_registri/2026-11-14_120955_sim
+12:09:55 ATTENZIONE: fase 10 con fasi non superate [0, 1, 2, 3, 4, 5, 6, 7, 9] (--forza)
+12:09:55 == FASE 10: missione all'aperto (30 x 30 m, 1 m/s) ==
+12:09:55 Il drone DECOLLA DA SOLO a 1 m, gira su se stesso, esplora l'area a 1 m/s per al massimo 420 s, torna sul punto di decollo e atterra.
+12:09:55 Poi la mappa 3D: superficie dal lidar, colori dalle foto della webcam (qualche minuto).
+12:09:55 Il collaudo ferma la sua stima e passa la mano a run_reale_exploration.sh: controlli a terra, consenso (scrivi VOLA), sorvegliante con SPAZIO = EMERGENZA e l = atterra.
+12:09:55 All'aperto: recinto virtuale (le direzioni senza ritorni del lidar liberano spazio, come un recinto vero), niente persone nell'area e attorno, vento debole, il drone sempre in vista. Nessun radiocomando: se si allontana dove non deve, SPAZIO.
+12:09:55 Niente sotto 1 m vicino al drone (il Mid-360 non vede in basso vicino); alberi e ostacoli alti li evita il pianificatore.
+12:09:55 Recinto della missione BOX="-15,-15,15,15" (m dal decollo, x avanti, y sinistra): il sorvegliante fa atterrare a 2 m oltre. Tutto lo spazio fino a 2 m fuori dall'area deve essere libero e senza persone.
+12:09:55 Fermo la simulazione del collaudo (la missione ne avvia una sua)...
+12:09:56 Missione: BOX="-15,-15,15,15" VEL_MAX="1" TEMPO_MAX="420" FOTO="1" RECINTO_VIRTUALE="1" MARGINE_RECINTO="2" QUOTA_ALLARME="2.6" SIM_RECINTO="0" SIM_PX4_VEL_MAX="1.2" VOXEL_MAPPA="0.05" RITAGLIO_MAPPA="5" TAGLIO_MAPPA="0.25" /home/draupnir/Documents/Drone_20261025_SWARM/ros2_ws/scripts/run_reale_exploration.sh sim /tmp/claude-1000/-home-draupnir-Documents-Drone-20261025-SWARM/d1720fc2-19ec-4719-8c66-3bf4a63e3faa/scratchpad/mondi/campo_aperto.sdf
+12:18:43 == FASE 10: risultato della missione ==
+12:18:43 volo: atterrato; esplorazione: completa
+12:18:43 mappa 3D: /home/draupnir/Documents/Drone_20261025_SWARM/risultati_prova/2026-11-14_1209_reale-sim_campo_aperto_lio_v1/rel_mappa3d_1_1/mappa_realistica.ply
+12:18:43   543 foto, 74% della superficie colorata; anteprime in /home/draupnir/Documents/Drone_20261025_SWARM/risultati_prova/2026-11-14_1209_reale-sim_campo_aperto_lio_v1/rel_mappa3d_1_1/anteprima_*.png
+12:18:43 archivio della run: /home/draupnir/Documents/Drone_20261025_SWARM/risultati_prova/2026-11-14_1209_reale-sim_campo_aperto_lio_v1
+12:18:43 La stima del collaudo e' stata fermata per la missione: per altre fasi rilancia avvia_collaudo.sh.
+12:18:43 FASE 10: SUPERATA - atterrato; esplorazione completa; mappa 3D si, 543 foto, 74% colorato

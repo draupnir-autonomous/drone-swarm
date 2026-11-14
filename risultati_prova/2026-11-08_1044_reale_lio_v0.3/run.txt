@@ -1,0 +1,9 @@
+inizio:          2026-11-08 10:44:38
+fine:            2026-11-08 10:47:03
+comando:         BOX="-2,-2,2,2" VEL_MAX=0.3 QUOTA_ZONA=2.2 TEMPO_MAX=240 TEMPO_VOLO_MAX=420 VISITA=0 GIRO_INIZIALE=0.5 PARTENZA_Z=0.2 LIDAR_POS="0,0,0.1" MAPPA_REALISTICA=1 FOTO=1 CAMERA_DEV=/dev/video0 CAMERA_HZ=30 CAMERA_POS="0.1,0,0.05" CAMERA_GIU=0 CAMERA_HFOV=50 CAMERA_RITARDO=0.05 DAL_COLLAUDO=1 ./scripts/run_reale_exploration.sh /dev/ttyACM0
+modo:            drone vero
+esito:           atterrato
+esplorazione finita: 1/1
+divergenze FAST-LIO: 0
+foto per la mappa 3D: 42
+registro di volo: sulla scheda SD del Pixhawk (.ulg di questo volo)

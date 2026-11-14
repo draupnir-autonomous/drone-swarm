@@ -108,6 +108,11 @@ def main():
     ap.add_argument('--half', type=float, default=20.0, help='semilato del campo, in metri')
     ap.add_argument('--fence-height', type=float, default=5.0)
     ap.add_argument('--seed', type=int, default=7)
+    # Campo DAVVERO aperto (novembre 2026): per provare il recinto virtuale della mappa
+    # (cloud_transform_bridge, run_reale_exploration.sh RECINTO_VIRTUALE=1), che fa il lavoro
+    # della recinzione quando non c'e'.
+    ap.add_argument('--senza-recinto', action='store_true', help='nessuna recinzione perimetrale')
+    ap.add_argument('--ostacoli', type=int, default=26, help='numero di ostacoli sparsi')
     args = ap.parse_args()
 
     rnd = random.Random(args.seed)
@@ -120,9 +125,11 @@ def main():
                '      <pose>0 0 0 0 0 0</pose>\n      <link name="link">\n')
 
     n = 0
-    fh = args.fence_height
+    fh = 0.0 if args.senza_recinto else args.fence_height
     for cx, cy, sx, sy in ((h, 0, 0.2, 2 * h + 0.2), (-h, 0, 0.2, 2 * h + 0.2),
                            (0, h, 2 * h + 0.2, 0.2), (0, -h, 2 * h + 0.2, 0.2)):
+        if args.senza_recinto:
+            break
         out.append(BOX.format(n=f'fence{n}', cx=cx, cy=cy, cz=fh / 2, sx=sx, sy=sy, sz=fh,
                               col='0.40 0.42 0.38 1'))
         n += 1
@@ -140,7 +147,7 @@ def main():
         return True
 
     tries = 0
-    while len(placed) < 26 and tries < 4000:
+    while len(placed) < args.ostacoli and tries < 4000:
         tries += 1
         x = rnd.uniform(-h + 3, h - 3)
         y = rnd.uniform(-h + 3, h - 3)
@@ -165,8 +172,9 @@ def main():
     out.append('      </link>\n    </model>\n')
     out.append('  </world>\n</sdf>\n')
     open(args.out, 'w').write(''.join(out))
-    print(f'{args.out}: campo {2*h:.0f}x{2*h:.0f} m, recinzione alta {fh:.1f} m, '
-          f'{len(placed)} ostacoli, nessun soffitto')
+    print(f'{args.out}: campo {2*h:.0f}x{2*h:.0f} m, '
+          + ('nessuna recinzione' if args.senza_recinto else f'recinzione alta {fh:.1f} m')
+          + f', {len(placed)} ostacoli, nessun soffitto')
 
 
 if __name__ == '__main__':

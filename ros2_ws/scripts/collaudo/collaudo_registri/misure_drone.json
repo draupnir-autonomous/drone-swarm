@@ -1,0 +1,8 @@
+{
+ "partenza_z": 0.2,
+ "lidar_pos": "0,0,0.1",
+ "camera_pos": "0.1,0,0.05",
+ "camera_giu": 0.0,
+ "camera_hfov": 50.0,
+ "quando": "2026-11-08 10:44:29"
+}

@@ -1,0 +1,17 @@
+{
+ "nome": "reale",
+ "zona": [
+  -2.0,
+  -2.0,
+  2.0,
+  2.0
+ ],
+ "partenza": [
+  0.0,
+  0.0
+ ],
+ "quota_zona": 2.2,
+ "tempo_max_esplorazione": 240.0,
+ "config": "/tmp/c2x_run_reale/mondo/config.yaml",
+ "config_origine": "multi_drone_cubicle_office.yaml"
+}

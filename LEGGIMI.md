@@ -1091,7 +1091,115 @@ SIGTERM al sorvegliante (`..._1038_...`): atterraggio pulito, nessun riarmo.
 7. Prima missione: recinto piccolo (4-5 m per lato) in un locale con struttura vicina,
    operatore a portata di tastiera (collegamento SSH corto: se cade, il sorvegliante fa
    atterrare). Poi `EKF2_EV_DELAY` misurato sul `.ulg` e, se tutto torna, recinti piu' grandi.
-8. Telecamera: non collegata alla missione (mappa 3D grigia, dal solo lidar).
+   Dal 7 novembre 2026 e' la **fase 8 del collaudo** (sotto).
+8. Telecamera: dal 7 novembre 2026 colora la mappa 3D (sotto); mai provata in volo.
+
+**Fase 8 del collaudo e webcam (7 novembre 2026).** La fase 8 di `scripts/collaudo/collaudo.py`
+non da' piu' solo istruzioni: in uno spazio libero di 5 x 5 m col drone al centro chiede le
+misure del drone (quota del punto di riferimento, Mid-360, webcam: posizione, inclinazione,
+campo di vista; ricordate in `collaudo_registri/misure_drone.json`), controlla la webcam, ferma
+la stima del collaudo (FAST-LIO deve ripartire dal punto di decollo) e lancia
+`run_reale_exploration.sh` con `BOX="-2,-2,2,2"` (spazio meno 0.5 m per lato: il sorvegliante
+fa atterrare al bordo dello spazio), `FOTO=1` e `DAL_COLLAUDO=1` (agente DDS e driver Livox
+restano quelli del collaudo: niente agente riavviato, che a volte non ritrova i topic di PX4).
+Lo script della missione con `FOTO=1` avvia `cam2image` sulla webcam (`CAMERA_DEV`, 640x480, 30
+letture al secondo: a 10 si leggevano fotogrammi accodati nel buffer, vecchi fino a ~0.1 s),
+la controlla nei controlli a terra e passa le misure a `registra_mappa.py --reale` (QoS best
+effort come `cam2image`, orologio di parete, posa della telecamera dalla posa di FAST-LIO, che e'
+quella del lidar: `p + lidar_offset + R (cam - lidar_offset)`). `ricostruisci_mappa.py` non
+applica alle foto vere la maschera delle eliche del modello simulato, e con `--cam_pos`,
+`--cam_giu`, `--cam_hfov` ricolora la mappa con misure corrette dopo il volo (in `pose.json`
+c'e' anche la posa del drone a ogni scatto; l'archivio della run tiene foto e punti lidar). A
+fine missione `RIEPILOGO=<file>` riceve esito, archivio e mappa, e il collaudo decide se la fase
+e' superata. Provato senza volo: percorso della webcam vera (`cam2image` + registratore con
+pose finte: 55 foto in 22 s, posa e ottica ricalcolate uguali), ricostruzione e ricolorazione,
+logica della fase con uno script di missione finto (32 controlli), prova generale completa in
+simulazione (`avvia_collaudo.sh sim -- --fase 8 --forza`, `2026-11-07_1748_reale-sim_...`:
+simulazione del collaudo fermata, missione con la telecamera simulata, via col recinto gia'
+visto, esplorazione CONCLUSA, rientro e atterraggio senza interventi del sorvegliante, 34 foto,
+33% della superficie colorata, fase SUPERATA). Mai provato sul drone vero: `DAL_COLLAUDO`
+(agente e driver del collaudo riusati), webcam in volo, misure reali.
+
+Due difetti della missione reale trovati con la prova generale della fase 8 (`avvia_collaudo.sh
+sim`, `cubicle_office`, recinto 4 x 4 m), che valgono anche lanciandola da sola:
+- **Il via non arrivava mai.** Col lavoro sullo sciame (ottobre 2026) la sottoscrizione del via
+  nell'FSM e' diventata `transient_local` + `reliable` e `run_multi_exploration.sh` pubblica di
+  conseguenza; `run_reale_exploration.sh` pubblicava ancora con la QoS di serie (volatile), che
+  DDS scarta come incompatibile ("offering incompatible QoS ... DURABILITY": verificato a parte, 0
+  messaggi contro 22). Il drone decollava, girava su se stesso e dopo un minuto il sorvegliante lo
+  faceva atterrare ("esplorazione non partita"). Ora pubblica con la stessa QoS dell'FSM.
+- **Spazio piccolo**: decollo e giro iniziale vedono gia' tutto il recinto e le frontiere vanno a
+  zero prima del via; `wait_ready.py` voleva frontiere > 0 e il drone non risultava mai pronto.
+  Con `--completa-dopo 5` (solo `run_reale_exploration.sh`) e' pronto anche con zero frontiere se
+  il giro iniziale e' concluso, la mappa riceve la nuvola (frontiere viste prima, o nuvole su
+  `map_ros/cloud`) e le frontiere restano a zero per 5 s: col via l'FSM va in pianificazione, non
+  trova nulla e dopo i 15 s di `min_explore_time_` conclude ("CONCLUSA"), rientra e atterra.
+
+### All'aperto: recinto virtuale, fasi 9 e 10 del collaudo (14 novembre 2026)
+
+Obiettivo: un campo aperto di 30 x 30 m a 1 m/s, con la mappa 3D. Procedura in
+`scripts/collaudo/LEGGIMI_COLLAUDO.md` ("All'aperto: fasi 9 e 10"); qui i pezzi.
+
+**Recinto virtuale.** Un raggio del lidar che non colpisce nulla non arriva alla mappa: il driver
+del Mid-360 e FAST-LIO danno solo i ritorni, Gazebo un punto non finito, e `sdf_map` raycasta solo
+dai punti. In un campo aperto il volume sopra la quota del lidar resta quindi ignoto per sempre e
+le frontiere non si chiudono: e' il motivo del recinto alto 5 m di `open_field` e della siepe del
+parco, e di "mondi aperti" in `prepara_mondo.py`. Con `recinto_virtuale:=true` (launch;
+`RECINTO_VIRTUALE=1` in `run_reale_exploration.sh`) `cloud_transform_bridge` divide le direzioni
+in celle di 2 gradi in terna mondo (non scorrono col giro iniziale) e, per ogni cella senza ritorni
+da 5 scansioni, anche nelle 8 vicine (per non passare ai bordi di un oggetto), e dentro il campo
+verticale del sensore (terna corpo: -7/+52 gradi sul drone vero, +-50 in simulazione), aggiunge
+alla nuvola del pianificatore un punto a 60 m in una direzione a caso della cella. `sdf_map` porta
+i punti fuori mappa o oltre `max_ray_length` (20 m) sul bordo o li tronca, con l'ultima cella
+**libera**: il raggio libera lo spazio e non crea mai un ostacolo (e se il punto troncato e' sotto
+0.2 m lo salta). La mappa 3D (`cloud_mappa3d`) e il filtro di sicurezza del ponte dei comandi
+(`lidar/points`) restano sui punti veri. Spento di serie: le run simulate e la fase 8 non cambiano.
+Rischio residuo: un oggetto che non restituisce nulla (vetro, superfici nerissime a distanza) in
+una cella vuota da mezzo secondo viene "attraversato" dai raggi virtuali; il filtro di sicurezza
+del ponte, sui punti veri, resta.
+
+**Prova in simulazione** (Jetson): campo 50 x 50 m senza recinto e 10 ostacoli
+(`make_open_field.py --half 25 --senza-recinto --ostacoli 10`), area 30 x 30 m dal decollo,
+`VEL_MAX=1.0`, PX4 col tetto del profilo all'aperto (`SIM_PX4_VEL_MAX=1.2`, nuovo nell'airframe
+22000 come `PX4_COLLAUDO_VEL_MAX`), `run_reale_exploration.sh sim` con `SIM_RECINTO=0` (senza,
+`prepara_mondo.py` aggiunge da solo un recinto ai mondi aperti):
+- `2026-11-14_1139_reale-sim_campo_aperto_lio_v1.0` e `..._1147_...`, **con recinto virtuale**
+  (~3900 raggi virtuali a scansione): via con 113 e 136 frontiere, esplorazione conclusa ("has
+  finished exploration", 4-5 frontiere residue abbandonate dopo 13 tentativi a vuoto, ~1 minuto di
+  attesa in volo prima di rientrare), rientro e atterraggio sul decollo (8 cm), nessun intervento
+  del sorvegliante, quota massima 2.07-2.21 m, mai fuori dal recinto; 4.5-5 minuti dal via alla
+  conclusione, 5.5-6.5 in volo. Seconda run: mappa 3D a celle da 5 cm ritagliata all'area + 5 m,
+  2.45 milioni di celle, 578 foto, superficie colorata al 68% (nella prima il registratore era
+  morto all'avvio, vedi sotto).
+- `2026-11-14_1201_reale-sim_campo_aperto_lio_v1.0`, stesso campo **senza recinto virtuale**
+  (tetto di 240 s): 289 frontiere gia' a un minuto dal via, esplorazione chiusa solo dal TEMPO
+  MASSIMO con **201 frontiere ancora aperte** e 1996 m3 esplorati, contro i 5009 m3 col recinto
+  virtuale: senza ritorni lo spazio sopra il lidar resta ignoto e il pianificatore lo insegue.
+- `2026-11-14_1209_reale-sim_campo_aperto_lio_v1`, la stessa missione lanciata **dal collaudo**
+  (`avvia_collaudo.sh sim <campo> -- --fase 10 --forza`): fase 10 SUPERATA, esplorazione conclusa
+  (una frontiera residua), 5001 m3, rientro e atterraggio, quota massima 2.21 m (da qui la quota
+  d'allarme 2.6 per la fase 10: con 2.3 sarebbero stati 9 cm di margine), mappa 3D con 543 foto,
+  74% colorata.
+- La coda finale col recinto virtuale (4-5 frontiere residue senza celle assegnate, `IDLE` fino a
+  13 tentativi a vuoto, ~1 minuto di volo fermo) e' il criterio di conclusione dell'FSM con un
+  drone solo: costa batteria ma non e' un guasto.
+
+**Difetto trovato con la prova**: un valore che comincia col meno (`--ritaglio -20,-20,20,20`, ma
+anche `--lidar_offset -0.05,0,0.1` o `--cam_pos` con x negativa) argparse lo prende per
+un'opzione: il registratore della mappa 3D moriva all'avvio ("expected one argument") e la run
+finiva senza mappa. Ora `run_reale_exploration.sh` passa i vettori con `=`.
+
+**Collaudo.** Fase 9 (a piedi, motori spenti): il giro del perimetro dell'area col drone in mano
+dice se FAST-LIO vede davvero lo spostamento in quel campo e ricava la soglia di atterraggio dei
+punti agganciati per la fase 10; registra lidar, IMU e stima per tarare FAST-LIO dopo. Fase 10:
+la missione, con la stessa funzione della fase 8 (`missione()` in `collaudo.py`) e i parametri
+dell'aperto (area = recinto, 1 m/s, 420 s, recinto virtuale, margine del sorvegliante 2 m, soglia
+della fase 9, mappa 3D a 5 cm ritagliata all'area + 5 m). Nuovi: `scheda_sd_aperto` e
+`scheda_sd_chiuso` (profili PX4 1.2 / 0.6 m/s), `fast_lio_mid360_aperto.yaml` (`point_filter_num`
+2, `det_range` 60), `regola_webcam.py` (esposizione manuale contro le foto bruciate dal sole), in
+`run_reale_exploration.sh` `MARGINE_RECINTO`, `FAST_LIO_CONFIG`, `VOXEL_MAPPA`, `RITAGLIO_MAPPA`,
+`TAGLIO_MAPPA`. Mai provati sul drone vero: fase 9, configurazione all'aperto di FAST-LIO,
+`regola_webcam.py`, recinto virtuale col Mid-360 (nuvola non organizzata, scansione non ripetitiva).
 
 ---
 

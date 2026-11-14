@@ -84,7 +84,10 @@ di esplorazione sul drone vero". Tutti i comandi partono dalla cartella del prog
 5. **Misure del montaggio** (servono alla missione): `PARTENZA_Z` = quota da terra del punto
    di riferimento del drone appoggiato; `LIDAR_POS` = posizione del Mid-360 rispetto a quel
    punto (x avanti, y sinistra, z su), in metri. Il Mid-360 va montato dritto col davanti
-   verso il muso (la fase 3 lo controlla).
+   verso il muso (la fase 3 lo controlla). Per la mappa 3D colorata anche la **webcam**:
+   posizione dell'obiettivo, inclinazione verso il basso e campo di vista orizzontale (a
+   distanza D da una parete segna i bordi sinistro e destro dell'immagine, distanti L: campo =
+   2*atan(L/(2*D))). Le chiede la fase 8 e le ricorda in `collaudo_registri/misure_drone.json`.
 6. **Jetson pronto per il Pixhawk sull'USB**: spegni ModemManager, che interroga le porte
    `/dev/ttyACM*` come se fossero modem e disturba il collegamento:
    ```bash
@@ -134,11 +137,23 @@ cd ros2_ws/scripts/collaudo && ./avvia_collaudo.sh reale /dev/ttyACM0
 | 5 | si | **drone legato**: `t` decolla a 0.5 m, resta fermo 30 s, `l` atterra |
 | 6 | si | `t` a 1 m, frecce per piccoli spostamenti, `w`/`s` su/giu', `a`/`d` ruota, `l` atterra |
 | 7 | si | `t`, poi `o`: quadrato automatico di 1 m; `l` atterra |
+| 8 | si | missione completa in uno spazio di 5 x 5 m con la mappa 3D (sezione D) |
 
 Se una fase non passa, il programma dice perche' e non lascia andare avanti: risolvi e
 ripetila. Le fasi superate sul drone vero restano scritte (`collaudo_registri/esiti_reale.json`).
 
 ## D. Missione di esplorazione (solo dopo le fasi 0-7 superate)
+
+**Con il collaudo, fase 8 (novembre 2026)**: spazio libero di 5 x 5 m (soffitto >= 2.8 m,
+niente sotto 1 m vicino al drone), drone al centro col muso verso un lato, webcam collegata,
+eliche montate, batteria carica. Nella stessa sessione del collaudo (`./avvia_collaudo.sh reale
+/dev/ttyACM0`) scegli `8`: rispondi su posizione e misure (INVIO = valori ricordati), poi lo
+script della missione fa i controlli a terra e chiede `VOLA`. Il drone esplora da solo, rientra,
+atterra, e a terra si costruisce la mappa 3D colorata con le foto della webcam (qualche minuto).
+Dettagli e come correggere i colori dopo il volo: `LEGGIMI_COLLAUDO.md`, "Fase 8". Dopo la fase
+8 il collaudo si chiude.
+
+**Da sola**, senza passare dal collaudo:
 
 Drone appoggiato **nel punto di decollo**, col muso dove vuoi l'asse x. Prima missione:
 recinto piccolo, 4-5 m per lato, con il decollo ad almeno 1 m dai bordi.
@@ -164,7 +179,28 @@ drone vero.
 ## E. Dopo ogni volo
 
 - Registri: `ros2_ws/scripts/collaudo/collaudo_registri/` (collaudo), `/tmp/c2x_run_reale` e
-  `risultati_prova/<data_ora>_reale_lio_v0.3/` (missione). Il registro di volo di PX4 (`.ulg`)
+  `risultati_prova/<data_ora>_reale_lio_v0.3/` (missione; la mappa 3D, le foto della webcam e i
+  punti lidar in `rel_mappa3d_1_1/`, che non vanno su GitHub). Il registro di volo di PX4 (`.ulg`)
   resta sulla scheda SD del Pixhawk: copialo, serve a misurare il ritardo vero della stima
   (`EKF2_EV_DELAY`) e a capire qualsiasi cosa strana.
 - Se tutto torna, allarga a poco a poco: recinti piu' grandi, poi `VEL_MAX` piu' alto.
+
+## F. All'aperto: area di 30 x 30 m a 1 m/s (novembre 2026)
+
+Dettagli e perche' in `LEGGIMI_COLLAUDO.md`, "All'aperto: fasi 9 e 10". In ordine:
+
+1. **A casa**: profilo PX4 all'aperto (`scheda_sd_aperto/etc/config.txt` in `/etc/config.txt`
+   della scheda SD, riavvio vero, poi togli il file); batteria carica; prova generale in
+   simulazione su un campo senza recinto (comandi nel LEGGIMI del collaudo).
+2. **Al campo**: area segnata agli angoli, libera anche 2 m oltre, decollo al centro, niente
+   persone, vento debole, drone sempre in vista. Senza radiocomando le prime volte area piu'
+   piccola e velocita' piu' bassa (`-- --area-aperto 15 --vel-aperto 0.5`).
+   ```bash
+   cd ros2_ws/scripts/collaudo && FAST_LIO_CONFIG=fast_lio_mid360_aperto.yaml ./avvia_collaudo.sh reale /dev/ttyACM0
+   ```
+3. **Fase 9, a piedi, motori spenti**: dal centro al bordo, tutto il perimetro col drone in mano a
+   ~1 m, ritorno al centro sul segno. Se non passa, NON volare: il motivo e' scritto (stima che non
+   vede lo spostamento, giro che non si chiude, troppi pochi punti agganciati, Jetson lento).
+4. **Fase 10**: conferma del profilo PX4, misure, `VOLA`. SPAZIO = emergenza, `l` = atterra.
+5. **Dopo**: per tornare al chiuso `scheda_sd_chiuso/etc/config.txt` (tetto di nuovo a 0.6 m/s) e
+   `regola_webcam.py /dev/video0 --automatica` (esposizione automatica).

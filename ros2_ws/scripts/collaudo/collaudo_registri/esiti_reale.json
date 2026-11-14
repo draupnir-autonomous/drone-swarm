@@ -35,8 +35,13 @@
   "dettagli": "volo 54 s, distanza max 0.52 m, quota max 1.27 m, oscillazione da fermo 18 cm, allarme: nessuno"
  },
  "7": {
-  "ok": false,
-  "quando": "2026-10-25 17:03:02",
-  "dettagli": "volo 183 s, distanza max 1.15 m, quota max 1.13 m, oscillazione da fermo 19 cm, allarme: batteria al 25%"
+  "ok": true,
+  "quando": "2026-11-07 18:23:10",
+  "dettagli": "volo 46 s, distanza max 1.93 m, quota max 1.03 m, oscillazione da fermo 14 cm, allarme: nessuno, quadrato completato"
+ },
+ "8": {
+  "ok": true,
+  "quando": "2026-11-08 10:47:03",
+  "dettagli": "atterrato; esplorazione completa; mappa 3D si, 42 foto, 52% colorato"
  }
 }

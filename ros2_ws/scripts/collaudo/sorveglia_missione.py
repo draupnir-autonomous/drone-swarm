@@ -99,8 +99,9 @@ class Tastiera:
 
 
 def avvia_drone():
+    # Nome del nodo diverso da quello di collaudo.py: nella fase 8 del collaudo girano insieme.
     a = argparse.Namespace(sim=False, px4_ns='', lio=NS + '/lio/odometry', salute=NS + '/lio/salute',
-                           sysid=0)
+                           sysid=0, nome_nodo='sorveglia_missione')
     rclpy.init()
     d = C.Drone(a)
     d.pronto = False
@@ -265,6 +266,17 @@ def controlli(d, a, out):
         attivi = [k for k, t in fs.get_fields_and_field_types().items()
                   if t == 'boolean' and getattr(fs, k)]
         out('condizioni di failsafe attive in PX4: ' + (', '.join(attivi) or 'nessuna'))
+    if a.camera:
+        # Webcam per la mappa 3D colorata (FOTO=1).
+        hz = C.misura_webcam(d, a.camera)
+        if hz is None:
+            problemi.append(f'webcam: nessuno pubblica {a.camera} (cam2image: registro camera.log; '
+                            'FOTO=0 per volare con la mappa 3D grigia)')
+        else:
+            out(f'webcam {a.camera}: {hz:.1f} fotogrammi/s')
+            if hz < 3.0:
+                problemi.append(f'webcam a {hz:.1f} fotogrammi/s (servono almeno 3: cavo USB, '
+                                'luce, CAMERA_DEV; FOTO=0 per la mappa 3D grigia)')
     return problemi
 
 
@@ -561,6 +573,8 @@ def main():
     ap.add_argument('--durata', type=float, default=8.0, help='controlli: misura a drone fermo [s]')
     ap.add_argument('--senza-collaudo', action='store_true',
                     help='controlli: non pretendere le fasi 0-7 del collaudo sul drone vero')
+    ap.add_argument('--camera', default='',
+                    help='controlli: topic della webcam, che deve pubblicare (mappa 3D colorata)')
     ap.add_argument('--box', default='', help='volo: recinto xmin,ymin,xmax,ymax [m]')
     ap.add_argument('--margine', type=float, default=0.5, help='volo: tolleranza oltre il recinto [m]')
     ap.add_argument('--quota-max', type=float, default=2.3, help='volo: quota massima [m da terra]')

@@ -3,3 +3,7 @@
 - [FAST-LIVO2 in Drone_20261018_P](drone-20261018-fast-livo2.md) — copia snella 18_P, FAST-LIVO2 scartato, collaudo, missione sul drone vero, lidar Mid-360S e rete 192.168.1.5/.122
 - [Velocità Jetson cubicle 17 ott](jetson-velocita-cubicle-20261017.md) — Drone_20261017_P: velocità, sicurezza, scenario parco, deriva FAST-LIO (+inf) e controllo salute
 - [Jetson port status](jetson-port-status.md) — Drone_20261013: porting su Jetson, metodo di verifica delle run, crash cubicle a 1.0 m/s, Open3D/Poisson, ricetta video
+- [Batteria del drone vero sbagliata in volo](batteria-stima-px4-drone-vero.md) — 7 nov: 14% in volo e 69% a terra; PX4 stima solo dalla tensione, calo sotto carico scoperto, servono gli ulg
+- [Fase 8 del collaudo: missione 5x5 con webcam](collaudo-fase8-missione-webcam.md) — 7 nov: missione completa dal collaudo, DAL_COLLAUDO, segnali SSH, QoS/ritardo cam2image, misure del drone; superata l'8 nov 10:47 al chiuso
+- [GPU della Jetson che non si accende](jetson-gpu-non-si-accende.md) — 8 nov 11:13: nvgpu ACR bootstrap failed, Vulkan/Open3D/Gazebo in crash; non e' la sandbox; controllo e riavvio
+- [Missione all'aperto e recinto virtuale](missione-aperto-recinto-virtuale.md) — 14 nov: 30x30 a 1 m/s, raggi senza ritorno e frontiere, recinto virtuale nel ponte nuvole, fasi 9-10, profili PX4, argparse e valori negativi

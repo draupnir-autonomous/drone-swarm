@@ -1,0 +1,8 @@
+inizio:          2026-11-07 17:14:21
+fine:            2026-11-07 17:17:27
+comando:         BOX="-2,-2,2,2" VEL_MAX=0.3 QUOTA_ZONA=2.2 TEMPO_MAX=240 TEMPO_VOLO_MAX=420 VISITA=0 GIRO_INIZIALE=0.5 PARTENZA_Z=0.227 LIDAR_POS="0,0,0.10" MAPPA_REALISTICA=1 FOTO=1 ./scripts/run_reale_exploration.sh sim cubicle_office
+modo:            prova in simulazione (cubicle_office)
+esito:           atterrato, atterraggio comandato dal sorvegliante
+esplorazione finita: 0/1
+divergenze FAST-LIO: 0
+foto per la mappa 3D: 33

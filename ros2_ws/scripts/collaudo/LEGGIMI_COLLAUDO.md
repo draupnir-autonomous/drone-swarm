@@ -5,7 +5,7 @@ Strumenti in questa cartella (ottobre 2026):
 | file | cosa fa |
 |---|---|
 | `PROCEDURA_PROVE_REALI.md` | **la lista di controllo in ordine** (casa, posto, collaudo, missione, dopo il volo), da tenere sul campo |
-| `collaudo.py` | il programma del collaudo: 9 fasi in ordine, controlli automatici, levette virtuali da tastiera o joystick, arresto d'emergenza, registro |
+| `collaudo.py` | il programma del collaudo: 9 fasi in ordine, controlli automatici, levette virtuali da tastiera o joystick, arresto d'emergenza, registro; la fase 8 e' la missione completa con la mappa 3D |
 | `avvia_collaudo.sh` | avvia tutto (agente DDS, driver Livox, FAST-LIO, ponte verso PX4) e apre `collaudo.py`; con `sim` lo stesso contro la simulazione |
 | `collaudo_reale.launch.py` | FAST-LIO sul Mid-360 vero e il ponte della stima verso PX4 (tempo reale, niente Gazebo) |
 | `fast_lio_mid360.yaml` | configurazione di FAST-LIO per il Mid-360 vero |
@@ -139,7 +139,9 @@ Non lascia saltare una fase non superata (si puo' con `--forza`, ma resta nel re
 | 5 hover trattenuto | si, **drone legato** | `t` decolla a 0.5 m, 30 s fermo, `l` atterra | nessun allarme, atterrato e disarmato |
 | 6 volo manuale | si | `t` a 1 m, piccoli spostamenti con le frecce (~0.16 m/s), recinto 2 m | nessun allarme |
 | 7 quadrato automatico | si | `t`, poi `o`: quadrato di 1 m a 0.3 m/s in offboard, poi fermo; `l` atterra | nessun allarme |
-| 8 verso la missione | - | solo istruzioni: cosa manca per il volo autonomo | - |
+| 8 missione completa | si | spazio libero 5 x 5 m, drone al centro, webcam collegata: misure del drone, poi la missione di esplorazione (scrivi `VOLA`) e la mappa 3D colorata | atterrato da solo sul decollo, esplorazione conclusa, mappa 3D con le foto della webcam |
+| 9 FAST-LIO all'aperto | **no, motori spenti** | all'aperto, drone in mano a ~1 m: dal centro dell'area al bordo, tutto il perimetro, ritorno al centro | lato dell'area misurato entro il 15%, giro chiuso entro 0.5 m, FAST-LIO >= 8 Hz, abbastanza punti agganciati; ricava la soglia per la fase 10 |
+| 10 missione all'aperto | si | area 30 x 30 m (drone al centro) a 1 m/s, recinto virtuale, profilo PX4 all'aperto | come la fase 8 |
 
 Tasti in volo: frecce = sposta, `w`/`s` = su/giu', `a`/`d` = ruota, `t` = decolla (in
 offboard, con la quota che sale a 0.4 m/s fino a quella della fase, poi resta fermo in
@@ -151,17 +153,162 @@ Dopo ogni volo: il registro della sessione e' in `collaudo_registri/<data_ora>/`
 registro di volo di PX4 (`.ulg`) sulla scheda SD. Con il `.ulg` si misura il ritardo vero
 della stima (per `EKF2_EV_DELAY`) con lo stesso metodo di `scripts/confronta_stima.py`.
 
+## Fase 8: la missione completa con la mappa 3D (novembre 2026)
+
+Con le fasi 0-7 superate, la fase 8 fa volare la missione di esplorazione vera
+(`../run_reale_exploration.sh`) in uno **spazio libero quadrato di 5 x 5 m** col drone al
+centro, e alla fine costruisce la **mappa 3D colorata con le foto della webcam**. Fino al 7
+novembre 2026 la fase 8 dava solo istruzioni: quel vecchio esito non conta piu'.
+
+Prima di cominciare:
+- spazio libero 5 x 5 m (pareti o segni a terra ai bordi), soffitto ad almeno **2.8 m**, niente
+  sotto 1 m vicino al drone (il Mid-360 non vede in basso vicino: -7 gradi); struttura vicina
+  per FAST-LIO (in una stanza di 5 m le pareti bastano);
+- webcam collegata (`/dev/video0`, o `CAMERA_DEV=/dev/videoN ./avvia_collaudo.sh ...`): la fase
+  controlla che pubblichi;
+- batteria carica: il sorvegliante fa atterrare sotto il 15% **come lo legge PX4** (vedi la
+  stima sbagliata in volo nelle note del 7 novembre 2026: prima della missione la
+  `scheda_sd_una_volta/etc/config.txt` con `BAT1_V_DIV` e `BAT1_R_INTERNAL` va applicata).
+
+Cosa succede (`./avvia_collaudo.sh reale /dev/ttyACM0`, poi `8`):
+1. **Recinto**: drone al centro dello spazio col muso verso un lato (se no, le distanze dai
+   quattro bordi). Il recinto della missione e' lo spazio meno 0.5 m per lato, per 5 x 5 m
+   `BOX="-2,-2,2,2"`: il sorvegliante fa atterrare 0.5 m oltre, cioe' al bordo dello spazio; le
+   pareti appena fuori dal recinto restano nella mappa del pianificatore, che ne sta lontano.
+   Altri spazi: `-- --area 6` (6 x 6 m) o `-- --box xmin,ymin,xmax,ymax`.
+2. **Misure del drone**, da un punto di riferimento a scelta (per esempio il centro del
+   Pixhawk), assi x avanti, y sinistra, z su: quota da terra del punto col drone appoggiato,
+   posizione del Mid-360, posizione dell'obiettivo della webcam, sua inclinazione verso il basso
+   e campo di vista orizzontale (a distanza D da una parete si segnano i bordi sinistro e destro
+   dell'immagine, distanti L: campo = 2*atan(L/(2*D))). INVIO tiene il valore proposto; restano
+   in `collaudo_registri/misure_drone.json` (versionato: valgono per il drone su ogni computer).
+3. **Webcam**: deve dare almeno 3 fotogrammi/s.
+4. Conferma, poi il collaudo **ferma la sua stima** (FAST-LIO, ponte, webcam: FAST-LIO ha
+   l'origine dove e' partito, e dopo la fase 3 e i voli non e' piu' il punto di decollo) e passa
+   la mano a `run_reale_exploration.sh` con `DAL_COLLAUDO=1`: **agente DDS e driver del lidar
+   restano quelli del collaudo** (un agente riavviato a volte non ritrova i topic di PX4).
+5. Lo script della missione fa i suoi controlli a terra (anche la webcam), chiede `VOLA`, e il
+   drone decolla subito a 1 m, gira su se stesso, esplora a 0.3 m/s per al massimo 240 s
+   (`-- --vel-missione`, `-- --tempo-missione`), rientra e atterra sul decollo. In uno spazio
+   piccolo il giro iniziale puo' vedere gia' tutto il recinto: allora l'esplorazione si conclude
+   subito ("CONCLUSA", dopo ~15 s di attesa) e il drone atterra sul posto, che e' il decollo
+   (prima il via non partiva e il sorvegliante lo faceva atterrare dopo un minuto come per un
+   guasto: vedi `wait_ready.py --completa-dopo`). In volo resta il sorvegliante: **SPAZIO =
+   emergenza**, `l` = atterra, atterraggio da solo fuori dal recinto, con stima ferma o
+   peggiorata, batteria bassa, tempo scaduto o SSH caduta.
+6. A terra: mappa 3D (superficie dal lidar a 2 cm, colori dalle foto della webcam, qualche
+   minuto), archivio in `risultati_prova/<data>_reale_lio_v0.3/` con `rel_mappa3d_1_1/`
+   (`mappa_realistica.ply`, `nuvola_colorata.ply`, anteprime PNG, le foto con la posa di ogni
+   scatto e i punti lidar). La fase e' superata se il drone e' atterrato da solo, l'esplorazione
+   e' conclusa (anche per tetto di tempo) e la mappa ha i colori delle foto.
+7. Il collaudo si chiude (la sua stima non c'e' piu'): per altre fasi si rilancia
+   `avvia_collaudo.sh`, che alla chiusura ferma anche agente e driver.
+
+**Colori spostati rispetto alle forme** (misure della webcam approssimate): si correggono dopo,
+senza rivolare, perche' l'archivio tiene foto, posa del drone a ogni scatto e punti lidar:
+```bash
+python3 ros2_ws/scripts/ricostruisci_mappa.py risultati_prova/<run>/rel_mappa3d_1_1 --cam_giu 12 --cam_hfov 48
+```
+(anche `--cam_pos x,y,z`); poi le misure giuste vanno ridate alla fase 8 successiva.
+
+**Cosa aspettarsi dalla mappa**: il Mid-360 vede da -7 a +52 gradi, quindi volando a 1 m il
+pavimento entra solo oltre ~8 m: in uno spazio di 5 m la mappa ha pareti, soffitto e oggetti
+alti, quasi niente pavimento. La webcam colora solo cio' che il lidar ha misurato.
+
+Prova generale a casa: `./avvia_collaudo.sh sim`, poi `8` (con le fasi 0-7 della simulazione
+superate, o `-- --fase 8 --forza`): stessa sequenza con la telecamera simulata, senza domande
+sulle misure.
+
+Se la sessione SSH cade o arriva Ctrl+C, `avvia_collaudo.sh` spegne agente, lidar e stima solo
+**dopo** che `collaudo.py` (e la missione) hanno finito, cioe' a drone atterrato: fino al 7
+novembre 2026 alla caduta dell'SSH li spegneva subito, anche col drone in volo.
+
+## All'aperto: fasi 9 e 10 (novembre 2026)
+
+Obiettivo: esplorare un'area di **30 x 30 m in un campo aperto a 1 m/s** e farne la mappa 3D.
+Tre cose cambiano rispetto al chiuso, e la prima prova all'aperto (8 novembre 2026, fase 8 su un
+prato con alberi) le ha mostrate tutte:
+- **FAST-LIO aggancia meno punti**: 620-680 da fermo e ~340 in volo contro ~1500 al chiuso; con
+  la soglia di 500 (tarata al chiuso e in simulazione) `lio_to_px4_bridge` ha fatto atterrare il
+  drone 1.8 s dopo il decollo. Non e' un difetto della soglia: all'aperto la stima e' davvero piu'
+  debole, e senza pareti che fermino il drone una stima sbagliata e' un drone che se ne va.
+- **Le frontiere non si chiudono**: un raggio del lidar che non colpisce nulla (cielo, orizzonte
+  libero) non libera spazio nella mappa, e in simulazione `open_field` ha un recinto alto 5 m e il
+  parco una siepe proprio per questo. Rimedio: il **recinto virtuale** (`RECINTO_VIRTUALE=1`, vedi
+  il LEGGIMI principale): nelle direzioni senza ritorni si aggiungono alla mappa del pianificatore
+  raggi virtuali che liberano lo spazio, senza mai creare ostacoli.
+- **La webcam si satura al sole** (foto bianche al 75-93%, mappa colorata al 5%): prima della
+  missione `regola_webcam.py` mette l'esposizione manuale e cerca quella giusta. Non ancora
+  provato sulla webcam vera: se non accetta i comandi lo dice e resta automatica.
+
+**Prima di andare al campo**
+1. Profilo PX4 all'aperto: copia `scheda_sd_aperto/etc/config.txt` (`MPC_XY_VEL_MAX` 1.2,
+   `MPC_XY_CRUISE` 1.0) in `/etc/config.txt` della scheda SD, riavvio VERO del Pixhawk (stacca anche
+   l'USB), poi togli il file. Per tornare al chiuso c'e' `scheda_sd_chiuso/etc/config.txt` (0.6 e
+   0.5): al chiuso il tetto basso limita le correzioni brusche. Il collaudo non puo' leggere i
+   parametri di PX4 (il DDS non li porta): la fase 10 chiede conferma.
+2. Batteria: se non l'hai gia' fatto, `scheda_sd_una_volta/etc/config.txt` (stima della carica in
+   volo, vedi le note del 7 novembre). A 1 m/s per 7 minuti serve una batteria piena; con la stima
+   sbagliata il sorvegliante fa atterrare al falso 15%.
+3. Prova generale in simulazione (sotto).
+
+**Al campo**: area di 30 x 30 m segnata agli angoli, decollo al centro, e **libero anche 2 m oltre**
+(il sorvegliante fa atterrare a 2 m fuori dall'area); niente persone; vento debole; soffitto
+nessuno, ma alberi e oggetti alti dentro l'area li evita il pianificatore e quelli bassi (sotto
+1 m vicino al drone) il Mid-360 non li vede. **Senza radiocomando** le sole difese sono SPAZIO, il
+sorvegliante e il ponte della stima: le prime volte meglio un'area piu' piccola e piu' lenta
+(`-- --area-aperto 15 --vel-aperto 0.5`), e un radiocomando con interruttore di spegnimento
+collegato al Pixhawk resta fortemente consigliato. Le regole di volo all'aperto (ENAC/EASA) sono a
+carico di chi vola.
+
+```bash
+cd ros2_ws/scripts/collaudo && FAST_LIO_CONFIG=fast_lio_mid360_aperto.yaml ./avvia_collaudo.sh reale /dev/ttyACM0
+```
+`fast_lio_mid360_aperto.yaml` = quella da interno con `point_filter_num` 2 (piu' punti) e
+`det_range` 60 (superfici lontane): da verificare con la fase 9, che dice anche se il Jetson regge
+la frequenza. Poi, nella stessa sessione:
+
+- **Fase 9, a piedi, motori spenti**: drone appoggiato al centro dell'area, posizione e muso segnati
+  a terra. Sollevalo a ~1 m, vai al bordo, percorri tutto il perimetro, torna al centro e
+  riappoggialo sul segno com'era. Passa se FAST-LIO misura un'area di 30 x 30 m (entro il 15%: se
+  non vede lo spostamento, qui si scopre), il giro si chiude entro 0.5 m (o lo 0.5% del percorso),
+  quota entro 20 cm, imbardata entro 5 gradi, frequenza >= 8 Hz e punti agganciati sufficienti. La
+  soglia di atterraggio per la fase 10 diventa il 60% del 5o percentile dei punti agganciati del giro
+  (fra 150 e 500), in `collaudo_registri/aperto.json`; lidar, IMU e stima vengono registrati in
+  `risultati_prova/<data>_giro_a_piedi/` (servono a tarare FAST-LIO dopo; fuori da git). Vale 12
+  ore e solo con la stessa configurazione di FAST-LIO.
+- **Fase 10, la missione**: come la fase 8 (recinto, misure, webcam, `VOLA`, sorvegliante), con
+  area 30 x 30 m = recinto della missione, 1 m/s, al massimo 420 s di esplorazione, recinto
+  virtuale, margine del sorvegliante 2 m, quota d'allarme 2.6 m (a 1 m/s il drone simulato e'
+  salito fino a 2.21 m col riferimento a 2.0), soglia della fase 9, mappa 3D a celle da 5 cm
+  ritagliata all'area piu' 5 m. Altri valori: `-- --area-aperto`, `--vel-aperto`,
+  `--tempo-aperto`, `--margine-aperto`. In simulazione (campo 30 x 30 senza recinto, 1 m/s) la
+  missione dura ~6.5 minuti in volo, compreso circa un minuto fermo sulle ultime frontiere prima di
+  rientrare: sul drone vero serve una batteria piena.
+
+Prova generale a casa (campo 50 x 50 m senza recinto, con 10 ostacoli):
+```bash
+cd ros2_ws && python3 scripts/make_open_field.py /tmp/campo_aperto.sdf --half 25 --senza-recinto --ostacoli 10
+cd scripts/collaudo && ./avvia_collaudo.sh sim /tmp/campo_aperto.sdf -- --fase 10 --forza
+```
+(in simulazione le fasi 9 e 10 non chiedono misure; la missione gira senza recinto vero e con PX4
+al tetto del profilo all'aperto).
+
 ## Dopo il collaudo: la missione autonoma
 
 Con le fasi 0-7 superate sul drone vero (i controlli a terra della missione lo verificano in
-`collaudo_registri/esiti_reale.json`), la missione di esplorazione si avvia con
+`collaudo_registri/esiti_reale.json`), la missione di esplorazione si avvia con la fase 8 qui
+sopra, oppure da sola con
 ```bash
 cd ros2_ws && BOX="-1.5,-2,4,2" ./scripts/run_reale_exploration.sh /dev/ttyACM0
 ```
 (recinto in metri dal punto di decollo, x avanti, y sinistra; 0.3 m/s; SPAZIO = emergenza,
-`l` = atterra). Prima, a casa: `BOX=... ./scripts/run_reale_exploration.sh sim`. Tutto, e
-cosa resta da provare sul drone, nel LEGGIMI principale ("Missione di esplorazione sul drone
-vero").
+`l` = atterra). Da sola la missione avvia anche agente e driver, accende la webcam se c'e'
+(`FOTO`, `CAMERA_DEV`) e usa le misure date nelle variabili (`PARTENZA_Z`, `LIDAR_POS`,
+`CAMERA_POS`, `CAMERA_GIU`, `CAMERA_HFOV`: quelle della fase 8 sono in
+`collaudo_registri/misure_drone.json`). Prima, a casa: `BOX=... ./scripts/run_reale_exploration.sh sim`.
+Tutto, e cosa resta da provare sul drone, nel LEGGIMI principale ("Missione di esplorazione sul
+drone vero").
 
 ## Cosa NON e' ancora pronto
 
@@ -169,10 +316,13 @@ vero").
   principale (nuvola di FAST-LIO come mappa, `EKF2_EV_POS_*` a zero, velocita' vera).
 - Il Mid-360 vero vede da -7 a +52 gradi in verticale, il simulato da -50 a +50: ostacoli
   bassi vicini restano invisibili (vedi il LEGGIMI principale).
-- La telecamera: una webcam USB (sul drone del 19 ottobre una Logitech C170, `/dev/video0`)
-  la avvia `collaudo_reale.launch.py` con `cam2image` di image_tools, su `/camera/image_raw`,
-  640x480 a 10 Hz (`CAMERA_DEV`, `CAMERA=0` per non avviarla). Non serve al collaudo: la fase
-  1 ne misura solo la frequenza. La missione per ora fa la mappa grigia (la mappa colorata
-  vorrebbe la calibrazione della telecamera e la sua posizione rispetto al lidar).
+- La telecamera: una webcam USB (`/dev/video0`; il 7 novembre 2026 sul Jetson c'era una
+  Logitech UVC 046d:09c1, 640x480 a 30 fotogrammi/s) la avvia `collaudo_reale.launch.py` con
+  `cam2image` di image_tools, su `/camera/image_raw`, 640x480 a 10 Hz (`CAMERA_DEV`, `CAMERA=0`
+  per non avviarla): la fase 1 ne misura la frequenza. La missione (fase 8, o
+  `run_reale_exploration.sh` con `FOTO=1`) avvia un suo `cam2image` a 30 letture al secondo e
+  colora la mappa 3D con le sue foto. Mai provato in volo: ottica senza calibrazione (modello a
+  foro stenopeico dal campo di vista, distorsione ignorata) e misure della webcam prese a mano;
+  si correggono dopo il volo (`ricostruisci_mappa.py --cam_giu ...`).
 - La fase 1 conta i messaggi del lidar senza decodificarli: decodificati in Python (~20 000
   punti, ~0.1 s ciascuno) toglievano il tempo all'IMU, che risultava a 9 Hz invece di 200.

@@ -1,0 +1,27 @@
+{
+ "nome": "campo_aperto",
+ "origine": "/tmp/claude-1000/-home-draupnir-Documents-Drone-20261025-SWARM/d1720fc2-19ec-4719-8c66-3bf4a63e3faa/scratchpad/mondi/campo_aperto.sdf",
+ "droni": 1,
+ "tarato": false,
+ "zona": [
+  -19.8,
+  -19.19,
+  20.2,
+  20.82
+ ],
+ "quota_zona": 2.2,
+ "aperto": true,
+ "raggi_in_fuga": 0.804,
+ "recinto": false,
+ "soffitto": false,
+ "config_origine": "multi_drone_cubicle_office.yaml",
+ "partenze": [
+  "-0.303,1.315,0.227,0,0,0.0000"
+ ],
+ "avvisi": [
+  "zona da esplorare ridotta a 40 m lungo x (BOX per sceglierla)",
+  "zona da esplorare ridotta a 40 m lungo y (BOX per sceglierla)"
+ ],
+ "sdf": "/tmp/c2x_run_multi/mondo/campo_aperto.sdf",
+ "config": "/tmp/c2x_run_multi/mondo/config.yaml"
+}

@@ -1,0 +1,10 @@
+esito=atterrato
+missione_avviata=1
+archivio=/home/draupnir/Documents/Drone_20261025_SWARM/risultati_prova/2026-11-14_1209_reale-sim_campo_aperto_lio_v1
+fine_esplorazione=completa
+atterraggio_sorvegliante=
+failsafe_px4=0
+foto_attive=1
+mappa3d=/home/draupnir/Documents/Drone_20261025_SWARM/risultati_prova/2026-11-14_1209_reale-sim_campo_aperto_lio_v1/rel_mappa3d_1_1/mappa_realistica.ply
+foto=543
+colore=74

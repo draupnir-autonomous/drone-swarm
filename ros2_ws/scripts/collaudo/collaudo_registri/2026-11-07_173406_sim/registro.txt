@@ -1,0 +1,13 @@
+17:34:06 Collaudo C2-Explorer (SIMULAZIONE) - registro in /home/draupnir/Documents/Drone_20261025_SWARM/ros2_ws/scripts/collaudo/collaudo_registri/2026-11-07_173406_sim
+17:34:06 ATTENZIONE: fase 8 con fasi non superate [0, 1, 2, 3, 4, 5, 6, 7] (--forza)
+17:34:06 == FASE 8: missione completa con mappa 3D (webcam) ==
+17:34:06 Il drone DECOLLA DA SOLO a 1 m, gira su se stesso, esplora lo spazio a 0.3 m/s per al massimo 240 s, torna sul punto di decollo e atterra.
+17:34:06 Poi la mappa 3D: superficie dal lidar, colori dalle foto della webcam (qualche minuto).
+17:34:06 Il collaudo ferma la sua stima e passa la mano a run_reale_exploration.sh: controlli a terra, consenso (scrivi VOLA), sorvegliante con SPAZIO = EMERGENZA e l = atterra.
+17:34:06 Spazio libero: niente sotto 1 m vicino al drone (il Mid-360 non vede in basso vicino), soffitto ad almeno 2.8 m.
+17:34:06 Recinto della missione BOX="-2,-2,2,2" (m dal decollo, x avanti, y sinistra): il sorvegliante fa atterrare a 0.5 m oltre, al bordo dello spazio.
+17:34:06 Fermo la simulazione del collaudo (la missione ne avvia una sua)...
+17:34:08 Missione: BOX="-2,-2,2,2" VEL_MAX="0.3" TEMPO_MAX="240" FOTO="1" /home/draupnir/Documents/Drone_20261025_SWARM/ros2_ws/scripts/run_reale_exploration.sh sim cubicle_office
+17:34:17 == FASE 8: risultato della missione ==
+17:34:17 Missione non partita: interrotta prima del volo.
+17:34:17 FASE 8: NON SUPERATA - missione non partita: interrotta prima del volo

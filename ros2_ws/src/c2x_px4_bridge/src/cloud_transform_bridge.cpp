@@ -30,8 +30,11 @@
 #include <Eigen/Geometry>
 
 #include <algorithm>
+#include <climits>
+#include <cmath>
 #include <deque>
 #include <map>
+#include <random>
 #include <string>
 #include <vector>
 
@@ -97,6 +100,29 @@ public:
     // durante le transizioni (per esempio un drone che esce da un capannone).
     env_closed_enter_ = this->declare_parameter<double>("env_closed_enter", 0.60);
     env_open_enter_ = this->declare_parameter<double>("env_open_enter", 0.40);
+
+    // RECINTO VIRTUALE (campo aperto, novembre 2026). Un raggio del lidar che non incontra
+    // nulla non arriva qui (il driver del Mid-360 e FAST-LIO danno solo i ritorni, Gazebo un
+    // punto non finito), quindi non libera spazio nella mappa: in un campo aperto il volume
+    // sopra la quota del lidar resta ignoto per sempre e l'esplorazione a frontiere non si
+    // chiude. In simulazione per questo open_field ha un recinto vero alto 5 m e il parco una
+    // siepe. Qui, con recinto_virtuale, nelle DIREZIONI senza ritorni da almeno
+    // recinto_virtuale_scansioni scansioni (anche nelle celle vicine, per non passare ai bordi
+    // di un oggetto che restituisce) si aggiunge alla nuvola del PIANIFICATORE un punto
+    // virtuale a recinto_virtuale_distanza: oltre la portata della mappa (sdf_map.max_ray_length)
+    // e fuori dalla mappa, sdf_map lo tronca e libera lo spazio lungo il raggio SENZA segnare
+    // un ostacolo (inputPointCloud, tmp_flag 0). Direzioni in terna MONDO (celle di
+    // recinto_virtuale_passo gradi), cosi' non scorrono col giro iniziale; una cella conta solo
+    // se e' dentro il campo verticale del sensore (recinto_virtuale_fov_giu/su, in terna corpo)
+    // da altrettante scansioni. La mappa 3D (cloud_mappa3d) e il filtro di sicurezza del ponte
+    // dei comandi (che legge lidar/points) restano sui soli punti veri.
+    recinto_virtuale_ = this->declare_parameter<bool>("recinto_virtuale", false);
+    rv_scansioni_ = this->declare_parameter<int>("recinto_virtuale_scansioni", 5);
+    rv_distanza_ = this->declare_parameter<double>("recinto_virtuale_distanza", 60.0);
+    rv_fov_giu_ = this->declare_parameter<double>("recinto_virtuale_fov_giu", -7.0) * M_PI / 180.0;
+    rv_fov_su_ = this->declare_parameter<double>("recinto_virtuale_fov_su", 52.0) * M_PI / 180.0;
+    const double passo = this->declare_parameter<double>("recinto_virtuale_passo", 2.0);
+    if (recinto_virtuale_) preparaRecinto(passo);
 
     // Trasformazione di spawn, la stessa di odometry_bridge: serve per portare
     // in coordinate mondo la posa grezza di FAST-LIO.
@@ -188,6 +214,90 @@ private:
     Eigen::Vector3d p;
     Eigen::Quaterniond q;
   };
+
+  // ------------------------------------------------------------- recinto virtuale
+  // Celle di direzione in terna mondo: azimut [-pi, pi), elevazione [-pi/2, pi/2].
+  void preparaRecinto(double passo_gradi) {
+    passo_gradi = std::clamp(passo_gradi, 0.5, 10.0);
+    rv_naz_ = static_cast<int>(std::lround(360.0 / passo_gradi));
+    rv_nel_ = static_cast<int>(std::lround(180.0 / passo_gradi));
+    rv_passo_az_ = 2.0 * M_PI / rv_naz_;
+    rv_passo_el_ = M_PI / rv_nel_;
+    const size_t n = static_cast<size_t>(rv_naz_) * rv_nel_;
+    rv_ultimo_ritorno_.assign(n, INT_MIN / 2);
+    rv_osservabile_.assign(n, 0);
+    rv_dir_.resize(n);
+    for (int ie = 0; ie < rv_nel_; ++ie)
+      for (int ia = 0; ia < rv_naz_; ++ia)
+        rv_dir_[ie * rv_naz_ + ia] = direzione(-M_PI + (ia + 0.5) * rv_passo_az_,
+                                               -M_PI_2 + (ie + 0.5) * rv_passo_el_);
+    RCLCPP_WARN(this->get_logger(),
+        "[RecintoVirtuale] attivo: celle di %.1f gradi, %d scansioni senza ritorni, campo "
+        "verticale del sensore %.0f/%.0f gradi, punti virtuali a %.0f m",
+        passo_gradi, rv_scansioni_, rv_fov_giu_ * 180.0 / M_PI, rv_fov_su_ * 180.0 / M_PI,
+        rv_distanza_);
+  }
+
+  static Eigen::Vector3d direzione(double az, double el) {
+    return Eigen::Vector3d(std::cos(el) * std::cos(az), std::cos(el) * std::sin(az), std::sin(el));
+  }
+
+  // Un ritorno vero nella direzione d (dal sensore, terna mondo).
+  void segnaRitorno(const Eigen::Vector3d& d) {
+    const double az = std::atan2(d.y(), d.x());
+    const double el = std::atan2(d.z(), std::hypot(d.x(), d.y()));
+    const int ia = std::clamp(static_cast<int>((az + M_PI) / rv_passo_az_), 0, rv_naz_ - 1);
+    const int ie = std::clamp(static_cast<int>((el + M_PI_2) / rv_passo_el_), 0, rv_nel_ - 1);
+    rv_ultimo_ritorno_[ie * rv_naz_ + ia] = rv_scansione_;
+  }
+
+  // Punti virtuali per le celle senza ritorni (vedi recinto_virtuale nel costruttore). Un
+  // raggio per cella e per scansione, in una direzione a caso dentro la cella: col passare
+  // delle scansioni i raggi coprono tutta la cella invece di ripassare sempre sulla stessa riga.
+  size_t aggiungiRecinto(pcl::PointCloud<pcl::PointXYZ>& cloud, const Eigen::Vector3d& t,
+                         const Eigen::Quaterniond& q) {
+    const Eigen::Quaterniond qi = q.conjugate();
+    // Una cella di margine dai bordi del campo verticale: le celle a cavallo del bordo sono
+    // viste solo in parte e risulterebbero vuote anche davanti a un ostacolo.
+    const double giu = rv_fov_giu_ + rv_passo_el_, su = rv_fov_su_ - rv_passo_el_;
+    for (size_t k = 0; k < rv_dir_.size(); ++k) {
+      const Eigen::Vector3d v = qi * rv_dir_[k];
+      const double el = std::atan2(v.z(), std::hypot(v.x(), v.y()));
+      rv_osservabile_[k] = (el >= giu && el <= su) ? rv_osservabile_[k] + 1 : 0;
+    }
+    std::uniform_real_distribution<double> caso(0.0, 1.0);
+    size_t n = 0;
+    for (int ie = 0; ie < rv_nel_; ++ie) {
+      for (int ia = 0; ia < rv_naz_; ++ia) {
+        if (rv_osservabile_[ie * rv_naz_ + ia] < rv_scansioni_) continue;
+        bool vuota = true;
+        for (int de = -1; de <= 1 && vuota; ++de) {
+          const int je = ie + de;
+          if (je < 0 || je >= rv_nel_) continue;
+          for (int da = -1; da <= 1; ++da) {
+            const int ja = (ia + da + rv_naz_) % rv_naz_;
+            if (rv_scansione_ - rv_ultimo_ritorno_[je * rv_naz_ + ja] < rv_scansioni_) {
+              vuota = false;
+              break;
+            }
+          }
+        }
+        if (!vuota) continue;
+        const Eigen::Vector3d p = t + rv_distanza_ * direzione(
+            -M_PI + (ia + caso(rng_)) * rv_passo_az_, -M_PI_2 + (ie + caso(rng_)) * rv_passo_el_);
+        cloud.push_back(pcl::PointXYZ(static_cast<float>(p.x()), static_cast<float>(p.y()),
+                                      static_cast<float>(p.z())));
+        ++n;
+      }
+    }
+    rv_virtuali_ += n;
+    ++rv_scansioni_contate_;
+    static rclcpp::Clock orologio(RCL_STEADY_TIME);
+    RCLCPP_INFO_THROTTLE(this->get_logger(), orologio, 10000,
+        "[RecintoVirtuale] raggi virtuali: %zu in questa scansione, media %.0f per scansione",
+        n, double(rv_virtuali_) / std::max<size_t>(1, rv_scansioni_contate_));
+    return n;
+  }
 
   static Eigen::Vector3d posizione(const nav_msgs::msg::Odometry& o) {
     return Eigen::Vector3d(o.pose.pose.position.x, o.pose.pose.position.y, o.pose.pose.position.z);
@@ -338,6 +448,7 @@ private:
 
     const double min_range_sq = min_range_ * min_range_;
     size_t non_finite = 0;
+    if (recinto_virtuale_) ++rv_scansione_;
     for (const auto& p : cloud_in.points) {
       if (!std::isfinite(p.x) || !std::isfinite(p.y) || !std::isfinite(p.z)) {
         ++non_finite;
@@ -346,6 +457,8 @@ private:
       const double range_sq = double(p.x) * p.x + double(p.y) * p.y + double(p.z) * p.z;
       if (range_sq < min_range_sq) continue;  // self-hit, see min_range_
       Eigen::Vector3d p_world = q * Eigen::Vector3d(p.x, p.y, p.z) + t;
+      // Qualunque ritorno conta, anche su un compagno: in quella direzione qualcosa c'e'.
+      if (recinto_virtuale_) segnaRitorno(p_world - t);
       // 0 = su nessun compagno, 1 = su un compagno fermo, 2 = su un compagno in moto.
       int su_un_compagno = 0;
       for (const auto& c : centri_compagni) {
@@ -427,21 +540,39 @@ private:
     sensor_msgs::msg::PointCloud2 out_msg;
     pcl::toROSMsg(cloud_out, out_msg);
     out_msg.header.stamp = this->now();
+    if (recinto_virtuale_) {
+      // La mappa 3D prende i soli punti veri, il pianificatore anche quelli virtuali.
+      if (compagni_.empty()) cloud_mappa3d_pub_->publish(out_msg);
+      else pubblicaMappa3d(cloud_mappa3d, out_msg.header.stamp);
+      aggiungiRecinto(cloud_out, t, q);
+      cloud_out.width = cloud_out.points.size();
+      cloud_out.height = 1;
+      sensor_msgs::msg::PointCloud2 con_recinto;
+      pcl::toROSMsg(cloud_out, con_recinto);
+      con_recinto.header.stamp = out_msg.header.stamp;
+      cloud_pub_->publish(con_recinto);
+      return;
+    }
     cloud_pub_->publish(out_msg);
     // Nuvola per la MAPPA 3D (registra_mappa.py): senza nessun compagno, fermo o in moto.
     // Con un drone solo e' la stessa.
     if (compagni_.empty()) {
       cloud_mappa3d_pub_->publish(out_msg);
     } else {
-      cloud_mappa3d.width = cloud_mappa3d.points.size();
-      cloud_mappa3d.height = 1;
-      cloud_mappa3d.is_dense = true;
-      cloud_mappa3d.header.frame_id = "world";
-      sensor_msgs::msg::PointCloud2 m3d;
-      pcl::toROSMsg(cloud_mappa3d, m3d);
-      m3d.header.stamp = out_msg.header.stamp;
-      cloud_mappa3d_pub_->publish(m3d);
+      pubblicaMappa3d(cloud_mappa3d, out_msg.header.stamp);
     }
+  }
+
+  void pubblicaMappa3d(pcl::PointCloud<pcl::PointXYZ>& cloud_mappa3d,
+                       const builtin_interfaces::msg::Time& stamp) {
+    cloud_mappa3d.width = cloud_mappa3d.points.size();
+    cloud_mappa3d.height = 1;
+    cloud_mappa3d.is_dense = true;
+    cloud_mappa3d.header.frame_id = "world";
+    sensor_msgs::msg::PointCloud2 m3d;
+    pcl::toROSMsg(cloud_mappa3d, m3d);
+    m3d.header.stamp = stamp;
+    cloud_mappa3d_pub_->publish(m3d);
   }
 
   rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr cloud_pub_, cloud_mappa3d_pub_;
@@ -483,6 +614,18 @@ private:
   double up_ratio_avg_ = -1.0;
   bool env_closed_ = true;   // si parte assumendo chiuso: e' il caso conservativo
   bool env_published_ = false;
+
+  // Recinto virtuale (vedi il costruttore).
+  bool recinto_virtuale_ = false;
+  int rv_scansioni_ = 5;
+  double rv_distanza_ = 60.0, rv_fov_giu_ = 0.0, rv_fov_su_ = 0.0;
+  int rv_naz_ = 0, rv_nel_ = 0;
+  double rv_passo_az_ = 0.0, rv_passo_el_ = 0.0;
+  int rv_scansione_ = 0;
+  std::vector<int> rv_ultimo_ritorno_, rv_osservabile_;
+  std::vector<Eigen::Vector3d> rv_dir_;
+  size_t rv_virtuali_ = 0, rv_scansioni_contate_ = 0;
+  std::mt19937 rng_{12345};
 };
 
 int main(int argc, char* argv[]) {

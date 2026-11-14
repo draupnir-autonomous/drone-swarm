@@ -32,6 +32,7 @@ from launch_ros.actions import Node, SetParameter
 from launch.substitutions import LaunchConfiguration
 from ament_index_python.packages import get_package_share_directory
 
+import math
 import os
 import tempfile
 
@@ -201,6 +202,7 @@ def launch_setup(context, *args, **kwargs):
 
     # Drone vero o simulazione, e quale parte dello stack (vedi la nota in testa).
     reale = LaunchConfiguration('reale').perform(context).lower() in ('1', 'true')
+    recinto_virtuale = LaunchConfiguration('recinto_virtuale').perform(context).lower() in ('1', 'true')
     parte = LaunchConfiguration('parte').perform(context)
     # C2X_SOLO_STIMA=1 (collaudo in simulazione, run_multi_exploration.sh SOLO_STIMA=1) e'
     # la stessa cosa di parte:=stima.
@@ -544,9 +546,19 @@ def launch_setup(context, *args, **kwargs):
                 # resta quello del modello x500_mid360 (0, 0, 0.25), di serie nel ponte.
                 # drone_id/drone_num: toglie dalla nuvola i punti sui compagni (vedi
                 # peer_filter_radius nel ponte), che altrimenti finiscono in mappa.
+                # recinto_virtuale (campo aperto): punti virtuali nelle direzioni senza
+                # ritorni, per liberare lo spazio dove il lidar guarda il cielo (vedi il ponte).
+                # Campo verticale del sensore: Mid-360 vero montato dritto -7/+52 gradi,
+                # quello simulato del modello x500_mid360 +-50.
                 parameters=[dict(spawn_params, drone_id=drone_id, drone_num=drone_num,
                                  lio_topic=(f'{ns}/lio/odometry' if odom_source == 'lio' else ''),
-                                 **({'lidar_offset_body': lidar_offset} if reale else {}))],
+                                 **({'lidar_offset_body': lidar_offset} if reale else {}),
+                                 **({'recinto_virtuale': True,
+                                     'recinto_virtuale_fov_giu':
+                                         -math.degrees(MID360_GIU_RAD) if reale else -50.0,
+                                     'recinto_virtuale_fov_su':
+                                         math.degrees(MID360_SU_RAD) if reale else 50.0}
+                                    if recinto_virtuale else {}))],
             ),
             Node(
                 package='c2x_px4_bridge',
@@ -827,5 +839,11 @@ def generate_launch_description():
             description='Solo reale: posizione "x,y,z" (m; x avanti, y sinistra, z su) del Mid-360 '
                         'rispetto al punto di riferimento del drone, quello che spawn_poses mette '
                         'a quota z da terra. Va misurata sul drone.'),
+        DeclareLaunchArgument(
+            'recinto_virtuale', default_value='false',
+            description='true = campo aperto: nelle direzioni in cui il lidar non riceve nulla '
+                        '(cielo, orizzonte libero) punti virtuali liberano lo spazio nella mappa del '
+                        'pianificatore, come farebbe un recinto vero (cloud_transform_bridge). '
+                        'Senza, in un campo aperto le frontiere non si chiudono.'),
         OpaqueFunction(function=launch_setup),
     ])

@@ -1,0 +1,31 @@
+=== C2-Explorer multi-UAV: avvio (mondo: cubicle_office, droni: 1) ===
+mondo cubicle_office (/home/draupnir/Documents/Drone_20261025_SWARM/ros2_ws/src/c2x_worlds/worlds/cubicle_office.sdf)
+  tarato: partenze e configurazione da multi_drone_cubicle_office.yaml
+  partenze: -13.500,-4.000,0.227
+[0/6] Preparazione (mondo: cubicle_office, droni: 1)...
+    [preflight] 2 processi residui da una sessione precedente - li rimuovo
+    [preflight] processi residui eliminati
+    [preflight] 49 segmenti di memoria condivisa DDS rimossi
+    [preflight] registri di volo: 52 MB, niente da rimuovere
+    [preflight] risorse: 3 GB RAM disponibili, 43 GB su disco
+    [preflight] eseguibili e mondo 'cubicle_office' presenti
+    [preflight] binari allineati ai sorgenti
+    [preflight] tutti i controlli superati
+[1/6] Avvio di 1 istanze PX4 SITL + Gazebo (mondo: cubicle_office)...
+    OK - istanza 0 pronta (modello x500_mid360_0, pose -13.500,-4.000,0.227,0,0,0.0000).
+[2/6] Avvio Micro XRCE-DDS Agent...
+    OK - 1 sessioni PX4 connesse.
+[3/6] Avvio bridge + stack di esplorazione + relay swarm (config: /tmp/c2x_run_multi/mondo/config.yaml)...
+    Pronto per il collaudo: PX4 e FAST-LIO attivi, nessun pianificatore.
+    (scripts/collaudo/collaudo.py --sim; questo script si chiude con SIGTERM o Ctrl+C)
+
+[cleanup] Arresto di tutti i processi...
+./scripts/run_multi_exploration.sh: line 281: 78580 Killed                  ( cd "$inst_dir" || exit 1; export LD_LIBRARY_PATH="$PX4_BUILD/OpticalFlow/install/lib:$PX4_BUILD/external/Install/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"; export PX4_SYS_AUTOSTART=22000; export PX4_SIM_MODEL=gz_x500_mid360; export PX4_GZ_WORLD; export PX4_GZ_MODEL_POSE="$pose"; export PX4_GPS_DENIED="${PX4_GPS_DENIED:-0}"; export PX4_COLLAUDO="$SOLO_STIMA"; if [[ "$SHOW_GUI" =~ ^[Yy] ]] && [ "$inst" -eq 0 ]; then
+    "$PX4_BUILD/bin/px4" -i "$inst" -d "$PX4_BUILD/etc" > "$LOG_DIR/px4_$inst.log" 2>&1;
+else
+    HEADLESS=1 "$PX4_BUILD/bin/px4" -i "$inst" -d "$PX4_BUILD/etc" > "$LOG_DIR/px4_$inst.log" 2>&1;
+fi )
+./scripts/run_multi_exploration.sh: line 281: 79206 Killed                  ( MicroXRCEAgent udp4 -p 8888 > "$LOG_DIR/xrce.log" 2>&1 )
+./scripts/run_multi_exploration.sh: line 281: 79239 Killed                  ( source "$ROS2_SETUP"; source "$WS_SETUP"; export C2X_LIVO_DIR="$LOG_DIR/fast_livo2"; export C2X_SOLO_STIMA="$SOLO_STIMA"; ros2 launch exploration_manager multi_drone_exploration.launch.py odom_source:="${ODOM_SOURCE:-px4}" tempo_sim:="$([ "$TEMPO_SIM" = 1 ] && echo true || echo false)" ${RAGGIO_RADIO:+raggio_radio:="$RAGGIO_RADIO"} ${LINEA_VISTA:+linea_vista:="$([ "$LINEA_VISTA" = 1 ] && echo true || echo false)"} drone_num:="$DRONE_NUM" config_name:="$MONDO_CONFIG" world:="$PX4_GZ_WORLD" spawn_poses:="$SPAWN_POSES_ARG" initial_spin_rate:="$GIRO_INIZIALE" max_vel:="$VEL_MAX" photo_completion:="$([ "$FASE_FOTO" = 1 ] && echo true || echo false)" photo_yaw:="$([ "$IMBARDATA_FOTO" = 1 ] && echo true || echo false)" visit_completion:="$([ "$VISITA" = 1 ] && echo true || echo false)" > "$LOG_DIR/exploration.log" 2>&1 )
+
+[cleanup] Arresto di tutti i processi...

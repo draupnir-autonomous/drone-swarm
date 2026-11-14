@@ -1,0 +1,16 @@
+18:16:47 Collaudo C2-Explorer (DRONE VERO) - registro in /home/draupnir/Documents/Drone_20261025_SWARM/ros2_ws/scripts/collaudo/collaudo_registri/2026-11-07_181647_reale
+18:17:14 == FASE 7: quadrato automatico (o per partire) ==
+18:17:14 Istruzioni: t per decollare (sale da solo a 1 m). Quando compare "IN QUOTA: premi o", premi o: il drone fa DA SOLO un quadrato di 1.0 m (avanti, destra, indietro, sinistra) e torna fermo sul punto di partenza. Poi l per atterrare. Il quadrato NON parte da solo. SPAZIO = emergenza.
+18:17:19 Area libera, eliche montate, persone lontane, batteria carica. Procedo? [s/n] -> s
+18:17:29 decollo verso 1.0 m (offboard, 0.4 m/s)
+18:17:40 quota di decollo raggiunta (0.95 m): fermo in POSCTL
+18:17:40 IN QUOTA: premi o per il quadrato automatico
+18:17:46 quadrato di 1.0 m a 0.3 m/s (offboard)
+18:18:08 quadrato finito: fermo in POSCTL (l per atterrare)
+18:18:14 atterraggio comandato (l)
+18:18:25 FASE 7: SUPERATA - volo 52 s, distanza max 1.75 m, quota max 1.03 m, oscillazione da fermo 14 cm, allarme: nessuno, quadrato completato
+18:19:16 == FASE 8: missione completa con mappa 3D (webcam) ==
+18:19:16 Il drone DECOLLA DA SOLO a 1 m, gira su se stesso, esplora lo spazio a 0.3 m/s per al massimo 240 s, torna sul punto di decollo e atterra.
+18:19:16 Poi la mappa 3D: superficie dal lidar, colori dalle foto della webcam (qualche minuto).
+18:19:16 Il collaudo ferma la sua stima e passa la mano a run_reale_exploration.sh: controlli a terra, consenso (scrivi VOLA), sorvegliante con SPAZIO = EMERGENZA e l = atterra.
+18:19:16 Spazio libero: niente sotto 1 m vicino al drone (il Mid-360 non vede in basso vicino), soffitto ad almeno 2.8 m.

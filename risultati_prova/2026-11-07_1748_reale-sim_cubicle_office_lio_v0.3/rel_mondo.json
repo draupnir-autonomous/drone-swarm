@@ -1,0 +1,13 @@
+{
+ "nome": "cubicle_office",
+ "origine": "/home/draupnir/Documents/Drone_20261025_SWARM/ros2_ws/src/c2x_worlds/worlds/cubicle_office.sdf",
+ "droni": 1,
+ "tarato": true,
+ "config_origine": "multi_drone_cubicle_office.yaml",
+ "partenze": [
+  "-13.500,-4.000,0.227,0,0,0.0000"
+ ],
+ "avvisi": [],
+ "sdf": "/tmp/c2x_run_multi/mondo/cubicle_office.sdf",
+ "config": "/tmp/c2x_run_multi/mondo/config.yaml"
+}
