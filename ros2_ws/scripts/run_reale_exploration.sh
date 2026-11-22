@@ -70,7 +70,8 @@
 #   QUOTA_ALLARME=2.3      il sorvegliante fa atterrare sopra questa quota [m] (a 1 m/s all'aperto: 2.6)
 #   FAST_LIO_CONFIG        configurazione di FAST-LIO (di serie collaudo/fast_lio_mid360.yaml)
 #   SALUTE_MIN_AGGANCIATI  punti agganciati sotto cui lio_to_px4_bridge fa atterrare (di serie 500,
-#                          tarato al chiuso e in simulazione; all'aperto lo misura la fase 9)
+#                          tarato al chiuso e in simulazione; all'aperto lo ricava il collaudo:
+#                          dal giro a piedi, fase 9 facoltativa, o a drone fermo nella fase 10)
 #   VOXEL_MAPPA=0.02       lato delle celle della mappa 3D [m]
 #   RITAGLIO_MAPPA         se impostato, la mappa 3D tiene solo i punti entro BOX + questo margine
 #                          [m] (all'aperto il lidar vede fino a 40 m: senza, celle e RAM esplodono)

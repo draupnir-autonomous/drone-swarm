@@ -190,7 +190,7 @@ drone vero.
 Dettagli e perche' in `LEGGIMI_COLLAUDO.md`, "All'aperto: fasi 9 e 10". In ordine:
 
 1. **A casa**: profilo PX4 all'aperto (`scheda_sd_aperto/etc/config.txt` in `/etc/config.txt`
-   della scheda SD, riavvio vero, poi togli il file); batteria carica; prova generale in
+   della scheda SD, riavvio vero; il file puo' restare); batteria carica; prova generale in
    simulazione su un campo senza recinto (comandi nel LEGGIMI del collaudo).
 2. **Al campo**: area segnata agli angoli, libera anche 2 m oltre, decollo al centro, niente
    persone, vento debole, drone sempre in vista. Senza radiocomando le prime volte area piu'
@@ -198,9 +198,14 @@ Dettagli e perche' in `LEGGIMI_COLLAUDO.md`, "All'aperto: fasi 9 e 10". In ordin
    ```bash
    cd ros2_ws/scripts/collaudo && FAST_LIO_CONFIG=fast_lio_mid360_aperto.yaml ./avvia_collaudo.sh reale /dev/ttyACM0
    ```
-3. **Fase 9, a piedi, motori spenti**: dal centro al bordo, tutto il perimetro col drone in mano a
-   ~1 m, ritorno al centro sul segno. Se non passa, NON volare: il motivo e' scritto (stima che non
-   vede lo spostamento, giro che non si chiude, troppi pochi punti agganciati, Jetson lento).
-4. **Fase 10**: conferma del profilo PX4, misure, `VOLA`. SPAZIO = emergenza, `l` = atterra.
+3. **Fase 9, facoltativa, a piedi, motori spenti**: dal centro al bordo, tutto il perimetro col
+   drone in mano a ~1 m, ritorno al centro sul segno. Dice prima di volare se la stima regge in
+   quel campo e ne ricava la soglia di atterraggio. Se non passa il motivo e' scritto (stima che
+   non vede lo spostamento, giro che non si chiude, troppi pochi punti agganciati, Jetson lento):
+   meglio non volare, e la fase 10 chiede conferma. Per saltarla: INVIO nel menu propone la 10.
+4. **Fase 10**: conferma del profilo PX4, misure, conferma finale; senza un giro a piedi valido,
+   8 s a drone fermo sul decollo (nessuno lo tocchi) per la soglia di atterraggio della stima;
+   poi `VOLA`. SPAZIO = emergenza, `l` = atterra.
 5. **Dopo**: per tornare al chiuso `scheda_sd_chiuso/etc/config.txt` (tetto di nuovo a 0.6 m/s) e
-   `regola_webcam.py /dev/video0 --automatica` (esposizione automatica).
+   `regola_webcam.py /dev/video0 --automatica` (esposizione automatica). Portare la scheda SD (o
+   il suo `.ulg`): dal registro di volo si controllano i parametri che il Jetson non vede.

@@ -37,7 +37,7 @@ def generate_launch_description():
             package='fast_lio', executable='fastlio_mapping', name='fast_lio', namespace=ns,
             output='log',
             # FAST_LIO_CONFIG (avvia_collaudo.sh): per esempio fast_lio_mid360_aperto.yaml per le
-            # prove all'aperto (fase 9); un nome senza cartella si cerca accanto a questo file.
+            # prove all'aperto (fasi 9 e 10); un nome senza cartella si cerca accanto a questo file.
             parameters=[os.path.join(QUI, os.environ.get('FAST_LIO_CONFIG') or 'fast_lio_mid360.yaml')],
             remappings=[('/Odometry', f'{ns}/lio/odometry'),
                         ('/cloud_registered', f'{ns}/lio/cloud'),

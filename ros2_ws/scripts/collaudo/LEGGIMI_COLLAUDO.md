@@ -127,7 +127,8 @@ cd ros2_ws/scripts/collaudo && ./avvia_collaudo.sh sim
 ```
 
 Il programma mostra le fasi con `[ OK]` / `[ NO]`; INVIO esegue la prossima non superata.
-Non lascia saltare una fase non superata (si puo' con `--forza`, ma resta nel registro).
+Non lascia saltare una fase non superata (si puo' con `--forza`, ma resta nel registro), tranne
+la 9, facoltativa: la 10 non la richiede e INVIO nel menu la salta.
 
 | fase | eliche | cosa si fa | superata se |
 |---|---|---|---|
@@ -140,8 +141,8 @@ Non lascia saltare una fase non superata (si puo' con `--forza`, ma resta nel re
 | 6 volo manuale | si | `t` a 1 m, piccoli spostamenti con le frecce (~0.16 m/s), recinto 2 m | nessun allarme |
 | 7 quadrato automatico | si | `t`, poi `o`: quadrato di 1 m a 0.3 m/s in offboard, poi fermo; `l` atterra | nessun allarme |
 | 8 missione completa | si | spazio libero 5 x 5 m, drone al centro, webcam collegata: misure del drone, poi la missione di esplorazione (scrivi `VOLA`) e la mappa 3D colorata | atterrato da solo sul decollo, esplorazione conclusa, mappa 3D con le foto della webcam |
-| 9 FAST-LIO all'aperto | **no, motori spenti** | all'aperto, drone in mano a ~1 m: dal centro dell'area al bordo, tutto il perimetro, ritorno al centro | lato dell'area misurato entro il 15%, giro chiuso entro 0.5 m, FAST-LIO >= 8 Hz, abbastanza punti agganciati; ricava la soglia per la fase 10 |
-| 10 missione all'aperto | si | area 30 x 30 m (drone al centro) a 1 m/s, recinto virtuale, profilo PX4 all'aperto | come la fase 8 |
+| 9 FAST-LIO all'aperto (**facoltativa**) | **no, motori spenti** | all'aperto, drone in mano a ~1 m: dal centro dell'area al bordo, tutto il perimetro, ritorno al centro | lato dell'area misurato entro il 15%, giro chiuso entro 0.5 m, FAST-LIO >= 8 Hz, abbastanza punti agganciati; ricava la soglia per la fase 10 |
+| 10 missione all'aperto | si | area 30 x 30 m (drone al centro) a 1 m/s, recinto virtuale, profilo PX4 all'aperto; soglia della stima dalla fase 9 o, senza, misurata a drone fermo | come la fase 8 |
 
 Tasti in volo: frecce = sposta, `w`/`s` = su/giu', `a`/`d` = ruota, `t` = decolla (in
 offboard, con la quota che sale a 0.4 m/s fino a quella della fase, poi resta fermo in
@@ -231,7 +232,9 @@ prato con alberi) le ha mostrate tutte:
 - **FAST-LIO aggancia meno punti**: 620-680 da fermo e ~340 in volo contro ~1500 al chiuso; con
   la soglia di 500 (tarata al chiuso e in simulazione) `lio_to_px4_bridge` ha fatto atterrare il
   drone 1.8 s dopo il decollo. Non e' un difetto della soglia: all'aperto la stima e' davvero piu'
-  debole, e senza pareti che fermino il drone una stima sbagliata e' un drone che se ne va.
+  debole, e senza pareti che fermino il drone una stima sbagliata e' un drone che se ne va. La
+  soglia si ricava nel campo: dal giro a piedi (fase 9, facoltativa) o, senza, a drone fermo sul
+  decollo (fase 10).
 - **Le frontiere non si chiudono**: un raggio del lidar che non colpisce nulla (cielo, orizzonte
   libero) non libera spazio nella mappa, e in simulazione `open_field` ha un recinto alto 5 m e il
   parco una siepe proprio per questo. Rimedio: il **recinto virtuale** (`RECINTO_VIRTUALE=1`, vedi
@@ -244,9 +247,11 @@ prato con alberi) le ha mostrate tutte:
 **Prima di andare al campo**
 1. Profilo PX4 all'aperto: copia `scheda_sd_aperto/etc/config.txt` (`MPC_XY_VEL_MAX` 1.2,
    `MPC_XY_CRUISE` 1.0) in `/etc/config.txt` della scheda SD, riavvio VERO del Pixhawk (stacca anche
-   l'USB), poi togli il file. Per tornare al chiuso c'e' `scheda_sd_chiuso/etc/config.txt` (0.6 e
-   0.5): al chiuso il tetto basso limita le correzioni brusche. Il collaudo non puo' leggere i
-   parametri di PX4 (il DDS non li porta): la fase 10 chiede conferma.
+   l'USB). Lasciato sulla scheda, il file riapplica gli stessi valori a ogni avvio; per tornare al
+   chiuso va sostituito con `scheda_sd_chiuso/etc/config.txt` (0.6 e 0.5: al chiuso il tetto basso
+   limita le correzioni brusche). Il collaudo non puo' leggere i parametri di PX4 (il DDS non li
+   porta): la fase 10 chiede conferma. Il lettore di schede va su una porta USB-A del Jetson: quella
+   USB-C e' in modo dispositivo e non lo vede.
 2. Batteria: se non l'hai gia' fatto, `scheda_sd_una_volta/etc/config.txt` (stima della carica in
    volo, vedi le note del 7 novembre). A 1 m/s per 7 minuti serve una batteria piena; con la stima
    sbagliata il sorvegliante fa atterrare al falso 15%.
@@ -265,26 +270,33 @@ carico di chi vola.
 cd ros2_ws/scripts/collaudo && FAST_LIO_CONFIG=fast_lio_mid360_aperto.yaml ./avvia_collaudo.sh reale /dev/ttyACM0
 ```
 `fast_lio_mid360_aperto.yaml` = quella da interno con `point_filter_num` 2 (piu' punti) e
-`det_range` 60 (superfici lontane): da verificare con la fase 9, che dice anche se il Jetson regge
-la frequenza. Poi, nella stessa sessione:
+`det_range` 60 (superfici lontane): mai provata sul Jetson; la frequenza la controllano la fase 9
+e i controlli a terra della missione (almeno 8 Hz). Poi, nella stessa sessione:
 
-- **Fase 9, a piedi, motori spenti**: drone appoggiato al centro dell'area, posizione e muso segnati
-  a terra. Sollevalo a ~1 m, vai al bordo, percorri tutto il perimetro, torna al centro e
-  riappoggialo sul segno com'era. Passa se FAST-LIO misura un'area di 30 x 30 m (entro il 15%: se
+- **Fase 9, facoltativa, a piedi, motori spenti**: drone appoggiato al centro dell'area, posizione
+  e muso segnati a terra. Sollevalo a ~1 m, vai al bordo, percorri tutto il perimetro, torna al
+  centro e riappoggialo sul segno com'era. Passa se FAST-LIO misura un'area di 30 x 30 m (entro il 15%: se
   non vede lo spostamento, qui si scopre), il giro si chiude entro 0.5 m (o lo 0.5% del percorso),
   quota entro 20 cm, imbardata entro 5 gradi, frequenza >= 8 Hz e punti agganciati sufficienti. La
   soglia di atterraggio per la fase 10 diventa il 60% del 5o percentile dei punti agganciati del giro
   (fra 150 e 500), in `collaudo_registri/aperto.json`; lidar, IMU e stima vengono registrati in
   `risultati_prova/<data>_giro_a_piedi/` (servono a tarare FAST-LIO dopo; fuori da git). Vale 12
-  ore e solo con la stessa configurazione di FAST-LIO.
+  ore e solo con la stessa configurazione di FAST-LIO. Dice prima di volare, senza rischiare il
+  drone, se la stima regge in quel campo; si puo' saltare (INVIO nel menu propone direttamente la
+  10). Se la fai e non passa, la fase 10 chiede se volare lo stesso. Obbligatoria fino al 22
+  novembre 2026.
 - **Fase 10, la missione**: come la fase 8 (recinto, misure, webcam, `VOLA`, sorvegliante), con
   area 30 x 30 m = recinto della missione, 1 m/s, al massimo 420 s di esplorazione, recinto
   virtuale, margine del sorvegliante 2 m, quota d'allarme 2.6 m (a 1 m/s il drone simulato e'
-  salito fino a 2.21 m col riferimento a 2.0), soglia della fase 9, mappa 3D a celle da 5 cm
-  ritagliata all'area piu' 5 m. Altri valori: `-- --area-aperto`, `--vel-aperto`,
-  `--tempo-aperto`, `--margine-aperto`. In simulazione (campo 30 x 30 senza recinto, 1 m/s) la
-  missione dura ~6.5 minuti in volo, compreso circa un minuto fermo sulle ultime frontiere prima di
-  rientrare: sul drone vero serve una batteria piena.
+  salito fino a 2.21 m col riferimento a 2.0), mappa 3D a celle da 5 cm ritagliata all'area piu'
+  5 m. Soglia di atterraggio della stima: quella della fase 9 o, senza un giro a piedi valido,
+  misurata per 8 s a drone fermo sul decollo dopo la conferma finale (40% del 5o percentile dei
+  punti agganciati, fra 150 e 500: con i valori dell'8 novembre 250, contro i 336 del volo
+  normale; se gia' da fermo sono meno di 375 chiede se volare). Altri valori: `-- --area-aperto`,
+  `--vel-aperto`, `--tempo-aperto`, `--margine-aperto`, `--soglia-aperto` (soglia data a mano).
+  In simulazione (campo 30 x 30 senza recinto, 1 m/s) la missione dura ~6.5 minuti in volo,
+  compreso circa un minuto fermo sulle ultime frontiere prima di rientrare: sul drone vero serve
+  una batteria piena.
 
 Prova generale a casa (campo 50 x 50 m senza recinto, con 10 ostacoli):
 ```bash

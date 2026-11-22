@@ -1189,16 +1189,21 @@ anche `--lidar_offset -0.05,0,0.1` o `--cam_pos` con x negativa) argparse lo pre
 un'opzione: il registratore della mappa 3D moriva all'avvio ("expected one argument") e la run
 finiva senza mappa. Ora `run_reale_exploration.sh` passa i vettori con `=`.
 
-**Collaudo.** Fase 9 (a piedi, motori spenti): il giro del perimetro dell'area col drone in mano
-dice se FAST-LIO vede davvero lo spostamento in quel campo e ricava la soglia di atterraggio dei
-punti agganciati per la fase 10; registra lidar, IMU e stima per tarare FAST-LIO dopo. Fase 10:
-la missione, con la stessa funzione della fase 8 (`missione()` in `collaudo.py`) e i parametri
-dell'aperto (area = recinto, 1 m/s, 420 s, recinto virtuale, margine del sorvegliante 2 m, soglia
-della fase 9, mappa 3D a 5 cm ritagliata all'area + 5 m). Nuovi: `scheda_sd_aperto` e
-`scheda_sd_chiuso` (profili PX4 1.2 / 0.6 m/s), `fast_lio_mid360_aperto.yaml` (`point_filter_num`
-2, `det_range` 60), `regola_webcam.py` (esposizione manuale contro le foto bruciate dal sole), in
-`run_reale_exploration.sh` `MARGINE_RECINTO`, `FAST_LIO_CONFIG`, `VOXEL_MAPPA`, `RITAGLIO_MAPPA`,
-`TAGLIO_MAPPA`. Mai provati sul drone vero: fase 9, configurazione all'aperto di FAST-LIO,
+**Collaudo.** Fase 9, facoltativa (a piedi, motori spenti): il giro del perimetro dell'area col
+drone in mano dice se FAST-LIO vede davvero lo spostamento in quel campo e ricava la soglia di
+atterraggio dei punti agganciati per la fase 10; registra lidar, IMU e stima per tarare FAST-LIO
+dopo. Fase 10: la missione, con la stessa funzione della fase 8 (`missione()` in `collaudo.py`) e
+i parametri dell'aperto (area = recinto, 1 m/s, 420 s, recinto virtuale, margine del sorvegliante
+2 m, quota d'allarme 2.6 m, mappa 3D a 5 cm ritagliata all'area + 5 m). La soglia di atterraggio
+della stima (`SALUTE_MIN_AGGANCIATI`, di serie 500: l'8 novembre all'aperto il drone e' atterrato
+dopo 1.8 s con ~340 punti agganciati) viene dal giro a piedi (60% del 5o percentile dei punti
+agganciati del giro) o, senza, da 8 s a drone fermo sul decollo (40% del 5o percentile), sempre
+fra 150 e 500 (`--soglia-aperto` per darla a mano). Il giro a piedi e' facoltativo dal 22 novembre
+2026, su richiesta dell'utente. Nuovi: `scheda_sd_aperto` e `scheda_sd_chiuso` (profili PX4 1.2 /
+0.6 m/s), `fast_lio_mid360_aperto.yaml` (`point_filter_num` 2, `det_range` 60), `regola_webcam.py`
+(esposizione manuale contro le foto bruciate dal sole), in `run_reale_exploration.sh`
+`MARGINE_RECINTO`, `FAST_LIO_CONFIG`, `VOXEL_MAPPA`, `RITAGLIO_MAPPA`, `TAGLIO_MAPPA`,
+`QUOTA_ALLARME`. Mai provati sul drone vero: fasi 9 e 10, configurazione all'aperto di FAST-LIO,
 `regola_webcam.py`, recinto virtuale col Mid-360 (nuvola non organizzata, scansione non ripetitiva).
 
 ---

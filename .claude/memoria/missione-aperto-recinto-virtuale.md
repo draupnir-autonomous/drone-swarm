@@ -1,11 +1,11 @@
 ---
 name: missione-aperto-recinto-virtuale
-description: "14 nov 2026: missione all'aperto 30x30 a 1 m/s con mappa 3D — recinto virtuale nella mappa (campo aperto senza ritorni), fasi 9 (giro a piedi) e 10 del collaudo, profili PX4, argparse coi valori negativi"
+description: "14 nov 2026: missione all'aperto 30x30 a 1 m/s con mappa 3D — recinto virtuale nella mappa (campo aperto senza ritorni), fasi 9 (giro a piedi, facoltativa dal 22 nov) e 10 del collaudo, soglia della stima dal giro o da fermo, limiti fissi del sorvegliante da correggere, altra webcam al campo, ostacoli, profili PX4, argparse coi valori negativi"
 metadata:
   node_type: memory
   type: project
   originSessionId: d1720fc2-19ec-4719-8c66-3bf4a63e3faa
-  modified: 2026-11-14T18:51:06.279Z
+  modified: 2026-11-22T11:39:46.822Z
 ---
 
 Richiesta (14 nov 2026): esplorare un campo aperto di 30x30 m alla velocita' della simulazione
@@ -57,19 +57,60 @@ Altri fatti non ovvi:
   svuota a ogni avvio. Archivi reali e simulati fra ottobre e il 14 nov con MAPPA_REALISTICA=0 dopo
   una run con 1 possono avere lo stesso difetto.
 
-Collaudo: fase 9 "FAST-LIO all'aperto" (a piedi, motori spenti: perimetro dell'area col drone in
-mano; passa con area misurata entro il 15%, giro chiuso entro max(0.5 m, 0.5% del percorso), quota
-20 cm, imbardata 5 gradi, >= 8 Hz, p5 agganciati >= 250; soglia = 60% del p5 fra 150 e 500 in
-collaudo_registri/aperto.json, valida 12 h e con la stessa configurazione di FAST-LIO; registra
-lidar/IMU/stima in risultati_prova/<data>_giro_a_piedi). Fase 10 "missione all'aperto": come la 8
-(funzione missione() comune) con area = recinto, 1 m/s, 420 s, RECINTO_VIRTUALE, margine 2 m,
-SALUTE_MIN_AGGANCIATI dalla fase 9, mappa 3D a 5 cm ritagliata (area + 5 m), regola_webcam.py
-(esposizione manuale per il sole). Profili PX4 su scheda SD: scheda_sd_aperto (MPC_XY_VEL_MAX 1.2,
+Collaudo: fase 9 "FAST-LIO all'aperto", FACOLTATIVA dal 22 nov (a piedi, motori spenti: perimetro
+dell'area col drone in mano; passa con area misurata entro il 15%, giro chiuso entro max(0.5 m,
+0.5% del percorso), quota 20 cm, imbardata 5 gradi, >= 8 Hz, p5 agganciati >= 250; soglia = 60%
+del p5 fra 150 e 500 in collaudo_registri/aperto.json, valida 12 h e con la stessa configurazione
+di FAST-LIO; registra lidar/IMU/stima in risultati_prova/<data>_giro_a_piedi). Il 22 nov l'utente
+l'ha fatta prima togliere ("a cosa ti servirebbe?"), poi rimettere "opzionale, non obbligatoria":
+FACOLTATIVE = {9} in collaudo.py (fasi_mancanti non la pretende, prossima_fase/INVIO la salta).
+Fase 10 "missione all'aperto": come la 8 (funzione missione() comune) con area = recinto, 1 m/s,
+420 s, RECINTO_VIRTUALE, margine 2 m, QUOTA_ALLARME 2.6, mappa 3D a 5 cm ritagliata (area + 5 m),
+regola_webcam.py (esposizione manuale per il sole). SALUTE_MIN_AGGANCIATI: --soglia-aperto, se no
+il giro a piedi valido, se no 40% del p5 misurato 8 s a drone fermo sul decollo dopo la conferma
+finale, fra 150 e 500 (8 nov: da fermo 620-680, in volo 336 = 52%: 250 resta sotto il volo
+normale; sotto 375 da fermo chiede se volare). Giro a piedi di oggi NON superato: la fase 10 chiede
+se volare lo stesso (poi soglia da fermo). Profili PX4 su scheda SD: scheda_sd_aperto (MPC_XY_VEL_MAX 1.2,
 CRUISE 1.0) e scheda_sd_chiuso (0.6/0.5). fast_lio_mid360_aperto.yaml = point_filter_num 2,
-det_range 60. MAI provati su hardware: fase 9, fast_lio_mid360_aperto.yaml, regola_webcam.py,
+det_range 60. MAI provati su hardware: fasi 9 e 10, fast_lio_mid360_aperto.yaml, regola_webcam.py,
 recinto virtuale col Mid-360 vero (nuvola non organizzata, scansione non ripetitiva).
+
+22 nov: l'utente ha messo da se' /etc/config.txt col profilo all'aperto sulla SD del Pixhawk (non
+verificato: dal Jetson i parametri non si leggono, il DDS non li porta; controllo nel primo .ulg).
+Il lettore SD sulla porta USB-C della Jetson non viene enumerato (porta in modo dispositivo, quella
+del gadget L4T-README): solo porte USB-A. Per cambiare parametri senza scheda SD servirebbe MAVLink
+su TELEM1 (gia' attivo a 57600, MAV_0_CONFIG 101) con un adattatore USB-seriale 3.3 V.
+
+22 nov, NON corretto: sorveglia_missione.py ha limiti fissi tarati al chiuso che ignorano
+SALUTE_MIN_AGGANCIATI: in volo atterra se UN valore dei punti agganciati e' < 300 (riga 377,
+istantaneo), nei controlli a terra pretende >= 500 (riga 232). All'aperto (8 nov ~340 in volo)
+rischia di far atterrare subito; in simulazione non si vede (molti piu' punti). Proposta: in volo
+0.6 x soglia (300 su 500 come ora), a terra soglia / 0.6, invariato se SALUTE_MIN_AGGANCIATI
+non e' dato (fase 8).
+
+22 nov: al campo si usera' un'altra webcam (non la Logitech 046d:09c1, 640x480 YUYV 30 fps, delle
+prove al chiuso). Dipende dalla webcam: le misure in collaudo_registri/misure_drone.json
+(camera_pos, camera_giu, camera_hfov: quelle salvate sono della Logitech, HFOV 50), CAMERA_DEV
+(solo /dev/videoN), CAMERA_HZ (di serie 30: va messa uguale ai fotogrammi/s della webcam a
+640x480, se no cam2image legge fotogrammi vecchi fino a 0.1 s), CAMERA_RITARDO 0.05 (non si
+corregge dopo il volo). registra_mappa usa un obiettivo senza distorsione (fx dalla larghezza
+dell'immagine e dall'HFOV): con un grandangolo i colori ai bordi sono meno precisi. La webcam deve
+guardare in avanti e stare dritta (si misura solo l'inclinazione in giu'). regola_webcam.py e'
+generico (OpenCV V4L2: AUTO_EXPOSURE 1 = manuale, 3 = automatica; EXPOSURE in 100 us).
+Posizione, inclinazione e HFOV si correggono dopo il volo con ricostruisci_mappa.py.
+
+Ostacoli nel recinto (spiegato all'utente il 22 nov): mappa a 10 cm gonfiata di 0.3 m,
+sdf_map.optimistic e search.optimistic false (lo spazio ignoto non si attraversa), dist0 0.7 m,
+ripianificazione ogni 0.2 s, filtro di sicurezza del ponte dei comandi sui punti veri (da 0.9 m
+riduce la componente verso l'ostacolo, a 0.5 m la annulla) e limite di frenata (0.45 m dal centro),
+riferimento fra 1.0 e 2.0 m di quota (mai sotto 0.8). Effetto collaterale del recinto virtuale: una
+direzione SENZA ritorni diventa spazio libero invece che ignoto, quindi un ostacolo che non rimanda
+il raggio (vetro, acqua, fili) per il pianificatore e' libero. Zona cieca del Mid-360 (-7 gradi): a
+1 m di quota un ostacolo di 50 cm resta in vista solo oltre ~5 m, poi resta nella mappa; il rischio
+e' cio' che sta vicino al decollo. Persone in movimento: la mappa non e' fatta per loro.
 
 **Why:** l'utente vuole la missione all'aperto con mappa 3D; il primo tentativo all'aperto (8 nov)
 e' atterrato dopo 1.8 s per stima degradata, vedi [[collaudo-fase8-missione-webcam]].
-**How to apply:** prima di volare all'aperto: profilo PX4, fase 9 superata nel campo, poi fase 10;
+**How to apply:** prima di volare all'aperto: profilo PX4 sulla SD, se si vuole la fase 9 nel campo,
+poi la fase 10 (la prima volta ridotta);
 senza radiocomando area e velocita' ridotte le prime volte.

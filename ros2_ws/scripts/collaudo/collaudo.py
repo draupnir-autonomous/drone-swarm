@@ -5,6 +5,7 @@ Parla con PX4 via uXRCE-DDS (gli stessi topic /fmu/in e /fmu/out dei ponti del p
 guida l'operatore dalle verifiche a terra fino a un volo automatico semplice. Ogni fase dice
 cosa fare, misura, e dice SUPERATA o NON SUPERATA con i numeri; non si passa alla fase
 successiva se la precedente non e' superata (si puo' forzare, ma resta scritto nel registro).
+Fa eccezione la fase 9, facoltativa: la 10 non la richiede.
 
   0  Collegamento con PX4        stato, errori, batteria, comando manuale accettato
   1  Sensori                     frequenza del lidar, dell'IMU, della telecamera
@@ -17,11 +18,12 @@ successiva se la precedente non e' superata (si puo' forzare, ma resta scritto n
   8  Missione completa           esplorazione autonoma di uno spazio libero di 5 x 5 m (drone al
                                  centro) con run_reale_exploration.sh, poi mappa 3D colorata con
                                  le foto della webcam (fino al 7 novembre 2026 solo istruzioni)
-  9  FAST-LIO all'aperto         a piedi, motori spenti: giro del perimetro dell'area della fase 10
-                                 col drone in mano; chiusura del giro, lato misurato, frequenza,
-                                 punti agganciati -> soglia di atterraggio per la fase 10
+  9  FAST-LIO all'aperto         FACOLTATIVA. A piedi, motori spenti: giro del perimetro dell'area
+                                 della fase 10 col drone in mano; chiusura del giro, lato misurato,
+                                 frequenza, punti agganciati -> soglia di atterraggio per la fase 10
  10  Missione all'aperto         area di 30 x 30 m a 1 m/s con recinto virtuale (frontiere che si
-                                 chiudono anche senza pareti), poi mappa 3D (novembre 2026)
+                                 chiudono anche senza pareti), poi mappa 3D (novembre 2026); soglia
+                                 della stima dal giro a piedi o, senza, misurata a drone fermo
 
 SENZA RADIOCOMANDO questo programma e' il radiocomando: manda a PX4 le levette virtuali su
 /fmu/in/manual_control_input (PX4: COM_RC_IN_MODE = 1). Se il programma si ferma o il
@@ -1384,21 +1386,30 @@ def esito_missione(reg, r, rc, reale, fase=8):
 
 
 # ====================================================================== all'aperto
-# FASE 9 (novembre 2026): FAST-LIO all'aperto, a piedi e motori spenti. L'8 novembre 2026 la
-# prima missione su un prato con alberi e' atterrata da sola 1.8 s dopo il decollo: FAST-LIO
-# agganciava ~340 punti in volo (al chiuso >= 1218) e lio_to_px4_bridge, con la soglia di 500
-# tarata al chiuso e in simulazione, ha chiesto l'atterraggio. All'aperto non ci sono pareti che
-# fermino il drone se la stima sbaglia, e senza radiocomando l'unica difesa e' sapere PRIMA che
-# la stima in quel campo funziona. Col drone in mano si percorre il perimetro dell'area della
-# missione e si torna al punto di partenza: la fase controlla che FAST-LIO veda davvero il
-# percorso (lato dell'area misurato, chiusura del giro, frequenza), registra lidar e IMU per
-# tarare FAST-LIO dopo, e ricava dai punti agganciati del giro la soglia di atterraggio per la
-# fase 10 (collaudo_registri/aperto.json). Come la fase 3, ma all'aperto e su 100+ m.
+# FASE 9 (novembre 2026), FACOLTATIVA dal 22 novembre: FAST-LIO all'aperto, a piedi e motori
+# spenti. L'8 novembre 2026 la prima missione su un prato con alberi e' atterrata da sola 1.8 s
+# dopo il decollo: FAST-LIO agganciava 620-680 punti da fermo e ~340 in volo (al chiuso ~1500 e
+# >= 1218), e lio_to_px4_bridge, con la soglia di 500 tarata al chiuso e in simulazione, ha
+# chiesto l'atterraggio. All'aperto non ci sono pareti che fermino il drone se la stima sbaglia, e
+# senza radiocomando conviene sapere PRIMA che la stima in quel campo funziona. Col drone in mano
+# si percorre il perimetro dell'area della missione e si torna al punto di partenza: la fase
+# controlla che FAST-LIO veda davvero il percorso (lato dell'area misurato, chiusura del giro,
+# frequenza), registra lidar e IMU per tarare FAST-LIO dopo, e ricava dai punti agganciati del giro
+# la soglia di atterraggio per la fase 10 (collaudo_registri/aperto.json). Come la fase 3, ma
+# all'aperto e su 100+ m.
+# Facoltativa su richiesta dell'utente (22 novembre 2026): senza un giro a piedi valido la fase 10
+# ricava la soglia nel campo, a drone fermo nel punto di decollo e con la stessa configurazione di
+# FAST-LIO della missione: SOGLIA_DA_FERMO volte il 5o percentile dei punti agganciati, fra
+# SOGLIA_APERTO_MIN e SOGLIA_APERTO_MAX. L'8 novembre in volo i punti erano il 52% di quelli da
+# fermo: col 40% la soglia resta sotto il volo normale (250 contro 336) e scatta se la stima perde
+# davvero i suoi appigli. Senza giro a piedi la prima verifica della stima in quel campo avviene in
+# volo (la prima volta con area e velocita' ridotte).
 FILE_APERTO = os.path.join(QUI, 'collaudo_registri', 'aperto.json')
 CARTELLA_RISULTATI = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(QUI))), 'risultati_prova')
 SOGLIA_APERTO_MIN, SOGLIA_APERTO_MAX = 150, 500   # punti agganciati, soglia per la fase 10
-FRAZIONE_SOGLIA = 0.6         # soglia = 60% del 5o percentile del giro a piedi
-VALIDITA_APERTO_H = 12.0      # ore: la prova a piedi vale per quel campo e quel giorno
+FRAZIONE_SOGLIA = 0.6         # dal giro a piedi: 60% del 5o percentile del giro
+SOGLIA_DA_FERMO = 0.4         # senza giro a piedi: 40% del 5o percentile a drone fermo
+VALIDITA_APERTO_H = 12.0      # ore: il giro a piedi vale per quel campo e quel giorno
 PX4_VEL_APERTO = 1.2          # MPC_XY_VEL_MAX del profilo scheda_sd_aperto (1 m/s di missione)
 
 
@@ -1412,8 +1423,33 @@ def percentile(v, p):
     return s[min(len(s) - 1, int(p / 100.0 * len(s)))] if s else float('nan')
 
 
+def soglia_da_fermo(d, reg, durata=8.0):
+    """Soglia di atterraggio per lio_to_px4_bridge (SALUTE_MIN_AGGANCIATI) dai punti agganciati di
+    FAST-LIO a drone fermo nel punto di decollo (vedi sopra), o None se la stima non arriva."""
+    if not attendi(lambda: d.get('salute') is not None, 10):
+        stampa(reg, 'Nessun dato di salute da FAST-LIO (/drone_1/lio/salute): la stima gira?')
+        return None
+    stampa(reg, f'Misuro per {durata:.0f} s i punti agganciati da FAST-LIO a drone fermo (nessuno lo tocchi)...')
+    campioni, ultimo = [], None
+    t0 = time.monotonic()
+    while time.monotonic() - t0 < durata:
+        s = d.get('salute')
+        if s is not None and s is not ultimo and len(s.data) >= 2:
+            ultimo = s
+            campioni.append(s.data[1])
+        time.sleep(0.05)
+    if not campioni:
+        return None
+    p5 = percentile(campioni, 5)
+    soglia = int(round(SOGLIA_DA_FERMO * p5 / 10.0) * 10)
+    soglia = max(SOGLIA_APERTO_MIN, min(SOGLIA_APERTO_MAX, soglia))
+    stampa(reg, f'Punti agganciati da fermo: 5o percentile {p5:.0f}, minimo {min(campioni):.0f} -> soglia '
+                f'di atterraggio della stima in volo {soglia} (di serie 500, tarata al chiuso)')
+    return soglia, p5
+
+
 def fase9(d, reg, a):
-    stampa(reg, '== FASE 9: FAST-LIO all\'aperto (giro a piedi, motori spenti) ==')
+    stampa(reg, '== FASE 9 (facoltativa): FAST-LIO all\'aperto (giro a piedi, motori spenti) ==')
     if a.sim:
         return True, 'simulazione: niente giro a piedi (FAST-LIO sul lidar simulato)'
     if d.armato():
@@ -1421,6 +1457,9 @@ def fase9(d, reg, a):
     config = os.path.basename(os.environ.get('FAST_LIO_CONFIG') or 'fast_lio_mid360.yaml')
     lato = a.area_aperto
     for r in [
+        'Fase facoltativa: dice prima di volare se la stima regge in questo campo e ne ricava la '
+        'soglia di atterraggio per la fase 10. Senza, la fase 10 misura la soglia a drone fermo e la '
+        'stima si mette alla prova in volo.',
         f'All\'aperto, nel campo della missione: area di {lato:g} x {lato:g} m segnata agli angoli, '
         'drone appoggiato al CENTRO (il punto di decollo) col muso verso un lato. Segna a terra '
         'posizione e direzione del muso: alla fine il drone torna li\' uguale.',
@@ -1560,28 +1599,33 @@ def fase9(d, reg, a):
 
 
 def prova_a_piedi(reg):
-    """Esito della fase 9 utilizzabile dalla fase 10 (stesso giorno, stessa configurazione di
-    FAST-LIO di questa sessione), o None col motivo gia' scritto."""
+    """Ultimo giro a piedi (fase 9, facoltativa) che vale per la fase 10: di oggi
+    (VALIDITA_APERTO_H) e con la stessa configurazione di FAST-LIO di questa sessione. Restituisce
+    il suo esito, superato o no, oppure None col motivo gia' scritto (soglia misurata da fermo)."""
     try:
         with open(FILE_APERTO) as f:
             e = json.load(f)
     except (OSError, ValueError):
-        stampa(reg, 'Manca la prova a piedi (fase 9) all\'aperto: falla in questo campo prima di volare.')
+        stampa(reg, 'Giro a piedi (fase 9, facoltativa) non fatto: la soglia di atterraggio della '
+                    'stima si misura a drone fermo sul decollo.')
         return None
     config = os.path.basename(os.environ.get('FAST_LIO_CONFIG') or 'fast_lio_mid360.yaml')
     eta_h = (time.time() - e.get('epoca', 0)) / 3600.0
-    if not e.get('ok'):
-        stampa(reg, 'L\'ultima prova a piedi (fase 9) non e\' superata: rifalla.')
-    elif eta_h > VALIDITA_APERTO_H:
-        stampa(reg, f'La prova a piedi (fase 9) e\' di {eta_h:.0f} ore fa: rifalla in questo campo, oggi.')
-    elif e.get('config') != config:
-        stampa(reg, f'La prova a piedi e\' stata fatta con {e.get("config")}, questa sessione usa '
-                    f'{config}: rifalla (o riavvia con FAST_LIO_CONFIG={e.get("config")}).')
-    else:
-        stampa(reg, f'Prova a piedi delle {e["quando"][11:16]}: {e["percorso_m"]:.0f} m, chiusura '
+    if eta_h > VALIDITA_APERTO_H:
+        stampa(reg, f'L\'ultimo giro a piedi (fase 9) e\' di {eta_h:.0f} ore fa, non vale per oggi: la '
+                    'soglia di atterraggio della stima si misura a drone fermo sul decollo.')
+        return None
+    if e.get('config') != config:
+        stampa(reg, f'L\'ultimo giro a piedi (fase 9) e\' stato fatto con {e.get("config")}, questa '
+                    f'sessione usa {config}: non vale, la soglia si misura a drone fermo sul decollo.')
+        return None
+    if e.get('ok'):
+        stampa(reg, f'Giro a piedi delle {e["quando"][11:16]}: {e["percorso_m"]:.0f} m, chiusura '
                     f'{100 * e["errore_xy_m"]:.0f} cm, soglia di atterraggio {e["soglia"]} punti agganciati.')
-        return e
-    return None
+    else:
+        stampa(reg, f'ATTENZIONE: il giro a piedi delle {e["quando"][11:16]} NON e\' superato: '
+                    + '; '.join(e.get('problemi') or ['motivo non registrato']))
+    return e
 
 
 def regola_webcam(reg, dev):
@@ -1671,10 +1715,17 @@ def missione(d, reg, a, aperto):
             env.update(SIM_RECINTO='0', SIM_PX4_VEL_MAX=f'{PX4_VEL_APERTO:g}')
     else:
         if aperto:
-            prova = prova_a_piedi(reg)
-            if prova is None:
-                return False, 'prova a piedi (fase 9) mancante, vecchia o con altra configurazione'
-            env['SALUTE_MIN_AGGANCIATI'] = str(prova['soglia'])
+            # Soglia di atterraggio della stima (SALUTE_MIN_AGGANCIATI): a mano (--soglia-aperto),
+            # dal giro a piedi di oggi (fase 9, facoltativa) o, senza, misurata a drone fermo sul
+            # decollo subito prima di passare alla missione.
+            prova = None
+            if a.soglia_aperto <= 0:
+                prova = prova_a_piedi(reg)
+                if prova is not None and not prova.get('ok'):
+                    if chiedi(reg, 'Col giro a piedi non superato la stima in questo campo puo\' sbagliare '
+                                   'in volo. Volo lo stesso, con la soglia misurata a drone fermo? [s/n]') != 's':
+                        return False, 'giro a piedi (fase 9) non superato'
+                    prova = None
             if chiedi(reg, f'Sul Pixhawk c\'e\' il profilo all\'aperto (scheda_sd_aperto/etc/config.txt: '
                            f'MPC_XY_VEL_MAX {PX4_VEL_APERTO:g})? Senza, PX4 resta a 0.6 m/s. [s/n]') != 's':
                 return False, 'profilo PX4 all\'aperto non caricato'
@@ -1692,6 +1743,26 @@ def missione(d, reg, a, aperto):
         if chiedi(reg, 'Drone appoggiato nel punto di decollo col muso lungo x, eliche montate, spazio '
                        'sgombro, nessuno entro 3 m, batteria carica. Passo alla missione? [s/n]') != 's':
             return False, 'annullata'
+        if aperto:
+            if a.soglia_aperto > 0:
+                soglia = int(a.soglia_aperto)
+                stampa(reg, f'Soglia di atterraggio della stima data a mano: {soglia} punti agganciati')
+            elif prova is not None:
+                soglia = int(prova['soglia'])
+                stampa(reg, f'Soglia di atterraggio della stima dal giro a piedi: {soglia} punti agganciati')
+            else:
+                # Senza giro a piedi valido (vedi SOGLIA_DA_FERMO): col FAST-LIO del collaudo, stessa
+                # configurazione della missione, drone gia' sul decollo.
+                misura = soglia_da_fermo(d, reg)
+                if misura is None:
+                    return False, 'nessun dato da FAST-LIO per la soglia di atterraggio'
+                soglia, p5 = misura
+                if p5 < SOGLIA_APERTO_MIN / SOGLIA_DA_FERMO and chiedi(
+                        reg, f'ATTENZIONE: FAST-LIO aggancia pochi punti gia\' da fermo ({p5:.0f}): in volo '
+                             'potrebbero scendere sotto la soglia minima e la stima e\' debole. Volo lo '
+                             'stesso? [s/n]') != 's':
+                    return False, f'troppo pochi punti agganciati da fermo ({p5:.0f})'
+            env['SALUTE_MIN_AGGANCIATI'] = str(soglia)
     riepilogo = os.path.join(reg.dir, 'missione_riepilogo.txt')
     env['RIEPILOGO'] = riepilogo
     # Da qui la stima del collaudo non c'e' piu': finita la fase collaudo.py si chiude.
@@ -1746,7 +1817,22 @@ FASI = {0: fase0, 1: fase1, 2: fase2, 3: fase3, 4: fase4,
 NOMI = {0: 'collegamento con PX4', 1: 'sensori', 2: 'FAST-LIO a drone fermo',
         3: 'assi e stima dentro PX4', 4: 'motori SENZA eliche', 5: 'hover trattenuto',
         6: 'volo manuale', 7: 'quadrato automatico', 8: 'missione completa con mappa 3D (webcam)',
-        9: 'FAST-LIO all\'aperto (giro a piedi)', 10: 'missione all\'aperto'}
+        9: 'FAST-LIO all\'aperto, giro a piedi (facoltativa)', 10: 'missione all\'aperto'}
+# Fasi che le successive non richiedono e che INVIO salta: il giro a piedi (facoltativo dal 22
+# novembre 2026, richiesta dell'utente; senza, la fase 10 misura la soglia della stima da fermo).
+FACOLTATIVE = {9}
+
+
+def prossima_fase(esiti):
+    """La fase proposta con INVIO: la prima non superata, saltando le facoltative."""
+    return next((n for n in sorted(FASI)
+                 if n not in FACOLTATIVE and not esiti.get(str(n), {}).get('ok')), None)
+
+
+def fasi_mancanti(scelta, esiti):
+    """Le fasi da superare prima di scelta (le facoltative no)."""
+    return [n for n in range(scelta)
+            if n not in FACOLTATIVE and not esiti.get(str(n), {}).get('ok')]
 
 
 def main():
@@ -1787,8 +1873,11 @@ def main():
                     help='fase 10: tetto al tempo di esplorazione [s]')
     ap.add_argument('--margine-aperto', type=float, default=2.0,
                     help='fase 10: il sorvegliante fa atterrare oltre l\'area + questo margine [m]')
+    ap.add_argument('--soglia-aperto', type=int, default=0,
+                    help='fase 10: soglia di atterraggio della stima (punti agganciati); 0 = dal '
+                         'giro a piedi di oggi (fase 9) o, senza, misurata a drone fermo sul decollo')
     a = ap.parse_args()
-    a.esci = False      # la fase 8 ferma la stima del collaudo: dopo, si esce
+    a.esci = False      # le fasi 8 e 10 fermano la stima del collaudo: dopo, si esce
     pre = '/drone_1' if a.sim else ''
     a.lio = a.lio or (pre + '/lio/odometry' if a.sim else '/drone_1/lio/odometry')
     a.salute = a.salute or '/drone_1/lio/salute'
@@ -1831,8 +1920,7 @@ def main():
                 if r == 'x':
                     break
                 if r == '':
-                    scelta = next((n for n in sorted(FASI)
-                                   if not reg.esiti.get(str(n), {}).get('ok')), None)
+                    scelta = prossima_fase(reg.esiti)
                     if scelta is None:
                         print('Tutte superate.')
                         continue
@@ -1843,7 +1931,7 @@ def main():
                         continue
             if scelta not in FASI:
                 continue
-            mancanti = [n for n in range(scelta) if not reg.esiti.get(str(n), {}).get('ok')]
+            mancanti = fasi_mancanti(scelta, reg.esiti)
             if mancanti and not a.forza:
                 print(f'Prima vanno superate le fasi {mancanti} (oppure --forza).')
                 continue

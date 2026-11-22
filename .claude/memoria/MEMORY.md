@@ -6,4 +6,5 @@
 - [Batteria del drone vero sbagliata in volo](batteria-stima-px4-drone-vero.md) — 7 nov: 14% in volo e 69% a terra; PX4 stima solo dalla tensione, calo sotto carico scoperto, servono gli ulg
 - [Fase 8 del collaudo: missione 5x5 con webcam](collaudo-fase8-missione-webcam.md) — 7 nov: missione completa dal collaudo, DAL_COLLAUDO, segnali SSH, QoS/ritardo cam2image, misure del drone; superata l'8 nov 10:47 al chiuso
 - [GPU della Jetson che non si accende](jetson-gpu-non-si-accende.md) — 8 nov 11:13: nvgpu ACR bootstrap failed, Vulkan/Open3D/Gazebo in crash; non e' la sandbox; controllo e riavvio
-- [Missione all'aperto e recinto virtuale](missione-aperto-recinto-virtuale.md) — 14 nov: 30x30 a 1 m/s, raggi senza ritorno e frontiere, recinto virtuale nel ponte nuvole, fasi 9-10, profili PX4, argparse e valori negativi
+- [Missione all'aperto e recinto virtuale](missione-aperto-recinto-virtuale.md) — 14 nov: 30x30 a 1 m/s, raggi senza ritorno e frontiere, recinto virtuale nel ponte nuvole, fasi 9 (facoltativa) e 10, limiti fissi del sorvegliante, altra webcam, ostacoli, profili PX4
+- [Verifiche del collaudo facoltative](verifiche-facoltative.md) — 22 nov: una fase di verifica che blocca il volo va spiegata e, se c'e' un ripiego automatico, resa facoltativa

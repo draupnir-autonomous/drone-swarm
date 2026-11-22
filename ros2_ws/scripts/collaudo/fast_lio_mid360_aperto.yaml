@@ -3,9 +3,11 @@
 # da fermo e ~340 in volo (al chiuso ~1500 e >= 1218): il ponte della stima ha fatto atterrare il
 # drone dopo 1.8 s (soglia 500). All'aperto molti ritorni sono sul terreno lontano e radente e sulle
 # chiome, pochi su superfici piane vicine. Due cambi, entrambi DA VERIFICARE con la fase 9 del
-# collaudo (giro a piedi: punti agganciati, frequenza della stima, chiusura del giro):
+# collaudo (giro a piedi, facoltativo: punti agganciati, frequenza della stima, chiusura del giro)
+# o, senza, al primo volo (punti agganciati da fermo nella fase 10, frequenza nei controlli a terra):
 #  - point_filter_num 2 invece di 3: un punto su due invece di uno su tre del driver, ~1.5 volte i
-#    punti in ingresso (piu' lavoro per il Jetson: la fase 9 controlla che resti a ~10 Hz);
+#    punti in ingresso (piu' lavoro per il Jetson: la fase 9 e i controlli a terra della missione
+#    pretendono almeno 8 Hz);
 #  - det_range 60 invece di 40: il Mid-360 restituisce fino a ~70 m dalle superfici chiare (edifici,
 #    muri lontani), che vincolano la posizione orizzontale proprio dove il campo e' vuoto.
 # Uso: FAST_LIO_CONFIG=fast_lio_mid360_aperto.yaml ./avvia_collaudo.sh reale /dev/ttyACM0
